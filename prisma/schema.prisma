@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model agendamentos {
+  Id_Agendamento Int                  @id @default(autoincrement())
+  Id_Servico     Int
+  Id_Cliente     Int
+  Id_Funcionario Int?
+  Data           DateTime?            @db.Date
+  HoraInicio     DateTime?            @db.Time(0)
+  HoraFinal      DateTime?            @db.Time(0)
+  Status         agendamentos_Status?
+  Observacoes    String?              @db.VarChar(255)
+  servicos       servicos             @relation(fields: [Id_Servico], references: [Id_Servico], onDelete: NoAction, onUpdate: NoAction, map: "agendamentos_ibfk_1")
+  clientes       clientes             @relation(fields: [Id_Cliente], references: [Id_Cliente], onDelete: NoAction, onUpdate: NoAction, map: "agendamentos_ibfk_2")
+  funcionarios   funcionarios?        @relation(fields: [Id_Funcionario], references: [Id_Funcionario], onDelete: NoAction, onUpdate: NoAction, map: "agendamentos_ibfk_3")
+  pagamentos     pagamentos[]
+
+  @@index([Id_Cliente], map: "Id_Cliente")
+  @@index([Id_Funcionario], map: "Id_Funcionario")
+  @@index([Id_Servico], map: "Id_Servico")
+}
+
+model clientes {
+  Id_Cliente     Int            @id @default(autoincrement())
+  Nome           String?        @db.VarChar(60)
+  Email          String?        @db.VarChar(255)
+  Telemovel      String?        @db.Char(90)
+  Senha          String?        @db.Char(60)
+  DataNascimento DateTime?      @db.DateTime(0)
+  Morada         String?        @db.VarChar(50)
+  Nif            Int?
+  agendamentos   agendamentos[]
+}
+
+model disponibilidadeprod {
+  Id_Produto Int
+  Id_Servico Int
+
+  produtos   produtos @relation(fields: [Id_Produto], references: [Id_Produto], onDelete: NoAction, onUpdate: NoAction, map: "disponibilidadeprod_ibfk_1")
+  servicos   servicos @relation(fields: [Id_Servico], references: [Id_Servico], onDelete: NoAction, onUpdate: NoAction, map: "disponibilidadeprod_ibfk_2")
+
+  @@id([Id_Produto, Id_Servico]) // chave primária composta
+  @@index([Id_Produto], map: "Id_Produto")
+  @@index([Id_Servico], map: "Id_Servico")
+}
+
+
+model funcionarios {
+  Id_Funcionario Int                  @id @default(autoincrement())
+  Nome           String?              @db.VarChar(255)
+  Email          String?              @db.VarChar(255)
+  Administrador  Boolean?             @default(false)
+  Senha          String?              @db.Char(60)
+  Status         funcionarios_Status? @default(Ativo)
+  agendamentos   agendamentos[]
+}
+
+model imagens {
+  Id_Imagem     Int       @id @default(autoincrement())
+  Id_Produto    Int?
+  CaminhoImagem String?   @db.VarChar(512)
+  AltText       String?   @db.VarChar(255)
+  produtos      produtos? @relation(fields: [Id_Produto], references: [Id_Produto], onDelete: NoAction, onUpdate: NoAction, map: "imagens_ibfk_1")
+
+  @@index([Id_Produto], map: "Id_Produto")
+}
+
+model pagamentos {
+  Id_Pagamentos  Int                    @id @default(autoincrement())
+  Valor          Int?
+  Status         pagamentos_Status?
+  Modalidade     pagamentos_Modalidade? @default(Online)
+  Fatura         Int?
+  Id_Agendamento Int?
+  agendamentos   agendamentos?          @relation(fields: [Id_Agendamento], references: [Id_Agendamento], onDelete: NoAction, onUpdate: NoAction, map: "pagamentos_ibfk_1")
+
+  @@index([Id_Agendamento], map: "Id_Agendamento")
+}
+
+model produtos {
+  Id_Produto          Int                   @id @default(autoincrement())
+  Nome                String?               @db.VarChar(80)
+  Estoque             Int?
+  EstoqueCritico      Int?
+  disponibilidadeprod disponibilidadeprod[] @ignore
+  imagens             imagens[]
+  servicos            servicos[]
+}
+
+model servicos {
+  Id_Servico          Int                   @id @default(autoincrement())
+  Nome                String?               @db.VarChar(80)
+  Descricao           String?               @db.VarChar(200)
+  Duracao             Int?
+  Valor               Int?
+  Id_Produto          Int?
+  agendamentos        agendamentos[]
+  disponibilidadeprod disponibilidadeprod[] 
+  produtos            produtos?             @relation(fields: [Id_Produto], references: [Id_Produto], onDelete: NoAction, onUpdate: NoAction, map: "servicos_ibfk_1")
+
+  @@index([Id_Produto], map: "Id_Produto")
+}
+
+enum pagamentos_Status {
+  OK
+  NOK
+}
+
+enum pagamentos_Modalidade {
+  Presencial
+  Online
+}
+
+enum funcionarios_Status {
+  Ativo
+  Inativo
+}
+
+enum agendamentos_Status {
+  Realizado
+  Confirmado
+  Cancelado
+  Marcado
+}
