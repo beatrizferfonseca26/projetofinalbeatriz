@@ -45,50 +45,63 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md animate-fade-in">
-      <h3 className="text-lg font-bold mb-4 text-center">Login</h3>
-
-      <form onSubmit={handleLogin} className="flex flex-col gap-4">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 rounded"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Senha"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-          className="border p-2 rounded"
-          required
-        />
-
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md relative animate-fade-in">
+        {/* Botão X */}
         <button
-          type="submit"
-          className="bg-black text-white py-2 rounded hover:bg-gray-800 transition"
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl"
         >
-          Entrar
+          ✕
         </button>
-      </form>
 
-      <button
-        onClick={onClose}
-        className="text-sm text-gray-500 hover:underline mt-3 block text-center"
-      >
-        Cancelar
-      </button>
+        <h3 className="text-lg font-bold mb-4 text-center">Login</h3>
 
-      <button
-        onClick={onSwitchToRegister}
-        className="text-sm text-blue-600 hover:underline mt-2 block text-center"
-      >
-        Criar Conta
-      </button>
+        <form onSubmit={handleLogin} className="flex flex-col gap-4">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="border p-2 rounded"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Senha"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            className="border p-2 rounded"
+            required
+          />
+
+          {error && <p className="text-red-600 text-sm">{error}</p>}
+
+          {/* Botão Entrar */}
+          <button
+            type="submit"
+            className="bg-black text-white py-2 rounded hover:bg-gray-800 transition"
+          >
+            Entrar
+          </button>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="bg-gray-300 text-black py-2 rounded hover:bg-gray-400 transition"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="button"
+            onClick={onSwitchToRegister}
+            className="bg-gray-300 text-black py-2 rounded hover:bg-gray-400 transition"
+          >
+            Criar Conta
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

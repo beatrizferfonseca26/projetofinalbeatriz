@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface Imagem {
   Id_Imagem: number;
@@ -23,19 +23,45 @@ interface Servico {
   produtos?: Produto | null;
 }
 
-interface ServicosCardProps {
-  servicos: Servico[];
-}
+export default function ServicosCard() {
+  const [servicos, setServicos] = useState<Servico[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default function ServicosCard({ servicos }: ServicosCardProps) {
+  useEffect(() => {
+    const fetchServicos = async () => {
+      try {
+        const res = await fetch('/api/interna/servicos');
+        if (!res.ok) {
+          throw new Error(`Erro ao buscar serviços: ${res.status}`);
+        }
+        const data: Servico[] = await res.json();
+        setServicos(data);
+      } catch (error) {
+        console.error('Erro ao carregar serviços:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServicos();
+  }, []);
+
+  if (loading) {
+    return <p className="text-center py-8">Carregando serviços...</p>;
+  }
+
+  if (servicos.length === 0) {
+    return <p className="text-center py-8">Nenhum serviço disponível no momento.</p>;
+  }
+
   return (
     <div className="w-full px-4 py-8 bg-gray-50">
-      <h2 className="text-2xl font-semibold mb-6 text-center">Serviços Disponíveis</h2>
+      <h2 className="text-2xl font-semibold mb-6 text-center">Nossos Serviços</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-7xl mx-auto">
         {servicos.map((servico) => {
           const produto = servico.produtos;
-          const imagem = produto?.imagens[0]; // pega a primeira imagem do produto (se existir)
-          const imageUrl = imagem?.CaminhoImagem || '/placeholder.png'; // placeholder se não tiver imagem
+          const imagem = produto?.imagens[0];
+          const imageUrl = imagem?.CaminhoImagem || '/placeholder.jpg';
           const altText = imagem?.AltText || servico.Nome || 'Imagem do serviço';
 
           return (

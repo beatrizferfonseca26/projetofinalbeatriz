@@ -3,6 +3,8 @@
 import { useRef, useState, useEffect } from 'react';
 import LoginModal from '@/components/loginModal';
 import RegisterModal from '@/components/registerModal';
+import NavBar from '@/components/navBar';
+import ServicosCard from '@/components/servicosCard';
 
 interface Imagem {
   Id_Imagem: number;
@@ -25,112 +27,45 @@ interface Servico {
   produtos?: Produto | null;
 }
 
-function ServicosCard({
-  servicos,
-  detalhesVisiveis,
-  toggleDetalhes,
-}: {
-  servicos: Servico[];
-  detalhesVisiveis: Record<number, boolean>;
-  toggleDetalhes: (id: number) => void;
-}) {
-  return (
-    <section className="w-full bg-gray-50 px-4 py-8">
-      <h2 className="text-2xl font-semibold mb-6 text-center">Serviços Disponíveis</h2>
-      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {servicos.map((servico) => {
-          const produto = servico.produtos;
-          const imagem = produto?.imagens[0];
-          const imageUrl = imagem?.CaminhoImagem || '/placeholder.png';
-          const altText = imagem?.AltText || servico.Nome || 'Imagem do serviço';
-          const detalhesAbertos = detalhesVisiveis[servico.Id_Servico];
-
-          return (
-            <div
-              key={servico.Id_Servico}
-              className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col"
-            >
-              <img src={imageUrl} alt={altText} className="w-full h-48 object-cover" loading="lazy" />
-              <div className="p-4 flex flex-col flex-grow">
-                <h3 className="text-lg font-bold mb-2">{servico.Nome}</h3>
-                {detalhesAbertos ? (
-                  <>
-                    <p className="text-gray-600">{servico.Descricao}</p>
-                    <button
-                      onClick={() => toggleDetalhes(servico.Id_Servico)}
-                      className="mt-4 text-indigo-600 hover:underline self-start"
-                    >
-                      Mostrar menos
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-gray-600 line-clamp-3">{servico.Descricao}</p>
-                    <button
-                      onClick={() => toggleDetalhes(servico.Id_Servico)}
-                      className="mt-4 text-indigo-600 hover:underline self-start"
-                    >
-                      Ver mais
-                    </button>
-                  </>
-                )}
-                <div className="mt-auto flex justify-between items-center pt-4 border-t border-gray-200">
-                  <span className="text-sm font-medium text-gray-700">
-                    Duração: {servico.Duracao ?? '?'} min
-                  </span>
-                  <span className="text-sm font-semibold text-indigo-600">
-                    R$ {servico.Valor ?? '?'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
 export default function Home() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
-  const [servicos, setServicos] = useState<Servico[]>([]);
-  const [detalhesVisiveis, setDetalhesVisiveis] = useState<Record<number, boolean>>({});
+  const [showNav, setShowNav] = useState(false);
 
+  const mainRef = useRef<HTMLDivElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
 
   const handleOpenModal = () => {
     setIsLoginModalOpen(true);
-
     setTimeout(() => {
       modalRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
   };
 
+  // Exibir navbar quando main sai do topo
   useEffect(() => {
-    fetch('/api/interna/servicos/disponibilidade')
-      .then(res => res.json())
-      .then(data => setServicos(data))
-      .catch(console.error);
+    function handleScroll() {
+      if (mainRef.current) {
+        const mainBottom = mainRef.current.getBoundingClientRect().bottom;
+        setShowNav(mainBottom <= 0);
+      }
+    }
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  function toggleDetalhes(id: number) {
-    setDetalhesVisiveis(prev => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  }
 
   return (
     <div>
+      {showNav && <NavBar />}
+
+      {/* HERO PRINCIPAL */}
       <main
+        ref={mainRef} // importante para cálculo no scroll
         style={{
           display: 'flex',
           flexDirection: 'row',
           width: '100vw',
           height: '100vh',
-          minHeight: '100vh',
-          minWidth: '100vw',
           padding: 0,
           margin: 0,
         }}
@@ -143,8 +78,6 @@ export default function Home() {
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: 'whitesmoke',
-            color: 'black',
-            height: '100%',
             gap: '1rem',
           }}
         >
@@ -158,38 +91,60 @@ export default function Home() {
           >
             Agende já
           </button>
+
+          <button
+            onClick={() => document.getElementById('sobre-nos')?.scrollIntoView({ behavior: 'smooth' })}
+            className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
+          >
+            Sobre Nós
+          </button>
+
+          <button
+            onClick={() => document.getElementById('servicos-card')?.scrollIntoView({ behavior: 'smooth' })}
+            className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
+          >
+            Serviços
+          </button>
         </div>
 
         <div
           style={{
             flex: 1,
-            height: '100%',
-            backgroundImage: 'url(/salao.jpg)',
+            backgroundImage: 'url(/salao1.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
         />
       </main>
 
-      {/* Aqui está o container com os cards de serviços */}
-      <ServicosCard
-        servicos={servicos}
-        detalhesVisiveis={detalhesVisiveis}
-        toggleDetalhes={toggleDetalhes}
-      />
+      {/* SOBRE NÓS */}
+      <section
+        id="sobre-nos"
+        style={{
+          backgroundColor: 'black',
+          color: 'white',
+          padding: '3rem 1rem',
+          textAlign: 'center',
+        }}
+      >
+        <h2 className="text-3xl font-extrabold mb-6">Sobre nós</h2>
+        <p className="max-w-3xl mx-auto text-lg leading-relaxed">
+            No coração da nossa cidade, nasceu o <span className="text-indigo-400 font-bold">Sallon</span>, um espaço pensado para valorizar a beleza, o bem-estar e a autoestima de cada cliente. O que começou como um sonho de oferecer cuidados personalizados e de qualidade, hoje é uma realidade que combina tradição, técnica e inovação.<br /><br />
+          Somos apaixonados pelo que fazemos. Nossa equipe é formada por <span className="text-indigo-400 font-bold">profissionais qualificados</span>, sempre atualizados com as últimas tendências em cortes, coloração, tratamentos capilares, manicure, pedicure, maquiagem, depilação e estética. Mais do que serviços, entregamos experiências — cada atendimento é planejado para que você se sinta único(a) e especial.<br /><br />
+          Além de cuidar da sua beleza, oferecemos uma linha exclusiva de produtos para que você mantenha em casa os resultados conquistados no salão. E para facilitar ainda mais sua rotina, desenvolvemos uma plataforma online onde você pode agendar seu horário e adquirir produtos com poucos cliques, no conforto e segurança que merece.<br /><br />
+          No Sallon, acreditamos que a beleza é única, e nosso propósito é realçá-la todos os dias. Venha viver essa experiência com a gente.
+        </p>
+      </section>
 
-      {/* Modais com fundo escurecido, sobrepostos à página */}
+      {/* SERVIÇOS */}
+      <section id="servicos-card">
+        <ServicosCard />
+      </section>
+
+      {/* MODAIS */}
       <div ref={modalRef}>
         {isLoginModalOpen && (
-          <div
-            style={{
-              width: '100vw',
-              display: 'flex',
-              justifyContent: 'center',
-              backgroundColor: 'black',
-              padding: '2rem 0',
-            }}
-          >
+          <div className="bg-black p-8">
             <LoginModal
               isOpen={isLoginModalOpen}
               onClose={() => setIsLoginModalOpen(false)}
@@ -200,19 +155,16 @@ export default function Home() {
             />
           </div>
         )}
-
         {isRegisterModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <RegisterModal isOpen={isRegisterModalOpen} onClose={() => setIsRegisterModalOpen(false)} />
           </div>
         )}
       </div>
 
-      <footer
-        className="p-2 text-center md:block hidden"
-        style={{ borderTop: '1px', padding: '20px', backgroundColor: 'black', color: 'white' }}
-      >
-        <p className="text-xs font-normal">Powered by Beatriz Fonseca | {new Date().getFullYear()}</p>
+      {/* FOOTER */}
+      <footer className="p-4 text-center bg-black text-white">
+        <p>Powered by Beatriz Fonseca | {new Date().getFullYear()}</p>
       </footer>
     </div>
   );
