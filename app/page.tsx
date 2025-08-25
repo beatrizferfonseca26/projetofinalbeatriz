@@ -31,8 +31,12 @@ export default function Home() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [showNav, setShowNav] = useState(false);
+  const [activeSection, setActiveSection] = useState('inicio');
 
+  // Refs para as seções
   const mainRef = useRef<HTMLDivElement | null>(null);
+  const sobreRef = useRef<HTMLElement | null>(null);
+  const servicosRef = useRef<HTMLElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
 
   const handleOpenModal = () => {
@@ -54,72 +58,138 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  return (
-    <div>
-      {showNav && <NavBar />}
+  // Atualiza a seção ativa conforme o scroll
+  useEffect(() => {
+    function onScroll() {
+      const mainTop = mainRef.current?.getBoundingClientRect().top ?? 0;
+      const sobreTop = sobreRef.current?.getBoundingClientRect().top ?? 0;
+      const servicosTop = servicosRef.current?.getBoundingClientRect().top ?? 0;
 
-      {/* HERO PRINCIPAL */}
-      <main
-        ref={mainRef} // importante para cálculo no scroll
+      if (mainTop <= 50 && sobreTop > 50) {
+        setActiveSection('inicio');
+      } else if (sobreTop <= 50 && servicosTop > 50) {
+        setActiveSection('sobre-nos');
+      } else if (servicosTop <= 50) {
+        setActiveSection('servicos-card');
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Navbar customizada
+  const navLinks = [
+    { name: 'Início', id: 'inicio' },
+    { name: 'Sobre Nós', id: 'sobre-nos' },
+    { name: 'Serviços', id: 'servicos-card' },
+  ];
+
+return (
+  <div>
+    {/* Navbar dinâmica */}
+    {showNav && (
+      <nav className="bg-black text-white px-6 py-4 shadow-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="text-xl font-bold text-white">Sallon</div>
+          <div className="flex gap-6">
+            {navLinks.map((link) => (
+              <button
+                key={link.id}
+                onClick={() => {
+                  if (link.id === 'inicio') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    document
+                      .getElementById(link.id)
+                      ?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className={`transition-colors duration-300 px-2 py-1 rounded ${
+                  activeSection === link.id
+                    ? 'bg-gray-700 text-white'
+                    : 'text-white hover:bg-gray-800 hover:text-indigo-300'
+                }`}
+              >
+                {link.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      </nav>
+    )}
+
+    {/* HERO PRINCIPAL */}
+    <main
+      ref={mainRef}
+      id="inicio"
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        width: '100vw',
+        height: '100vh',
+        padding: 0,
+        margin: 0,
+      }}
+    >
+      <div
         style={{
+          flex: 1,
           display: 'flex',
-          flexDirection: 'row',
-          width: '100vw',
-          height: '100vh',
-          padding: 0,
-          margin: 0,
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'whitesmoke',
+          gap: '1rem',
         }}
       >
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'whitesmoke',
-            gap: '1rem',
-          }}
+        <h2 style={{ fontSize: '2rem', fontWeight: 700, textAlign: 'center' }}>
+          Sallon - Beleza com hora marcada
+        </h2>
+
+        <button
+          onClick={handleOpenModal}
+          className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
         >
-          <h2 style={{ fontSize: '2rem', fontWeight: 700, textAlign: 'center' }}>
-            Sallon - Beleza com hora marcada
-          </h2>
+          Agende já
+        </button>
 
-          <button
-            onClick={handleOpenModal}
-            className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
-          >
-            Agende já
-          </button>
+        <button
+          onClick={() =>
+            document
+              .getElementById('sobre-nos')
+              ?.scrollIntoView({ behavior: 'smooth' })
+          }
+          className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
+        >
+          Sobre Nós
+        </button>
 
-          <button
-            onClick={() => document.getElementById('sobre-nos')?.scrollIntoView({ behavior: 'smooth' })}
-            className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
-          >
-            Sobre Nós
-          </button>
+        <button
+          onClick={() =>
+            document
+              .getElementById('servicos-card')
+              ?.scrollIntoView({ behavior: 'smooth' })
+          }
+          className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
+        >
+          Serviços
+        </button>
+      </div>
 
-          <button
-            onClick={() => document.getElementById('servicos-card')?.scrollIntoView({ behavior: 'smooth' })}
-            className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
-          >
-            Serviços
-          </button>
-        </div>
-
-        <div
-          style={{
-            flex: 1,
-            backgroundImage: 'url(/salao1.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-      </main>
-
+      <div
+        style={{
+          flex: 1,
+          backgroundImage: 'url(/salao1.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
+    </main>
       {/* SOBRE NÓS */}
       <section
         id="sobre-nos"
+        ref={sobreRef}
         style={{
           backgroundColor: 'black',
           color: 'white',
@@ -137,7 +207,7 @@ export default function Home() {
       </section>
 
       {/* SERVIÇOS */}
-      <section id="servicos-card">
+      <section id="servicos-card" ref={servicosRef}>
         <ServicosCard />
       </section>
 

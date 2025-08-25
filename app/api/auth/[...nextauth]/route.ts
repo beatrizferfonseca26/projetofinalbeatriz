@@ -1,4 +1,5 @@
-import NextAuth from 'next-auth';
+
+import NextAuth, { AuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
@@ -10,7 +11,7 @@ interface MyUser extends User {
   tipo: string;
 }
 
-const handler = NextAuth({
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -18,36 +19,28 @@ const handler = NextAuth({
         email: { label: 'Email', type: 'text' },
         senha: { label: 'Senha', type: 'password' },
       },
-      // authorize aceita 2 parâmetros: credentials e req (request)
-      async authorize(
-        credentials: Record<'email' | 'senha', string> | undefined,
-        req?: any
-      ): Promise<MyUser | null> {
+      async authorize(credentials) {
         if (!credentials) return null;
 
         const { email, senha } = credentials;
 
-        // Busca cliente
         const cliente = await prisma.clientes.findFirst({
           where: { Email: email || '' },
         });
-        
-        console.log('Senha enviada:', senha);
-        console.log('Senha hash no banco:', cliente?.Senha);
 
         if (cliente && cliente.Senha && bcrypt.compareSync(senha, cliente.Senha)) {
           return {
             id: cliente.Id_Cliente.toString(),
-            email: cliente.Email ?? '', 
+            email: cliente.Email ?? '',
             nome: cliente.Nome,
             tipo: 'cliente',
           };
         }
 
-        // Busca funcionário
         const funcionario = await prisma.funcionarios.findFirst({
           where: { Email: email || '' },
         });
+
         if (funcionario && funcionario.Senha && bcrypt.compareSync(senha, funcionario.Senha)) {
           return {
             id: funcionario.Id_Funcionario.toString(),
@@ -62,11 +55,11 @@ const handler = NextAuth({
     }),
   ],
   pages: {
-    signIn: '/', 
+    signIn: '/',
   },
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 dias
+    maxAge: 30 * 24 * 60 * 60,
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -83,6 +76,8 @@ const handler = NextAuth({
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
