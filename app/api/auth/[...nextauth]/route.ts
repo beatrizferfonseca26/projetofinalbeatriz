@@ -1,52 +1,44 @@
+import NextAuth, { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
-import NextAuth, { AuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
-import type { User } from 'next-auth';
-
-interface MyUser extends User {
-  id: string;
-  nome: string | null;
-  tipo: string;
-}
-
-export const authOptions: AuthOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: 'Credentials',
+      name: "credentials",
       credentials: {
-        email: { label: 'Email', type: 'text' },
-        senha: { label: 'Senha', type: 'password' },
+        email: { label: "Email", type: "text" },
+        senha: { label: "Senha", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials) return null;
+        if (!credentials?.email || !credentials?.senha) return null;
 
-        const { email, senha } = credentials;
-
+        // 🔹 Buscar Cliente
         const cliente = await prisma.clientes.findFirst({
-          where: { Email: email || '' },
+          where: { Email: credentials.email },
         });
 
-        if (cliente && cliente.Senha && bcrypt.compareSync(senha, cliente.Senha)) {
+        if (cliente && cliente.Senha && bcrypt.compareSync(credentials.senha, cliente.Senha)) {
           return {
             id: cliente.Id_Cliente.toString(),
-            email: cliente.Email ?? '',
-            nome: cliente.Nome,
-            tipo: 'cliente',
+            email: cliente.Email ?? "",
+            name: cliente.Nome ?? "",
+            tipo: "cliente",
           };
         }
 
+        // 🔹 Buscar Funcionário
         const funcionario = await prisma.funcionarios.findFirst({
-          where: { Email: email || '' },
+          where: { Email: credentials.email },
         });
 
-        if (funcionario && funcionario.Senha && bcrypt.compareSync(senha, funcionario.Senha)) {
+        if (funcionario && funcionario.Senha && bcrypt.compareSync(credentials.senha, funcionario.Senha)) {
           return {
             id: funcionario.Id_Funcionario.toString(),
-            email: funcionario.Email ?? '',
-            nome: funcionario.Nome,
-            tipo: funcionario.Administrador ? 'administrador' : 'funcionario',
+            email: funcionario.Email ?? "",
+            name: funcionario.Nome ?? "",
+            tipo: funcionario.Administrador ? "administrador" : "funcionario",
           };
         }
 
@@ -55,16 +47,15 @@ export const authOptions: AuthOptions = {
     }),
   ],
   pages: {
-    signIn: '/',
+    signIn: "/", // sua página de login
   },
   session: {
-    strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60,
+    strategy: "jwt",
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.tipo = (user as { tipo: string }).tipo;
+        token.tipo = (user as any).tipo;
       }
       return token;
     },
@@ -78,6 +69,7 @@ export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 };
 
+// Handler para rotas de API
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

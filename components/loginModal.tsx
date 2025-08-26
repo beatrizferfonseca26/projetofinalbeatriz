@@ -32,7 +32,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
     } else {
       const session = await fetch('/api/auth/session').then((res) => res.json());
 
-      if (session.tipo === 'admin') {
+      if (session.tipo === 'administrador') {
         router.push('/administrador');
       } else if (session.tipo === 'funcionario') {
         router.push('/funcionarios');
@@ -41,6 +41,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
       } else {
         router.push('/');
       }
+
     }
   };
 
