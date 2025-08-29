@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
-
+import Button from './ui/button';
 type RegisterModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -137,12 +137,13 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
           {error && <p className="text-red-600 text-sm">{error}</p>}
           {success && <p className="text-green-600 text-sm">{success}</p>}
 
-          <button
+          <Button 
+          variant='primary'
             type="submit"
             className="bg-black text-white py-2 rounded hover:bg-gray-800 transition"
           >
             Registrar
-          </button>
+          </Button>
         </form>
       </div>
 

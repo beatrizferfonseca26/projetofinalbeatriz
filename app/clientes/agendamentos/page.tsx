@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Sidebar from '@/components/sideBar';
 import AgendamentoCard from '@/components/agendamentoCard';
 import AgendamentoModal from '@/components/agendamentoModal';
-
+import Button from '@/components/ui/button';
 type Agendamento = {
   Id_Agendamento: number;
   Data: string;
@@ -46,12 +46,12 @@ export default function AgendamentosPage() {
         {/* Título e botão no topo */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Meus Agendamentos</h2>
-          <button
+          <Button variant="primary"
             onClick={() => setIsModalOpen(true)}
             className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition"
           >
             Novo Agendamento
-          </button>
+          </Button>
         </div>
 
       {/* Estado de carregamento */}

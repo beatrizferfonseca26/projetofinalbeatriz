@@ -5,6 +5,7 @@ import LoginModal from '@/components/loginModal';
 import RegisterModal from '@/components/registerModal';
 import NavBar from '@/components/navBar';
 import ServicosCard from '@/components/servicosCard';
+import Button from '@/components/ui/button';
 
 interface Imagem {
   Id_Imagem: number;
@@ -147,14 +148,14 @@ return (
           Sallon - Beleza com hora marcada
         </h2>
 
-        <button
+        <Button variant="primary"
           onClick={handleOpenModal}
           className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
         >
           Agende já
-        </button>
+        </Button>
 
-        <button
+        <Button variant="primary"
           onClick={() =>
             document
               .getElementById('sobre-nos')
@@ -163,9 +164,9 @@ return (
           className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
         >
           Sobre Nós
-        </button>
+        </Button>
 
-        <button
+        <Button variant="primary"
           onClick={() =>
             document
               .getElementById('servicos-card')
@@ -174,7 +175,7 @@ return (
           className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
         >
           Serviços
-        </button>
+        </Button>
       </div>
 
       <div

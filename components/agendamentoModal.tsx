@@ -6,6 +6,7 @@ import { ptBR } from 'date-fns/locale';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { toast } from 'react-toastify';
+import Button from './ui/button';
 
 type Servico = {
   Id_Servico: number;
@@ -131,20 +132,22 @@ export default function AgendamentoModal({ isOpen, onClose }: AgendamentoModalPr
 
         {/* Botão Agendar */}
         {horarioSelecionado && (
-          <button
+          <Button
+          variant='primary'
             onClick={handleAgendar}
             className="mt-4 w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
           >
             Confirmar Agendamento
-          </button>
+          </Button>
         )}
 
-        <button
+        <Button
+          variant="secondary"
           onClick={onClose}
           className="mt-4 w-full text-sm text-gray-600 hover:underline text-center"
         >
           Cancelar
-        </button>
+        </Button>
       </div>
     </div>
   );

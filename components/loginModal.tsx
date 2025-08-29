@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-
+import Button from './ui/button';
 type LoginModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -79,28 +79,31 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
           {/* Botão Entrar */}
-          <button
+          <Button
+            variant='primary'
             type="submit"
             className="bg-black text-white py-2 rounded hover:bg-gray-800 transition"
           >
             Entrar
-          </button>
+          </Button>
 
-          <button
+          <Button
+            variant="secondary"
             type="button"
             onClick={onClose}
             className="bg-gray-300 text-black py-2 rounded hover:bg-gray-400 transition"
           >
             Cancelar
-          </button>
+          </Button>
 
-          <button
+          <Button
+            variant="primary"
             type="button"
             onClick={onSwitchToRegister}
             className="bg-gray-300 text-black py-2 rounded hover:bg-gray-400 transition"
           >
             Criar Conta
-          </button>
+          </Button>
         </form>
       </div>
     </div>

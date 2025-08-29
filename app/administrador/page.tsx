@@ -1,78 +1,74 @@
-"use client";
+'use client';
 
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Users, UserCog, Calendar, Package, Wrench, Clock } from "lucide-react";
 
-export default function AdminDashboard() {
-  const modules = [
-    {
-      title: "Funcionários",
-      description: "Gerencie os dados dos funcionários",
-      href: "/administrador/funcionarios",
-      icon: <UserCog className="w-6 h-6" />,
-    },
-    {
-      title: "Clientes",
-      description: "Gerencie os dados dos clientes",
-      href: "/administrador/clientes",
-      icon: <Users className="w-6 h-6" />,
-    },
-    {
-      title: "Serviços",
-      description: "Gerencie os serviços oferecidos",
-      href: "/administrador/servicos",
-      icon: <Wrench className="w-6 h-6" />,
-    },
-    {
-      title: "Produtos",
-      description: "Gerencie os produtos disponíveis",
-      href: "/administrador/produtos",
-      icon: <Package className="w-6 h-6" />,
-    },
-    {
-      title: "Agendamentos",
-      description: "Gerencie e cancele agendamentos",
-      href: "/administrador/agendamentos",
-      icon: <Calendar className="w-6 h-6" />,
-    },
-    {
-      title: "Disponibilidade",
-      description: "Defina horários de trabalho e disponibilidade",
-      href: "/administrador/disponibilidade",
-      icon: <Clock className="w-6 h-6" />,
-    },
-  ];
-
+export default function AdminDashboardPage() {
   return (
-    <main className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Painel do Administrador</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {modules.map((mod) => (
-          <Card
-            key={mod.title}
-            className="p-4 rounded-2xl shadow-md hover:shadow-lg transition"
-          >
-            <CardContent className="flex flex-col gap-4">
-              <div className="flex items-center gap-3">
-                {mod.icon}
-                <h2 className="text-xl font-semibold">{mod.title}</h2>
+    <div className="min-h-screen flex flex-col bg-gray-100">
+      {/* Conteúdo principal */}
+      <main className="flex-grow flex flex-col items-center justify-center p-6">
+        <div className="max-w-4xl w-full bg-white shadow-lg rounded-2xl p-8">
+          <h1 className="text-2xl font-bold text-center mb-6">Painel do Administrador</h1>
+          <p className="text-center text-gray-600 mb-10">
+            Acesse as funcionalidades administrativas do sistema.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Funcionários */}
+            <Link href="/admin/funcionarios">
+              <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
+                <h2 className="text-lg font-semibold">CRUD de Funcionários</h2>
+                <p className="text-sm text-gray-600 mt-2">Gerencie dados de funcionários.</p>
               </div>
-              <p className="text-gray-600">{mod.description}</p>
-              <Link href={mod.href}>
-                <Button className="w-full">Acessar</Button>
-              </Link>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <div>
-        <footer className="p-4 text-center bg-black text-white">
-        <p>Powered by Beatriz Fonseca | {new Date().getFullYear()}</p>
+            </Link>
+
+            {/* Clientes */}
+            <Link href="/admin/clientes">
+              <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
+                <h2 className="text-lg font-semibold">CRUD de Clientes</h2>
+                <p className="text-sm text-gray-600 mt-2">Gerencie dados de clientes.</p>
+              </div>
+            </Link>
+
+            {/* Serviços */}
+            <Link href="/admin/servicos">
+              <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
+                <h2 className="text-lg font-semibold">CRUD de Serviços</h2>
+                <p className="text-sm text-gray-600 mt-2">Adicione, edite ou remova serviços.</p>
+              </div>
+            </Link>
+
+            {/* Produtos */}
+            <Link href="/admin/produtos">
+              <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
+                <h2 className="text-lg font-semibold">CRUD de Produtos</h2>
+                <p className="text-sm text-gray-600 mt-2">Gerencie produtos disponíveis.</p>
+              </div>
+            </Link>
+
+            {/* Agendamentos */}
+            <Link href="/admin/agendamentos">
+              <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
+                <h2 className="text-lg font-semibold">CRUD de Agendamentos</h2>
+                <p className="text-sm text-gray-600 mt-2">Visualize e cancele agendamentos.</p>
+              </div>
+            </Link>
+
+            {/* Disponibilidade */}
+            <Link href="/admin/disponibilidade">
+              <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
+                <h2 className="text-lg font-semibold">Gestão de Disponibilidade</h2>
+                <p className="text-sm text-gray-600 mt-2">Defina horários disponíveis.</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </main>
+
+      {/* Rodapé fixo */}
+      <footer className="bg-gray-900 text-white text-center py-4 mt-auto">
+        <p className="text-sm">© {new Date().getFullYear()} Sistema de Gestão - Administrador</p>
       </footer>
-      </div>
-    </main>
-    
+    </div>
   );
 }
