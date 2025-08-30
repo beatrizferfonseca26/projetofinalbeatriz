@@ -1,5 +1,4 @@
 // components/ui/Button.tsx
-
 'use client';
 
 import { useState } from 'react';
@@ -8,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 
 type ButtonProps = {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'destructive'; // 🔹 nova variant
   type?: 'button' | 'submit';
   onClick?: () => void | Promise<void>;
   className?: string;
@@ -46,6 +45,8 @@ export default function Button({
           'bg-black text-white hover:bg-gray-800 disabled:bg-gray-500',
         variant === 'secondary' &&
           'bg-gray-300 text-black hover:bg-gray-400 disabled:bg-gray-400',
+        variant === 'destructive' &&
+          'bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400', // 🔹 estilo destructive
         (disabled || loading) && 'cursor-not-allowed opacity-80',
         className
       )}
@@ -55,26 +56,3 @@ export default function Button({
     </button>
   );
 }
-
-// uso no codigo 
-{/* import Button from '@/components/ui/Button';
-
-export default function Example() {
-  const simulateSave = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    alert('Salvo!');
-  };
-
-  return (
-    <div className="flex gap-4">
-      <Button variant="primary" onClick={simulateSave}>
-        Salvar
-      </Button>
-
-      <Button variant="secondary" onClick={() => alert('Cancelado!')}>
-        Cancelar
-      </Button>
-    </div>
-  );
-}
-*/}

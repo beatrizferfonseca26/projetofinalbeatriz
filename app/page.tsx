@@ -58,6 +58,14 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      servicosRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 3000); // 3 segundos
+
+    return () => clearTimeout(timer);
+  }, []);
+
 
   // Atualiza a seção ativa conforme o scroll
   useEffect(() => {
@@ -86,107 +94,73 @@ export default function Home() {
     { name: 'Serviços', id: 'servicos-card' },
   ];
 
-return (
-  <div>
-    {/* Navbar dinâmica */}
-    {showNav && (
-      <nav className="bg-black text-white px-6 py-4 shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="text-xl font-bold text-white">Sallon</div>
-          <div className="flex gap-6">
-            {navLinks.map((link) => (
-              <button
-                key={link.id}
-                onClick={() => {
-                  if (link.id === 'inicio') {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  } else {
-                    document
-                      .getElementById(link.id)
-                      ?.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-                className={`transition-colors duration-300 px-2 py-1 rounded ${
-                  activeSection === link.id
-                    ? 'bg-gray-700 text-white'
-                    : 'text-white hover:bg-gray-800 hover:text-indigo-300'
-                }`}
-              >
-                {link.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      </nav>
-    )}
+  return (
+    <div>
+      {/* Navbar dinâmica */}
+      {showNav && (
+        <NavBar
+          onOpenLogin={() => setIsLoginModalOpen(true)}
+          onOpenRegister={() => setIsRegisterModalOpen(true)}
+        />
+      )}
 
-    {/* HERO PRINCIPAL */}
-    <main
-      ref={mainRef}
-      id="inicio"
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        width: '100vw',
-        height: '100vh',
-        padding: 0,
-        margin: 0,
-      }}
-    >
-      <div
+      {/* HERO PRINCIPAL */}
+      {/* HERO PRINCIPAL */}
+      <main
+        ref={mainRef}
+        id="inicio"
         style={{
-          flex: 1,
+          position: 'relative',
+          width: '100vw',
+          height: '100vh',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: 'whitesmoke',
-          gap: '1rem',
-        }}
-      >
-        <h2 style={{ fontSize: '2rem', fontWeight: 700, textAlign: 'center' }}>
-          Sallon - Beleza com hora marcada
-        </h2>
-
-        <Button variant="primary"
-          onClick={handleOpenModal}
-          className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
-        >
-          Agende já
-        </Button>
-
-        <Button variant="primary"
-          onClick={() =>
-            document
-              .getElementById('sobre-nos')
-              ?.scrollIntoView({ behavior: 'smooth' })
-          }
-          className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
-        >
-          Sobre Nós
-        </Button>
-
-        <Button variant="primary"
-          onClick={() =>
-            document
-              .getElementById('servicos-card')
-              ?.scrollIntoView({ behavior: 'smooth' })
-          }
-          className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
-        >
-          Serviços
-        </Button>
-      </div>
-
-      <div
-        style={{
-          flex: 1,
           backgroundImage: 'url(/salao1.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
-      />
-    </main>
+      >
+        {/* Overlay semi-transparente */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: 'rgba(0,0,0,0.4)', // Transparência
+            zIndex: 1,
+          }}
+        />
+
+        {/* Texto central */}
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 2,
+            color: 'white',
+            textAlign: 'center',
+            padding: '0 1rem',
+            display: 'flex',
+            flexDirection: 'column',   // alinhamento vertical
+            alignItems: 'center',      // centraliza horizontalmente
+            gap: '1rem',               // espaço entre h1, h2 e botão
+          }}
+        >
+          <h1 style={{ fontSize: '4rem', fontWeight: 'bold', margin: 0 }}>
+            Sallon
+          </h1>
+          <h2 style={{ fontSize: '2rem', fontWeight: 500, margin: 0 }}>
+            Beleza com hora marcada
+          </h2>
+          <Button
+            variant="primary"
+            onClick={handleOpenModal}
+            className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
+          >
+            Agende já
+          </Button>
+        </div>
+
+      </main>
       {/* SOBRE NÓS */}
       <section
         id="sobre-nos"
@@ -200,7 +174,7 @@ return (
       >
         <h2 className="text-3xl font-extrabold mb-6">Sobre nós</h2>
         <p className="max-w-3xl mx-auto text-lg leading-relaxed">
-            No coração da nossa cidade, nasceu o <span className="text-indigo-400 font-bold">Sallon</span>, um espaço pensado para valorizar a beleza, o bem-estar e a autoestima de cada cliente. O que começou como um sonho de oferecer cuidados personalizados e de qualidade, hoje é uma realidade que combina tradição, técnica e inovação.<br /><br />
+          No coração da nossa cidade, nasceu o <span className="text-indigo-400 font-bold">Sallon</span>, um espaço pensado para valorizar a beleza, o bem-estar e a autoestima de cada cliente. O que começou como um sonho de oferecer cuidados personalizados e de qualidade, hoje é uma realidade que combina tradição, técnica e inovação.<br /><br />
           Somos apaixonados pelo que fazemos. Nossa equipe é formada por <span className="text-indigo-400 font-bold">profissionais qualificados</span>, sempre atualizados com as últimas tendências em cortes, coloração, tratamentos capilares, manicure, pedicure, maquiagem, depilação e estética. Mais do que serviços, entregamos experiências — cada atendimento é planejado para que você se sinta único(a) e especial.<br /><br />
           Além de cuidar da sua beleza, oferecemos uma linha exclusiva de produtos para que você mantenha em casa os resultados conquistados no salão. E para facilitar ainda mais sua rotina, desenvolvemos uma plataforma online onde você pode agendar seu horário e adquirir produtos com poucos cliques, no conforto e segurança que merece.<br /><br />
           No Sallon, acreditamos que a beleza é única, e nosso propósito é realçá-la todos os dias. Venha viver essa experiência com a gente.
