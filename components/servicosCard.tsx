@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Button from './ui/button';
 
 interface Imagem {
   Id_Imagem: number;
@@ -137,9 +138,9 @@ export default function ServicosCard() {
                   </div>
                 </div>
                 <div className="mt-4">
-                  <button className="w-full bg-black text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-800 transition duration-200">
+                  <Button className="w-full bg-black text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-800 transition duration-200">
                     Comprar Agora
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
