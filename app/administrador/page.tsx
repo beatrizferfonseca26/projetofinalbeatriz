@@ -67,7 +67,7 @@ export default function AdminDashboardPage() {
 
       {/* Rodapé fixo */}
       <footer className="bg-gray-900 text-white text-center py-4 mt-auto">
-        <p className="text-sm">© {new Date().getFullYear()} Sistema de Gestão - Administrador</p>
+       <p>Powered by Beatriz Fonseca | {new Date().getFullYear()}</p>
       </footer>
     </div>
   );

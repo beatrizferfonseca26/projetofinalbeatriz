@@ -201,9 +201,7 @@ export default function Home() {
             transition={{ duration: 1 }}
           >
             <p>
-              Seja para tratamentos terapêuticos, momentos de relaxamento ou simplesmente para
-              respirar fundo e abrandar o ritmo, as Termas de Caldelas são o destino perfeito
-              para cuidar de si, naturalmente.
+    {/* Mais conteudo aqui, quero adicionar um desenho interessante */}
             </p>
           </motion.div>
 
