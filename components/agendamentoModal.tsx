@@ -7,6 +7,9 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { toast } from 'react-toastify';
 import Button from './ui/button';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+
 
 type Servico = {
   Id_Servico: number;
@@ -50,12 +53,22 @@ export default function AgendamentoModal({ isOpen, onClose }: AgendamentoModalPr
     }
   }, [dataSelecionada]);
 
+
+  // identificar o cliente logado
+  const [session, setSession] = useState<any>(null);
+
+  useEffect(() => {
+    if (session?.user) {
+      console.log('Usuário logado:', session.user);
+    }
+  }, [session]);
   const handleAgendar = async () => {
+
     if (!selectedServico || !dataSelecionada || !horarioSelecionado) return;
 
     const body = {
       Id_Servico: selectedServico,
-      Id_Cliente: 1 , // TENHO QUE ALTERAR PARA PEGAR O ID DO CLIENTE LOGADO
+      Id_Cliente: session?.user?.Id_Cliente, 
       Data: format(dataSelecionada, 'yyyy-MM-dd'),
       HoraInicio: horarioSelecionado,
       Observacoes: '',
@@ -63,6 +76,7 @@ export default function AgendamentoModal({ isOpen, onClose }: AgendamentoModalPr
 
     const res = await fetch('/api/interna/agendamentos', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' }, 
       body: JSON.stringify(body),
     });
 
@@ -119,9 +133,8 @@ export default function AgendamentoModal({ isOpen, onClose }: AgendamentoModalPr
                 <button
                   key={h}
                   onClick={() => setHorarioSelecionado(h)}
-                  className={`py-1 px-2 border rounded text-sm ${
-                    horarioSelecionado === h ? 'bg-black text-white' : 'bg-gray-100 hover:bg-gray-200'
-                  }`}
+                  className={`py-1 px-2 border rounded text-sm ${horarioSelecionado === h ? 'bg-black text-white' : 'bg-gray-100 hover:bg-gray-200'
+                    }`}
                 >
                   {h}
                 </button>
@@ -133,7 +146,7 @@ export default function AgendamentoModal({ isOpen, onClose }: AgendamentoModalPr
         {/* Botão Agendar */}
         {horarioSelecionado && (
           <Button
-          variant='primary'
+            variant='primary'
             onClick={handleAgendar}
             className="mt-4 w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
           >
