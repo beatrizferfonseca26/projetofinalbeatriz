@@ -13,7 +13,7 @@ const sidebarOptions: Record<string, SidebarItem[]> = {
   cliente: [
     { label: 'Início', href: '/clientes' },
     { label: 'Agendamentos', href: '/clientes/agendamentos' },
-    { label: 'Perfil', href: '/clientes/perfil' },
+    { label: 'Perfil', href: '/clientes/editar' },
     { label: 'Terminar Sessão', action: () => signOut({ callbackUrl: '/' }) },
   ],
   funcionario: [
@@ -36,7 +36,10 @@ export default function Sidebar() {
 
   if (!session || !session.tipo) return null;
 
-  const links = sidebarOptions[session.tipo as keyof typeof sidebarOptions];
+  const links =
+    session?.tipo && sidebarOptions[session.tipo as keyof typeof sidebarOptions];
+
+  if (!links) return null;
 
   return (
     <aside className="w-64 h-screen bg-black text-white p-4 space-y-4">

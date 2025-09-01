@@ -15,49 +15,49 @@ export default function AdminDashboardPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Funcionários */}
-            <Link href="/admin/funcionarios">
+            <Link href="/administrador/funcionarios">
               <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
-                <h2 className="text-lg font-semibold">CRUD de Funcionários</h2>
+                <h2 className="text-lg font-semibold">Funcionários</h2>
                 <p className="text-sm text-gray-600 mt-2">Gerencie dados de funcionários.</p>
               </div>
             </Link>
 
             {/* Clientes */}
-            <Link href="/admin/clientes">
+            <Link href="/administrador/clientes">
               <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
-                <h2 className="text-lg font-semibold">CRUD de Clientes</h2>
+                <h2 className="text-lg font-semibold">Clientes</h2>
                 <p className="text-sm text-gray-600 mt-2">Gerencie dados de clientes.</p>
               </div>
             </Link>
 
             {/* Serviços */}
-            <Link href="/admin/servicos">
+            <Link href="/administrador/servicos">
               <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
-                <h2 className="text-lg font-semibold">CRUD de Serviços</h2>
+                <h2 className="text-lg font-semibold">Serviços</h2>
                 <p className="text-sm text-gray-600 mt-2">Adicione, edite ou remova serviços.</p>
               </div>
             </Link>
 
             {/* Produtos */}
-            <Link href="/admin/produtos">
+            <Link href="/administrador/produtos">
               <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
-                <h2 className="text-lg font-semibold">CRUD de Produtos</h2>
+                <h2 className="text-lg font-semibold">Produtos</h2>
                 <p className="text-sm text-gray-600 mt-2">Gerencie produtos disponíveis.</p>
               </div>
             </Link>
 
             {/* Agendamentos */}
-            <Link href="/admin/agendamentos">
+            <Link href="/administrador/agendamentos">
               <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
-                <h2 className="text-lg font-semibold">CRUD de Agendamentos</h2>
+                <h2 className="text-lg font-semibold">Agendamentos</h2>
                 <p className="text-sm text-gray-600 mt-2">Visualize e cancele agendamentos.</p>
               </div>
             </Link>
 
             {/* Disponibilidade */}
-            <Link href="/admin/disponibilidade">
+            <Link href="/administrador/disponibilidade">
               <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
-                <h2 className="text-lg font-semibold">Gestão de Disponibilidade</h2>
+                <h2 className="text-lg font-semibold">Disponibilidade</h2>
                 <p className="text-sm text-gray-600 mt-2">Defina horários disponíveis.</p>
               </div>
             </Link>

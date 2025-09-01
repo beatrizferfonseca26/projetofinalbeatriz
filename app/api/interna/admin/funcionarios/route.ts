@@ -22,7 +22,7 @@ export async function GET() {
         Administrador: true,
       },
     });
-
+    console.log('Funcionarios>',funcionarios);
     return NextResponse.json(funcionarios, { status: 200 });
   } catch (error) {
     console.error(error);

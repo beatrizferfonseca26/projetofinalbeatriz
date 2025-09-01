@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import  Button from "@/components/ui/button"; 
+import Sidebar from "@/components/sideBar";
 
 interface Funcionario {
-  id: string;
-  nome: string;
-  email: string;
-  telefone: string;
-  administrador: boolean;
+  Id_Funcionario: string;
+  Nome: string;
+  Email: string;
+  Telefone: string;
+  Administrador: boolean;
 }
 
 export default function FuncionariosPage() {
@@ -21,7 +22,7 @@ export default function FuncionariosPage() {
   useEffect(() => {
     const fetchFuncionarios = async () => {
       try {
-        const res = await fetch("/api/internas/administrador/funcionarios");
+        const res = await fetch("/api/interna/admin/funcionarios");
         const data = await res.json();
         setFuncionarios(data || []);
       } catch (err) {
@@ -43,7 +44,7 @@ export default function FuncionariosPage() {
       });
 
       if (res.ok) {
-        setFuncionarios((prev) => prev.filter((f) => f.id !== id));
+        setFuncionarios((prev) => prev.filter((f) => f.Id_Funcionario !== id));
       } else {
         console.error("Erro ao excluir funcionário");
       }
@@ -53,12 +54,21 @@ export default function FuncionariosPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* Conteúdo */}
+  <div className="flex min-h-screen bg-gray-100">
+    {/* Sidebar fixa à esquerda */}
+    <Sidebar />
+
+    {/* Conteúdo principal */}
+    <div className="flex flex-col flex-1">
       <main className="flex-1 p-6 md:p-10">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Funcionários</h1>
-          <Button variant="primary" onClick={() => router.push("/administrador/funcionarios/novo")}>
+          <Button
+            variant="primary"
+            onClick={() =>
+              router.push("/administrador/funcionarios/novo")
+            }
+          >
             Novo Funcionário
           </Button>
         </div>
@@ -82,20 +92,27 @@ export default function FuncionariosPage() {
               </thead>
               <tbody>
                 {funcionarios.map((f) => (
-                  <tr key={f.id} className="border-t hover:bg-gray-50">
-                    <td className="p-3">{f.nome}</td>
-                    <td className="p-3">{f.email}</td>
-                    <td className="p-3">{f.telefone || "-"}</td>
-                    <td className="p-3">{f.administrador ? "Sim" : "Não"}</td>
+                  <tr
+                    key={f.Id_Funcionario}
+                    className="border-t hover:bg-gray-50"
+                  >
+                    <td className="p-3">{f.Nome}</td>
+                    <td className="p-3">{f.Email}</td>
+                    <td className="p-3">{f.Telefone || "-"}</td>
+                    <td className="p-3">{f.Administrador ? "Sim" : "Não"}</td>
                     <td className="p-3 flex gap-3 justify-center">
                       <button
-                        onClick={() => router.push(`/administrador/funcionarios/${f.id}/editar`)}
+                        onClick={() =>
+                          router.push(
+                            `/administrador/funcionarios/${f.Id_Funcionario}/editar`
+                          )
+                        }
                         className="text-blue-600 hover:underline text-sm"
                       >
                         Editar
                       </button>
                       <button
-                        onClick={() => handleDelete(f.id)}
+                        onClick={() => handleDelete(f.Id_Funcionario)}
                         className="text-red-600 hover:underline text-sm"
                       >
                         Excluir
@@ -111,8 +128,9 @@ export default function FuncionariosPage() {
 
       {/* Rodapé fixo */}
       <footer className="bg-gray-900 text-white text-center py-4 mt-auto">
-      <p>Powered by Beatriz Fonseca | {new Date().getFullYear()}</p>
+        <p>Powered by Beatriz Fonseca | {new Date().getFullYear()}</p>
       </footer>
     </div>
-  );
+  </div>
+);
 }
