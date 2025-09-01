@@ -55,7 +55,7 @@ export default function AgendamentoModal({ isOpen, onClose }: AgendamentoModalPr
 
     const body = {
       Id_Servico: selectedServico,
-      Id_Cliente: 1, // você pode substituir com o ID real via sessão
+      Id_Cliente: 1 , // TENHO QUE ALTERAR PARA PEGAR O ID DO CLIENTE LOGADO
       Data: format(dataSelecionada, 'yyyy-MM-dd'),
       HoraInicio: horarioSelecionado,
       Observacoes: '',
@@ -90,7 +90,7 @@ export default function AgendamentoModal({ isOpen, onClose }: AgendamentoModalPr
           <option value="">Selecione um serviço</option>
           {servicos.map((s) => (
             <option key={s.Id_Servico} value={s.Id_Servico}>
-              {s.Nome} - R$ {s.Valor}
+              {s.Nome} - € {s.Valor}
             </option>
           ))}
         </select>

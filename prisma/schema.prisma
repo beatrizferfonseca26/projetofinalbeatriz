@@ -39,7 +39,6 @@ model clientes {
   Nif            Int?
   agendamentos   agendamentos[]
 }
-
 model disponibilidadeprod {
   Id_Produto Int
   Id_Servico Int
@@ -51,7 +50,6 @@ model disponibilidadeprod {
   @@index([Id_Produto], map: "Id_Produto")
   @@index([Id_Servico], map: "Id_Servico")
 }
-
 
 model funcionarios {
   Id_Funcionario Int                  @id @default(autoincrement())
@@ -90,7 +88,7 @@ model produtos {
   Nome                String?               @db.VarChar(80)
   Estoque             Int?
   EstoqueCritico      Int?
-  disponibilidadeprod disponibilidadeprod[] @ignore
+  disponibilidadeprod disponibilidadeprod[]
   imagens             imagens[]
   servicos            servicos[]
 }
@@ -98,12 +96,13 @@ model produtos {
 model servicos {
   Id_Servico          Int                   @id @default(autoincrement())
   Nome                String?               @db.VarChar(80)
-  Descricao           String?               @db.VarChar(200)
+  Titulo              String?               @db.VarChar(200)
+  Descricao           String?               @db.Text
   Duracao             Int?
   Valor               Int?
   Id_Produto          Int?
   agendamentos        agendamentos[]
-  disponibilidadeprod disponibilidadeprod[] 
+  disponibilidadeprod disponibilidadeprod[]
   produtos            produtos?             @relation(fields: [Id_Produto], references: [Id_Produto], onDelete: NoAction, onUpdate: NoAction, map: "servicos_ibfk_1")
 
   @@index([Id_Produto], map: "Id_Produto")

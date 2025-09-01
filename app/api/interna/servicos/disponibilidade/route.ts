@@ -4,19 +4,14 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    // Busca os serviços com disponibilidade (ou seja, estão na tabela disponibilidadeprod)
     const servicosDisponiveis = await prisma.servicos.findMany({
       where: {
-        disponibilidadeprod: {
-          some: {}, // pelo menos um registro na disponibilidadeprod
-        },
+        disponibilidadeprod: { some: {} },
       },
       include: {
         disponibilidadeprod: true,
         produtos: {
-          include: {
-            imagens: true,
-          },
+          include: { imagens: true },
         },
       },
     });

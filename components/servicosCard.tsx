@@ -22,7 +22,7 @@ interface Servico {
   Duracao?: number | null;
   Valor?: number | null;
   produtos?: Produto | null;
-  detalhes?: string[]; // Adapte conforme sua API
+  Titulo?: string[]; 
 }
 
 const mockIcon = (
@@ -73,15 +73,10 @@ export default function ServicosCard() {
           const imageUrl = imagem?.CaminhoImagem || '/placeholder.jpg';
           const altText = imagem?.AltText || servico.Nome || 'Imagem do serviço';
 
-          // Use detalhes reais se vierem da API, senão mantenha exemplo
-          const detalhes = servico.detalhes?.length
-            ? servico.detalhes.map((d) => ({ titulo: d, texto: '' }))
-            : [
-                { titulo: 'Piscina Dinâmica', texto: 'Envolva-se numa piscina de água termal com jatos de hidromassagem, cascatas e zonas de relaxamento que revitalizam o corpo e a mente.' },
-                { titulo: 'Duche de Jato', texto: 'Um duche de projeção de água termal a alta pressão, ideal para estimular a circulação e tonificar os tecidos.' },
-                { titulo: 'Duche Circular', texto: 'Uma experiência de duche envolvente, com múltiplos jatos suaves que proporcionam um relaxamento completo.' },
-              ];
-
+          
+          const detalhes = servico.Descricao?.length
+            ? servico.Descricao.split('.').map((det) => ({ texto: det.trim() })).filter((det) => det.texto)
+            : [];
           return (
             <div
               key={servico.Id_Servico}
@@ -98,13 +93,13 @@ export default function ServicosCard() {
                   src={imageUrl}
                   alt={altText}
                   className="w-full max-w-xs h-40 object-cover rounded-lg shadow mb-2"
-                  style={{ background: '#f3f3f3' }}
+                  style={{ background: '#f3f3f3', height: '160px', width: '560px' }}
                 />
               </div>
               {/* Conteúdo: descrição, detalhes, toggles e botão */}
               <div className="flex-1 flex flex-col justify-between p-8 bg-gray-50">
                 <div>
-                  <p className="mb-2 text-gray-700">{servico.Descricao}</p>
+                  <p className="mb-2 text-gray-700">{servico.Titulo}</p>
                   <p className="mb-2 text-gray-700">Inclui:</p>
                   {/* Toggles */}
                   <div className="mb-4">
@@ -126,7 +121,7 @@ export default function ServicosCard() {
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                             )}
                           </span>
-                          <span className="font-medium">{det.titulo}</span>
+                          <span className="font-medium"></span>
                         </button>
                         {openToggle[servico.Id_Servico] === i && det.texto && (
                           <div className="mt-2 text-gray-600 text-sm">
