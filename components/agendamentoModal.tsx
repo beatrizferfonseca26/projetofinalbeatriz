@@ -180,6 +180,7 @@ export default function AgendamentoModal({
           <Button
             variant="primary"
             onClick={handleAgendar}
+            loadingText='Agendando...'
             className="mt-4 w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
           >
             Confirmar Agendamento

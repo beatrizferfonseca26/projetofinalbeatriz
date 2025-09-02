@@ -82,6 +82,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
           <Button
             variant='primary'
             type="submit"
+            loadingText='Login...'
             className="bg-black text-white py-2 rounded hover:bg-gray-800 transition"
           >
             Entrar

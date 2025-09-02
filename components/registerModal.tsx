@@ -140,9 +140,10 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
           <Button 
           variant='primary'
             type="submit"
+            loadingText='Registando...'
             className="bg-black text-white py-2 rounded hover:bg-gray-800 transition"
           >
-            Registrar
+            Registar
           </Button>
         </form>
       </div>
