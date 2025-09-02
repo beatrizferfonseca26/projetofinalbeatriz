@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import Button from './ui/button';
 import { toast } from 'react-toastify';
+
 type RegisterModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -22,10 +23,38 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
 
   if (!isOpen) return null;
 
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const validateTelemovel = (num: string) => /^\d{9}$/.test(num);
+  const validateSenha = (senha: string) => senha.length >= 6;
+  const validateNIF = (nif: string) => /^\d{9}$/.test(nif);
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    // 🔹 Validações
+    if (!validateEmail(email)) {
+      setError('Email inválido.');
+      return;
+    }
+    if (!validateTelemovel(telemovel)) {
+      setError('Telemóvel deve ter 9 dígitos.');
+      return;
+    }
+    if (!validateSenha(senha)) {
+      setError('Senha deve ter no mínimo 6 caracteres.');
+      return;
+    }
+    if (!validateNIF(nif)) {
+      setError('NIF deve ter 9 dígitos.');
+      return;
+    }
+
 
     try {
       const res = await fetch('/api/interna/clientes', {
@@ -57,10 +86,8 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
       setDataNascimento('');
       setMorada('');
       setNif('');
-      if (res.ok) {
-        toast.success('Conta criada com sucesso!');
-        onClose();
-      }
+      toast.success('Conta criada com sucesso!');
+      onClose();
     } catch (err) {
       setError('Erro ao registrar usuário.');
     }
@@ -69,7 +96,6 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
       <div className="relative w-full max-w-xl mx-4 bg-white rounded-xl shadow-2xl p-8 animate-fade-in">
-        {/* Botão fechar */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition"
@@ -78,10 +104,8 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
           <X size={24} />
         </button>
 
-        {/* Título */}
         <h2 className="text-2xl font-bold mb-4 text-center">Criar Conta</h2>
 
-        {/* Formulário */}
         <form onSubmit={handleRegister} className="flex flex-col gap-4">
           <input
             type="text"
@@ -101,7 +125,7 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
           />
           <input
             type="password"
-            placeholder="Senha"
+            placeholder="Password"
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
             className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-black"
@@ -131,21 +155,22 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
             required
           />
           <input
-            type="number"
-            placeholder="NIF"
+            type="text"
+            placeholder="Contribuinte"
             value={nif}
             onChange={(e) => setNif(e.target.value)}
             className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
 
+
           {error && <p className="text-red-600 text-sm">{error}</p>}
           {success && <p className="text-green-600 text-sm">{success}</p>}
 
-          <Button 
-          variant='primary'
+          <Button
+            variant="primary"
             type="submit"
-            loadingText='Registando...'
+            loadingText="Registando..."
             className="bg-black text-white py-2 rounded hover:bg-gray-800 transition"
           >
             Registar
@@ -153,7 +178,6 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
         </form>
       </div>
 
-      {/* Tailwind animation (CSS custom) */}
       <style jsx>{`
         .animate-fade-in {
           animation: fadeInScale 0.3s ease-out;
