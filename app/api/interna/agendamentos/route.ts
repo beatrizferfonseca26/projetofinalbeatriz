@@ -27,8 +27,8 @@ export async function GET() {
         { HoraInicio: 'desc' },
       ],
       include: {
-        servicos: true,    
-        funcionarios: true,  
+        servicos: true,
+        funcionarios: true,
       },
     });
     const agendamentosFormatados = agendamentos.map((ag) => {
@@ -110,9 +110,26 @@ export async function POST(request: Request) {
         funcionarios: true,
       },
     });
+    const emailHtml = `
+  <h2>Confirmação de Agendamento</h2>
+  <p><strong>Serviço:</strong> ${novoAgendamento.servicos.Nome}</p>
+  <p><strong>Data:</strong> ${Data}</p>
+  <p><strong>Hora:</strong> ${HoraInicio}</p>
+  ${novoAgendamento.funcionarios ? `<p><strong>Profissional:</strong> ${novoAgendamento.funcionarios.Nome}</p>` : ''}
+  <p>Obrigado por escolher a ${process.env.APP_NAME}</p>
+`;
 
-    console.log('Novo agendamento criado:', novoAgendamento);
-
+    // Chama a rota de envio de email
+    await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/interna/email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: cliente.Email,
+        subject: `Confirmação de Agendamento - ${process.env.APP_NAME}`,
+        html: emailHtml,
+      }),
+    });
+    console.log('E-mail de confirmação enviado para:', cliente.Email);
     return NextResponse.json(novoAgendamento, { status: 201 });
   } catch (error) {
     console.error('Erro ao criar agendamento:', error);
