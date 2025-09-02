@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Button from './ui/button';
+import { toast } from 'react-toastify';
 type LoginModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -42,6 +43,10 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
         router.push('/');
       }
 
+    }
+    if (result?.ok) {
+      toast.success('Login realizado com sucesso!');
+      onClose();
     }
   };
 

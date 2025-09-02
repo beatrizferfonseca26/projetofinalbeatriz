@@ -24,7 +24,7 @@ export default function AgendamentoCard({
     : 'Data não informada';
 
   const horaFormatada = hora || 'Horário não informado';
-  const valorFormatado = typeof valor === 'number' ? `R$ ${valor.toFixed(2)}` : 'Valor não informado';
+  const valorFormatado = typeof valor === 'number' ? `€ ${valor.toFixed(2)}` : 'Valor não informado';
   const profissionalFormatado = profissional || 'Não atribuído';
   const localFormatado = local || 'Local não informado';
 

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import Button from './ui/button';
+import { toast } from 'react-toastify';
 type RegisterModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -56,6 +57,10 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
       setDataNascimento('');
       setMorada('');
       setNif('');
+      if (res.ok) {
+        toast.success('Conta criada com sucesso!');
+        onClose();
+      }
     } catch (err) {
       setError('Erro ao registrar usuário.');
     }
