@@ -14,6 +14,7 @@ type LoginModalProps = {
 export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalProps) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [senhaVisible, setSenhaVisible] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
 
@@ -64,22 +65,60 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
         <h3 className="text-lg font-bold mb-4 text-center">Login</h3>
 
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="border p-2 rounded"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Senha"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            className="border p-2 rounded"
-            required
-          />
+          <div className="relative">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="border p-2 rounded w-full pr-20"
+              required
+            />
+            {/* Botão limpar email */}
+            {email && (
+              <button
+                type="button"
+                onClick={() => setEmail('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm px-2 py-1"
+                tabIndex={-1}
+                aria-label="Limpar email"
+              >
+                Limpar
+              </button>
+            )}
+          </div>
+          <div className="relative">
+            <input
+              type={senhaVisible ? 'text' : 'password'}
+              placeholder="Senha"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              className="border p-2 rounded w-full pr-28"
+              required
+            />
+            {/* Botão ver senha */}
+            <button
+              type="button"
+              onClick={() => setSenhaVisible((v) => !v)}
+              className="absolute right-16 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm px-2 py-1"
+              tabIndex={-1}
+              aria-label={senhaVisible ? "Ocultar senha" : "Ver senha"}
+            >
+              {senhaVisible ? "Ocultar" : "Ver"}
+            </button>
+            {/* Botão limpar senha */}
+            {senha && (
+              <button
+                type="button"
+                onClick={() => setSenha('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm px-2 py-1"
+                tabIndex={-1}
+                aria-label="Limpar senha"
+              >
+                Limpar
+              </button>
+            )}
+          </div>
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
@@ -92,6 +131,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
           >
             Entrar
           </Button>
+
 
           <Button
             variant="secondary"
