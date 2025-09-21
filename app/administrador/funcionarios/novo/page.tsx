@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/button";
 import Sidebar from "@/components/sideBar";
+import bcrypt from "bcryptjs";
 
 export default function NovoFuncionarioPage() {
   const router = useRouter();
@@ -11,7 +12,7 @@ export default function NovoFuncionarioPage() {
   const [form, setForm] = useState({
     Nome: "",
     Email: "",
-    Telefone: "",
+    Senha: "",
     Administrador: false,
   });
 
@@ -77,17 +78,6 @@ export default function NovoFuncionarioPage() {
               onChange={handleChange}
               className="mt-1 w-full border rounded-lg p-2"
               required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Telefone</label>
-            <input
-              type="text"
-              name="Telefone"
-              value={form.Telefone}
-              onChange={handleChange}
-              className="mt-1 w-full border rounded-lg p-2"
             />
           </div>
 

@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/beatrizferfonseca26/projetofinalbeatriz#readme",
   "dependencies": {
+    "@heroui/react": "^2.8.4",
     "@prisma/client": "^6.15.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@tailwindcss/postcss": "^4.1.12",
