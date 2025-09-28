@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/interna/agendamentos/lembrete",
+      "schedule": "0 * * * *"
+    }
+  ]
+}

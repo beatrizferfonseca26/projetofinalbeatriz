@@ -1,20 +1,21 @@
 import { NextResponse } from "next/server";
-import { prisma } from '@/lib/prisma';
+import { prisma } from "@/lib/prisma";
 
-
-export async function GET(_: Request, { params }: { params: { id: string } }) {
+// GET /api/interna/servicos/[id]
+export async function GET(
+  req: Request,
+  context: { params: { id: string } }
+) {
   try {
-   const servico = await prisma.servicos.findUnique({
-      where: { Id_Servico: Number(params.id) },
+    const { id } = context.params;
+
+    const servico = await prisma.servicos.findUnique({
+      where: { Id_Servico: Number(id) },
       include: {
-        produtos: {
-          include: { imagens: true },
-        },
+        produtos: { include: { imagens: true } },
         disponibilidadeprod: {
           include: {
-            produtos: {
-              include: { imagens: true },
-            },
+            produtos: { include: { imagens: true } },
           },
         },
       },
@@ -23,6 +24,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     if (!servico) {
       return NextResponse.json({ error: "Serviço não encontrado" }, { status: 404 });
     }
+
     return NextResponse.json(servico);
   } catch (error) {
     console.error("Erro ao buscar serviço:", error);
@@ -30,13 +32,18 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
   }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+// PUT /api/interna/servicos/[id]
+export async function PUT(
+  req: Request,
+  context: { params: { id: string } }
+) {
   try {
     const body = await req.json();
     const { Nome, Titulo, Descricao, Duracao, Valor, Id_Produto } = body;
+    const { id } = context.params;
 
     const servicoAtualizado = await prisma.servicos.update({
-      where: { Id_Servico: Number(params.id) },
+      where: { Id_Servico: Number(id) },
       data: { Nome, Titulo, Descricao, Duracao, Valor, Id_Produto },
     });
 
@@ -47,11 +54,18 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+// DELETE /api/interna/servicos/[id]
+export async function DELETE(
+  req: Request,
+  context: { params: { id: string } }
+) {
   try {
+    const { id } = context.params;
+
     await prisma.servicos.delete({
-      where: { Id_Servico: Number(params.id) },
+      where: { Id_Servico: Number(id) },
     });
+
     return NextResponse.json({ message: "Serviço excluído com sucesso" });
   } catch (error) {
     console.error("Erro ao excluir serviço:", error);

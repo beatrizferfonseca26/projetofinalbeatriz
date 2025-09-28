@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/button";
 import Sidebar from "@/components/sideBar";
-import { Formulario } from "@/components/ui/form";
+import { FormularioModalFuncionario } from "@/components/ui/FormularioModalFuncionario";
 import {
   Modal,
   ModalContent,
@@ -28,6 +28,7 @@ export default function FuncionariosPage() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [editFuncionario, setEditFuncionario] = useState<Funcionario | null>(null);
 
   const router = useRouter();
   // Buscar lista de funcionários
@@ -64,36 +65,65 @@ export default function FuncionariosPage() {
       console.error("Erro de conexão", err);
     }
   };
-  const handleSubmit = async () => {
+
+  // Novo handleSubmit para criar/editar
+  const handleSubmit = async (formData: { nome: string; email: string; senha: string }) => {
     try {
-      if (!nome || !email || !senha) {
+      if (!formData.nome || !formData.email || (!editFuncionario && !formData.senha)) {
         alert("Preencha todos os campos obrigatórios.");
         return;
       }
 
-      // gerar hash da senha
-      const hashedPassword = await bcrypt.hash(senha, 10);
+      let hashedPassword = undefined;
+      if (formData.senha) {
+        hashedPassword = await bcrypt.hash(formData.senha, 10);
+      }
 
-      const res = await fetch("/api/interna/admin/funcionarios", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nome,
-          email,
-          senha: hashedPassword,
-        }),
-      });
+      if (editFuncionario) {
+        // Editar funcionário
+        const res = await fetch(`/api/interna/admin/funcionarios/${editFuncionario.Id_Funcionario}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome: formData.nome,
+            email: formData.email,
+            senha: hashedPassword, // só envia se foi preenchida
+          }),
+        });
 
-      if (res.ok) {
-        const novoFuncionario = await res.json();
-        setFuncionarios((prev) => [...prev, novoFuncionario]);
-        setOpen(false);
-        setNome("");
-        setEmail("");
-        setSenha("");
-        toast.success("Funcionário salvo com sucesso!");
+        if (res.ok) {
+          const atualizado = await res.json();
+          setFuncionarios((prev) =>
+            prev.map((f) =>
+              f.Id_Funcionario === editFuncionario.Id_Funcionario ? atualizado : f
+            )
+          );
+          setEditFuncionario(null);
+          setOpen(false);
+          toast.success("Funcionário atualizado com sucesso!");
+        } else {
+          console.error("Erro ao atualizar funcionário");
+        }
       } else {
-        console.error("Erro ao salvar funcionário");
+        // Criar novo funcionário
+        const res = await fetch("/api/interna/admin/funcionarios", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome: formData.nome,
+            email: formData.email,
+            senha: hashedPassword,
+          }),
+        });
+
+        if (res.ok) {
+          const novoFuncionario = await res.json();
+          setFuncionarios((prev) => [...prev, novoFuncionario]);
+          setOpen(false);
+          toast.success("Funcionário salvo com sucesso!");
+        } else {
+          console.error("Erro ao salvar funcionário");
+        }
       }
     } catch (err) {
       console.error("Erro ao enviar formulário", err);
@@ -102,17 +132,17 @@ export default function FuncionariosPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar fixa à esquerda */}
       <Sidebar />
-
-      {/* Conteúdo principal */}
       <div className="flex flex-col flex-1">
         <main className="flex-1 p-6 md:p-10">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-800">Funcionários</h1>
             <Button
               variant="primary"
-              onClick={() => setOpen(true)}
+              onClick={() => {
+                setEditFuncionario(null);
+                setOpen(true);
+              }}
             >
               Novo Funcionário
             </Button>
@@ -147,11 +177,10 @@ export default function FuncionariosPage() {
                       </td>
                       <td className="p-3 flex gap-3 justify-center">
                         <button
-                          onClick={() =>
-                            router.push(
-                              `/administrador/funcionarios/${f.Id_Funcionario}/editar`
-                            )
-                          }
+                          onClick={() => {
+                            setEditFuncionario(f);
+                            setOpen(true);
+                          }}
                           className="text-blue-600 hover:underline text-sm"
                         >
                           Editar
@@ -172,43 +201,23 @@ export default function FuncionariosPage() {
         </main>
 
         {/* Modal do formulário */}
-        <Modal isOpen={open} onOpenChange={setOpen}>
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className="text-lg font-bold">
-                  Novo Funcionário
-                </ModalHeader>
-                <ModalBody>
-                  <Formulario
-                    showNome
-                    showEmail
-                    showSenha
-                    showMorada={false}
-                    showTelemovel={false}
-                    showNif={false}
-                    showDataNascimento={false}
-                    
-                  />
-                  <div className="flex justify-end gap-2 mt-4">
-                    <Button variant="secondary" onClick={onClose}>
-                      Cancelar
-                    </Button>
-                    <Button
-                      variant="primary"
-                      onClick={() => {
-                        handleSubmit();
-                        onClose();
-                      }}
-                    >
-                      Salvar
-                    </Button>
-                  </div>
-                </ModalBody>
-              </>
-            )}
-          </ModalContent>
-        </Modal>
+        <FormularioModalFuncionario
+          showNome
+          showEmail
+          showSenha
+          showMorada={false}
+          showTelemovel={false}
+          showNif={false}
+          showDataNascimento={false}
+          onSubmit={handleSubmit}
+          open={open}
+          setOpen={setOpen}
+          initialData={
+            editFuncionario
+              ? { nome: editFuncionario.Nome, email: editFuncionario.Email }
+              : undefined
+          }
+        />
 
         {/* Rodapé fixo */}
         <footer className="bg-gray-900 text-white text-center py-4 mt-auto">

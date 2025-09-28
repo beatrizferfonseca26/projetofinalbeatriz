@@ -2,9 +2,19 @@
 
 import Sidebar from '@/components/sideBar';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { FormularioModal } from '@/components/ui/form';
+
 
 export default function ClientesPage() {
   const router = useRouter();
+  const [openForm, setOpenForm] = useState(false);
+
+  const handleSubmit = async (formData: { nome: string; email: string; senha: string }) => {
+    // Aqui você pode integrar com API para atualizar dados do cliente
+    console.log('Dados enviados:', formData);
+    setOpenForm(false);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -39,7 +49,7 @@ export default function ClientesPage() {
               </div>
 
               <div
-                onClick={() => router.push('/clientes/editar')}
+                onClick={() => setOpenForm(true)}
                 className="cursor-pointer bg-white p-5 rounded-xl shadow-sm hover:shadow-lg transition"
               >
                 <h3 className="font-medium text-gray-700 mb-2">Editar Perfil</h3>
@@ -51,6 +61,19 @@ export default function ClientesPage() {
           </div>
         </main>
       </div>
+
+      {/* Modal do formulário */}
+      <FormularioModal
+        showNome
+        showEmail
+        showSenha
+        showMorada={false}
+        isOpen={openForm}
+        setOpen={setOpenForm}
+        onSubmit={async (dados) => {
+          console.log("Recebi do modal:", dados);
+        }}
+      />
 
       {/* Rodapé fixo */}
       <footer className="bg-gray-900 text-white text-center py-4 mt-auto">
