@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Input, Modal, ModalContent, ModalHeader, ModalBody } from "@heroui/react";
+import { Input } from "@heroui/react";
 import Button from "@/components/ui/button";
+import Sidebar from "@/components/sideBar";
 
 interface Servico {
   Id_Servico: number;
@@ -16,7 +17,7 @@ interface Servico {
 export default function ServicosPage() {
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
+  const [openForm, setOpenForm] = useState(false);
 
   // estados do formulário
   const [nome, setNome] = useState("");
@@ -31,7 +32,7 @@ export default function ServicosPage() {
 
   const fetchServicos = async () => {
     try {
-      const res = await fetch("/api/servicos");
+      const res = await fetch("/api/interna/servicos");
       const data = await res.json();
       setServicos(data);
     } catch (err) {
@@ -41,7 +42,16 @@ export default function ServicosPage() {
     }
   };
 
-  const handleSubmit = async () => {
+  const resetForm = () => {
+    setNome("");
+    setTitulo("");
+    setDescricao("");
+    setValor("");
+    setDuracao("");
+  };
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     try {
       const res = await fetch("/api/interna/servicos", {
         method: "POST",
@@ -57,12 +67,8 @@ export default function ServicosPage() {
 
       if (res.ok) {
         await fetchServicos();
-        setOpen(false);
-        setNome("");
-        setTitulo("");
-        setDescricao("");
-        setValor("");
-        setDuracao("");
+        setOpenForm(false);
+        resetForm();
       }
     } catch (err) {
       console.error("Erro ao salvar serviço:", err);
@@ -82,102 +88,148 @@ export default function ServicosPage() {
   };
 
   return (
-    <div className="p-6 md:p-10">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Serviços</h1>
-        <Button variant="primary" onClick={() => setOpen(true)}>
-          Novo Serviço
-        </Button>
-      </div>
+    <div className="flex min-h-screen bg-gray-100">
+      <Sidebar />
+      <div className="flex flex-col flex-1">
+        <main className="flex-1 p-6 md:p-10">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-800">Serviços</h1>
+            <Button variant="primary" onClick={() => setOpenForm(true)}>
+              Novo Serviço
+            </Button>
+          </div>
 
-      {/* Tabela */}
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        {loading ? (
-          <p className="p-4 text-gray-600">Carregando...</p>
-        ) : servicos.length === 0 ? (
-          <p className="p-4 text-gray-600">Nenhum serviço cadastrado.</p>
-        ) : (
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-200 text-left">
-                <th className="p-3">Nome</th>
-                <th className="p-3">Título</th>
-                <th className="p-3">Descrição</th>
-                <th className="p-3">Duração (min)</th>
-                <th className="p-3">Valor (€)</th>
-                <th className="p-3 text-center">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {servicos.map((s) => (
-                <tr key={s.Id_Servico} className="border-t hover:bg-gray-50">
-                  <td className="p-3">{s.Nome}</td>
-                  <td className="p-3">{s.Titulo}</td>
-                  <td className="p-3">{s.Descricao}</td>
-                  <td className="p-3">{s.Duracao || "—"}</td>
-                  <td className="p-3">{s.Valor ? `€ ${s.Valor}` : "—"}</td>
-                  <td className="p-3 flex gap-3 justify-center">
-                    <button
-                      onClick={() => alert("Fazer tela de edição")}
-                      className="text-blue-600 hover:underline text-sm"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => handleDelete(s.Id_Servico)}
-                      className="text-red-600 hover:underline text-sm"
-                    >
-                      Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+          {/* Tabela */}
+          <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            {loading ? (
+              <p className="p-4 text-gray-600">Carregando...</p>
+            ) : servicos.length === 0 ? (
+              <p className="p-4 text-gray-600">Nenhum serviço cadastrado.</p>
+            ) : (
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-200 text-left">
+                    <th className="p-3">Nome</th>
+                    <th className="p-3">Título</th>
+                    <th className="p-3">Descrição</th>
+                    <th className="p-3">Duração (min)</th>
+                    <th className="p-3">Valor (€)</th>
+                    <th className="p-3 text-center">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {servicos.map((s) => (
+                    <tr key={s.Id_Servico} className="border-t hover:bg-gray-50">
+                      <td className="p-3">{s.Nome}</td>
+                      <td className="p-3">{s.Titulo}</td>
+                      <td className="p-3">{s.Descricao}</td>
+                      <td className="p-3">{s.Duracao || "—"}</td>
+                      <td className="p-3">{s.Valor ? `€ ${s.Valor}` : "—"}</td>
+                      <td className="p-3 flex gap-3 justify-center">
+                        <button
+                          onClick={() => alert("Fazer tela de edição")}
+                          className="text-blue-600 hover:underline text-sm"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => handleDelete(s.Id_Servico)}
+                          className="text-red-600 hover:underline text-sm"
+                        >
+                          Excluir
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </main>
 
-      {/* Modal de cadastro */}
-      <Modal isOpen={open} onOpenChange={setOpen}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="text-lg font-bold">Novo Serviço</ModalHeader>
-              <ModalBody>
-                <div className="flex flex-col gap-4">
-                  <Input label="Nome" value={nome} onChange={(e) => setNome(e.target.value)} />
-                  <Input label="Título" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
-                  <Input
-                    label="Descrição"
+        {/* Modal do formulário  */}
+        {openForm && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+            <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg relative">
+              <button
+                className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl"
+                onClick={() => setOpenForm(false)}
+                aria-label="Fechar"
+              >
+                ×
+              </button>
+              <h2 className="text-xl font-bold mb-4">Novo Serviço</h2>
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Nome</label>
+                  <input
+                    type="text"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    className="w-full border rounded p-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Título</label>
+                  <input
+                    type="text"
+                    value={titulo}
+                    onChange={(e) => setTitulo(e.target.value)}
+                    className="w-full border rounded p-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Descrição</label>
+                  <input
+                    type="text"
                     value={descricao}
                     onChange={(e) => setDescricao(e.target.value)}
+                    className="w-full border rounded p-2"
                   />
-                  <Input
-                    label="Duração (min)"
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Duração (min)</label>
+                  <input
                     type="number"
                     value={duracao}
                     onChange={(e) => setDuracao(e.target.value)}
+                    className="w-full border rounded p-2"
                   />
-                  <Input
-                    label="Valor (€)"
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Valor (€)</label>
+                  <input
                     type="number"
                     value={valor}
                     onChange={(e) => setValor(e.target.value)}
+                    className="w-full border rounded p-2"
                   />
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
-                  <Button variant="secondary" onClick={onClose}>
+                  <button
+                    type="button"
+                    onClick={() => setOpenForm(false)}
+                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                  >
                     Cancelar
-                  </Button>
-                  <Button variant="primary" onClick={handleSubmit}>
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
                     Salvar
-                  </Button>
+                  </button>
                 </div>
-              </ModalBody>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+              </form>
+            </div>
+          </div>
+        )}
+
+        <footer className="bg-gray-900 text-white text-center py-4 mt-auto">
+          <p>Powered by Beatriz Fonseca | {new Date().getFullYear()}</p>
+        </footer>
+      </div>
     </div>
   );
 }

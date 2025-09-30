@@ -5,36 +5,19 @@ import Sidebar from "@/components/sideBar";
 import Button from "@/components/ui/button";
 import { toast } from "react-toastify";
 
-interface Cliente {
-  Nome: string;
-}
-
-interface Funcionario {
-  Nome: string;
-}
-
-interface Servico {
-  Nome: string;
-}
-
 interface Agendamento {
   Id_Agendamento: number;
-  Data: string | null;
-  HoraInicio: string | null;
-  HoraFinal: string | null;
-  Status: string | null;
+  Data: string;
+  HoraInicio: string;
+  HoraFinal: string;
+  Status: string;
   Observacoes?: string | null;
-  clientes: Cliente;
-  funcionarios?: Funcionario | null;
-  servicos: Servico;
+  Servico: string;
+  Valor: number;
+  Funcionario: string | null;
 }
 
-const statusOptions = [
-  "Marcado",
-  "Confirmado",
-  "Realizado",
-  "Cancelado"
-];
+const statusOptions = ["Marcado", "Confirmado", "Realizado", "Cancelado"];
 
 export default function AgendamentosPage() {
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
@@ -48,151 +31,131 @@ export default function AgendamentosPage() {
 
   const fetchAgendamentos = async () => {
     setLoading(true);
-    const res = await fetch("/api/interna/agendamentos");
-    const data = await res.json();
-    setAgendamentos(data || []);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/interna/agendamentos");
+      const data = await res.json();
+      setAgendamentos(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Erro ao buscar agendamentos:", err);
+      setAgendamentos([]);
+    } finally {
+      setLoading(false);
+    }
+  
   };
 
   const handleStatusUpdate = async (id: number, status: string) => {
-    const res = await fetch(`/api/interna/agendamentos/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ Status: status }),
-    });
-    if (res.ok) {
-      setAgendamentos((prev) =>
-        prev.map((a) =>
-          a.Id_Agendamento === id ? { ...a, Status: status } : a
-        )
-      );
-      toast.success("Status atualizado!");
-    } else {
+    try {
+      const res = await fetch(`/api/interna/agendamentos`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Id_Agendamento: id, Status: status }),
+      });
+
+
+      if (res.ok) {
+        setAgendamentos((prev) =>
+          prev.map((a) =>
+            a.Id_Agendamento === id ? { ...a, Status: status } : a
+          )
+        );
+        toast.success("Status atualizado!");
+      } else {
+        toast.error("Erro ao atualizar status.");
+      }
+    } catch (err) {
       toast.error("Erro ao atualizar status.");
+    } finally {
+      setEditStatusId(null);
+      setStatusEdit("");
     }
-    setEditStatusId(null);
-    setStatusEdit("");
+
+
   };
 
   const handleCancelar = async (id: number) => {
     if (!confirm("Tem certeza que deseja cancelar este agendamento?")) return;
-    const res = await fetch(`/api/interna/agendamentos/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ Status: "Cancelado" }),
-    });
-    if (res.ok) {
-      setAgendamentos((prev) =>
-        prev.map((a) =>
-          a.Id_Agendamento === id ? { ...a, Status: "Cancelado" } : a
-        )
-      );
-      toast.success("Agendamento cancelado!");
-    } else {
+    try {
+      const res = await fetch(`/api/interna/agendamentos`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Id_Agendamento: id, Status: "Cancelado" }),
+      });
+
+      if (res.ok) {
+        setAgendamentos((prev) =>
+          prev.map((a) =>
+            a.Id_Agendamento === id ? { ...a, Status: "Cancelado" } : a
+          )
+        );
+        toast.success("Agendamento cancelado!");
+      } else {
+        toast.error("Erro ao cancelar agendamento.");
+      }
+    } catch (err) {
       toast.error("Erro ao cancelar agendamento.");
     }
   };
 
-  return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar />
-      <main className="flex-1 p-6 md:p-10">
-        <h1 className="text-2xl font-bold mb-6">Agendamentos</h1>
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
-          {loading ? (
-            <p className="p-4 text-gray-600">Carregando...</p>
-          ) : agendamentos.length === 0 ? (
-            <p className="p-4 text-gray-600">Nenhum agendamento encontrado.</p>
+  return (<div className="flex min-h-screen bg-gray-100"> <Sidebar /> <main className="flex-1 p-6 md:p-10"> <h1 className="text-2xl font-bold mb-6">Agendamentos</h1> <div className="bg-white shadow-md rounded-lg overflow-hidden">
+    {loading ? (<p className="p-4 text-gray-600">Carregando...</p>
+    ) : agendamentos.length === 0 ? (<p className="p-4 text-gray-600">Nenhum agendamento encontrado.</p>
+    ) : (<table className="w-full border-collapse"> <thead> <tr className="bg-gray-200 text-left"> <th className="p-3">Serviço</th> <th className="p-3">Funcionário</th> <th className="p-3">Valor</th> <th className="p-3">Data</th> <th className="p-3">Hora Início</th> <th className="p-3">Hora Final</th> <th className="p-3">Status</th> <th className="p-3">Observações</th> <th className="p-3 text-center">Ações</th> </tr> </thead> <tbody>
+      {agendamentos.map((a) => (<tr
+        key={a.Id_Agendamento}
+        className="border-t hover:bg-gray-50"
+      > <td className="p-3">{a.Servico || "-"}</td> <td className="p-3">{a.Funcionario || "-"}</td> <td className="p-3">
+          {a.Valor ? `€${a.Valor.toFixed(2)}` : "-"} </td> <td className="p-3">
+          {a.Data ? new Date(a.Data).toLocaleDateString() : "-"} </td> <td className="p-3">
+          {a.HoraInicio ? a.HoraInicio : "-"} </td> <td className="p-3">
+          {a.HoraFinal ? a.HoraFinal : "-"} </td> <td className="p-3">
+          {editStatusId === a.Id_Agendamento ? (
+            <select
+              value={statusEdit}
+              onChange={(e) => setStatusEdit(e.target.value)}
+              className="border rounded px-2 py-1"
+            > <option value="">Selecione</option>
+              {statusOptions.map((status) => (<option key={status} value={status}>
+                {status} </option>
+              ))} </select>
           ) : (
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-200 text-left">
-                  <th className="p-3">Cliente</th>
-                  <th className="p-3">Funcionário</th>
-                  <th className="p-3">Serviço</th>
-                  <th className="p-3">Data</th>
-                  <th className="p-3">Hora Início</th>
-                  <th className="p-3">Hora Final</th>
-                  <th className="p-3">Status</th>
-                  <th className="p-3">Observações</th>
-                  <th className="p-3 text-center">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {agendamentos.map((a) => (
-                  <tr key={a.Id_Agendamento} className="border-t hover:bg-gray-50">
-                    <td className="p-3">{a.clientes?.Nome || "-"}</td>
-                    <td className="p-3">{a.funcionarios?.Nome || "-"}</td>
-                    <td className="p-3">{a.servicos?.Nome || "-"}</td>
-                    <td className="p-3">{a.Data ? new Date(a.Data).toLocaleDateString() : "-"}</td>
-                    <td className="p-3">{a.HoraInicio ? a.HoraInicio.slice(0, 5) : "-"}</td>
-                    <td className="p-3">{a.HoraFinal ? a.HoraFinal.slice(0, 5) : "-"}</td>
-                    <td className="p-3">
-                      {editStatusId === a.Id_Agendamento ? (
-                        <select
-                          value={statusEdit}
-                          onChange={(e) => setStatusEdit(e.target.value)}
-                          className="border rounded px-2 py-1"
-                        >
-                          <option value="">Selecione</option>
-                          {statusOptions.map((status) => (
-                            <option key={status} value={status}>
-                              {status}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        a.Status || "-"
-                      )}
-                    </td>
-                    <td className="p-3">{a.Observacoes || "-"}</td>
-                    <td className="p-3 flex gap-2 justify-center">
-                      {editStatusId === a.Id_Agendamento ? (
-                        <>
-                          <Button
-                            variant="primary"
-                            onClick={() =>
-                              handleStatusUpdate(a.Id_Agendamento, statusEdit)
-                            }
-                            disabled={!statusEdit}
-                          >
-                            Salvar
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            onClick={() => setEditStatusId(null)}
-                          >
-                            Cancelar
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button
-                            variant="secondary"
-                            onClick={() => {
-                              setEditStatusId(a.Id_Agendamento);
-                              setStatusEdit(a.Status || "");
-                            }}
-                          >
-                            Editar Status
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            onClick={() => handleCancelar(a.Id_Agendamento)}
-                            disabled={a.Status === "Cancelado"}
-                          >
-                            Cancelar Agendamento
-                          </Button>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </main>
-    </div>
+            a.Status || "-"
+          )} </td> <td className="p-3">{a.Observacoes || "-"}</td> <td className="p-3 flex gap-2 justify-center">
+          {editStatusId === a.Id_Agendamento ? (
+            <>
+              <Button
+                variant="primary"
+                onClick={() =>
+                  handleStatusUpdate(a.Id_Agendamento, statusEdit)
+                }
+                disabled={!statusEdit}
+              >
+                Salvar </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setEditStatusId(null)}
+              >
+                Cancelar </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setEditStatusId(a.Id_Agendamento);
+                  setStatusEdit(a.Status || "");
+                }}
+              >
+                Editar Status </Button>
+              <Button
+                variant="secondary"
+                onClick={() => handleCancelar(a.Id_Agendamento)}
+                disabled={a.Status === "Cancelado"}
+              >
+                Cancelar Agendamento </Button>
+            </>
+          )} </td> </tr>
+      ))} </tbody> </table>
+    )} </div> </main> </div>
   );
 }

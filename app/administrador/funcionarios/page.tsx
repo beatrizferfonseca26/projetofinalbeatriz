@@ -1,18 +1,11 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/button";
 import Sidebar from "@/components/sideBar";
-import { FormularioModalFuncionario } from "@/components/ui/FormularioModalFuncionario";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-} from "@heroui/react";
-import bcrypt from "bcryptjs";
 import { toast } from "react-toastify";
+import bcrypt from "bcryptjs";
 
 interface Funcionario {
   Id_Funcionario: string;
@@ -24,14 +17,16 @@ interface Funcionario {
 export default function FuncionariosPage() {
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
+  const [openForm, setOpenForm] = useState(false);
+  const [editFuncionario, setEditFuncionario] = useState<Funcionario | null>(null);
+
+  // Form states
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [editFuncionario, setEditFuncionario] = useState<Funcionario | null>(null);
 
   const router = useRouter();
-  // Buscar lista de funcionários
+
   useEffect(() => {
     const fetchFuncionarios = async () => {
       try {
@@ -47,7 +42,90 @@ export default function FuncionariosPage() {
     fetchFuncionarios();
   }, []);
 
-  // Excluir funcionário
+  const resetForm = () => {
+    setNome("");
+    setEmail("");
+    setSenha("");
+    setEditFuncionario(null);
+  };
+
+  const handleOpenForm = (funcionario?: Funcionario) => {
+    if (funcionario) {
+      setEditFuncionario(funcionario);
+      setNome(funcionario.Nome);
+      setEmail(funcionario.Email);
+      setSenha("");
+    } else {
+      resetForm();
+    }
+    setOpenForm(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!nome || !email || (!editFuncionario && !senha)) {
+      alert("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    let hashedPassword = undefined;
+    if (senha) {
+      hashedPassword = await bcrypt.hash(senha, 10);
+    }
+
+    try {
+      if (editFuncionario) {
+        // Editar funcionário
+        const res = await fetch(`/api/interna/admin/funcionarios/${editFuncionario.Id_Funcionario}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome,
+            email,
+            senha: hashedPassword, // só envia se foi preenchida
+          }),
+        });
+
+        if (res.ok) {
+          const atualizado = await res.json();
+          setFuncionarios((prev) =>
+            prev.map((f) =>
+              f.Id_Funcionario === editFuncionario.Id_Funcionario ? atualizado : f
+            )
+          );
+          setEditFuncionario(null);
+          setOpenForm(false);
+          toast.success("Funcionário atualizado com sucesso!");
+        } else {
+          console.error("Erro ao atualizar funcionário");
+        }
+      } else {
+        // Criar novo funcionário
+        const res = await fetch("/api/interna/admin/funcionarios", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome,
+            email,
+            senha: hashedPassword,
+          }),
+        });
+
+        if (res.ok) {
+          const novoFuncionario = await res.json();
+          setFuncionarios((prev) => [...prev, novoFuncionario]);
+          setOpenForm(false);
+          toast.success("Funcionário salvo com sucesso!");
+        } else {
+          console.error("Erro ao salvar funcionário");
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao enviar formulário", err);
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir este funcionário?")) return;
 
@@ -66,70 +144,6 @@ export default function FuncionariosPage() {
     }
   };
 
-  // Novo handleSubmit para criar/editar
-  const handleSubmit = async (formData: { nome: string; email: string; senha: string }) => {
-    try {
-      if (!formData.nome || !formData.email || (!editFuncionario && !formData.senha)) {
-        alert("Preencha todos os campos obrigatórios.");
-        return;
-      }
-
-      let hashedPassword = undefined;
-      if (formData.senha) {
-        hashedPassword = await bcrypt.hash(formData.senha, 10);
-      }
-
-      if (editFuncionario) {
-        // Editar funcionário
-        const res = await fetch(`/api/interna/admin/funcionarios/${editFuncionario.Id_Funcionario}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nome: formData.nome,
-            email: formData.email,
-            senha: hashedPassword, // só envia se foi preenchida
-          }),
-        });
-
-        if (res.ok) {
-          const atualizado = await res.json();
-          setFuncionarios((prev) =>
-            prev.map((f) =>
-              f.Id_Funcionario === editFuncionario.Id_Funcionario ? atualizado : f
-            )
-          );
-          setEditFuncionario(null);
-          setOpen(false);
-          toast.success("Funcionário atualizado com sucesso!");
-        } else {
-          console.error("Erro ao atualizar funcionário");
-        }
-      } else {
-        // Criar novo funcionário
-        const res = await fetch("/api/interna/admin/funcionarios", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nome: formData.nome,
-            email: formData.email,
-            senha: hashedPassword,
-          }),
-        });
-
-        if (res.ok) {
-          const novoFuncionario = await res.json();
-          setFuncionarios((prev) => [...prev, novoFuncionario]);
-          setOpen(false);
-          toast.success("Funcionário salvo com sucesso!");
-        } else {
-          console.error("Erro ao salvar funcionário");
-        }
-      }
-    } catch (err) {
-      console.error("Erro ao enviar formulário", err);
-    }
-  };
-
   return (
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar />
@@ -139,10 +153,7 @@ export default function FuncionariosPage() {
             <h1 className="text-2xl font-bold text-gray-800">Funcionários</h1>
             <Button
               variant="primary"
-              onClick={() => {
-                setEditFuncionario(null);
-                setOpen(true);
-              }}
+              onClick={() => handleOpenForm()}
             >
               Novo Funcionário
             </Button>
@@ -177,10 +188,7 @@ export default function FuncionariosPage() {
                       </td>
                       <td className="p-3 flex gap-3 justify-center">
                         <button
-                          onClick={() => {
-                            setEditFuncionario(f);
-                            setOpen(true);
-                          }}
+                          onClick={() => handleOpenForm(f)}
                           className="text-blue-600 hover:underline text-sm"
                         >
                           Editar
@@ -200,26 +208,72 @@ export default function FuncionariosPage() {
           </div>
         </main>
 
-        {/* Modal do formulário */}
-        <FormularioModalFuncionario
-          showNome
-          showEmail
-          showSenha
-          showMorada={false}
-          showTelemovel={false}
-          showNif={false}
-          showDataNascimento={false}
-          onSubmit={handleSubmit}
-          open={open}
-          setOpen={setOpen}
-          initialData={
-            editFuncionario
-              ? { nome: editFuncionario.Nome, email: editFuncionario.Email }
-              : undefined
-          }
-        />
+        {/* Modal do formulário igual ao de produtos */}
+        {openForm && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+            <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg relative">
+              <button
+                className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl"
+                onClick={() => setOpenForm(false)}
+                aria-label="Fechar"
+              >
+                ×
+              </button>
+              <h2 className="text-xl font-bold mb-4">
+                {editFuncionario ? "Editar Funcionário" : "Novo Funcionário"}
+              </h2>
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Nome</label>
+                  <input
+                    type="text"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    className="w-full border rounded p-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full border rounded p-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Senha {editFuncionario && <span className="text-xs text-gray-500">(preencha para alterar)</span>}</label>
+                  <input
+                    type="password"
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
+                    className="w-full border rounded p-2"
+                    placeholder={editFuncionario ? "Nova senha (opcional)" : "Senha"}
+                    required={!editFuncionario}
+                  />
+                </div>
+                <div className="flex justify-end gap-2 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setOpenForm(false)}
+                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Salvar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
-        {/* Rodapé fixo */}
         <footer className="bg-gray-900 text-white text-center py-4 mt-auto">
           <p>Powered by Beatriz Fonseca | {new Date().getFullYear()}</p>
         </footer>

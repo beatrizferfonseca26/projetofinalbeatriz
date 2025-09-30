@@ -57,8 +57,10 @@ export function FormularioModal({
   };
 
   return (
-    <Modal isOpen={isOpen} size="xl" onClose={handleClose}>
-      <ModalContent>
+    <Modal isOpen={isOpen} size="xl" onClose={handleClose}  backdrop="opaque"  classNames={{
+    backdrop: "bg-black/90", 
+  }}>
+      <ModalContent className="bg-white dark:bg-neutral-900 shadow-xl rounded-lg">
         <>
           <ModalHeader className="flex flex-col gap-1">Formulário</ModalHeader>
           <ModalBody>

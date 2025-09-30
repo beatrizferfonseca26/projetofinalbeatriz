@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
-// GET: Listar agendamentos
+// GET: Listar todos os agendamentos
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -12,16 +12,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
     }
 
-    const cliente = await prisma.clientes.findFirst({
-      where: { Email: session.user.email },
-    });
-
-    if (!cliente) {
-      return NextResponse.json({ error: 'Cliente não encontrado' }, { status: 404 });
-    }
-
     const agendamentos = await prisma.agendamentos.findMany({
-      where: { Id_Cliente: cliente.Id_Cliente },
       orderBy: [
         { Data: 'desc' },
         { HoraInicio: 'desc' },
@@ -29,37 +20,49 @@ export async function GET() {
       include: {
         servicos: true,
         funcionarios: true,
+        clientes: true, // opcional, caso queira exibir o cliente
       },
     });
+
     const agendamentosFormatados = agendamentos.map((ag) => {
-      let horaFormatada = '';
+      let horaInicio = '';
+      let horaFinal = '';
+
       if (ag.HoraInicio instanceof Date) {
         const h = ag.HoraInicio.getHours().toString().padStart(2, '0');
         const m = ag.HoraInicio.getMinutes().toString().padStart(2, '0');
-        horaFormatada = `${h}:${m}`;
+        horaInicio = `${h}:${m}`;
+      }
+
+      if (ag.HoraFinal instanceof Date) {
+        const h = ag.HoraFinal.getHours().toString().padStart(2, '0');
+        const m = ag.HoraFinal.getMinutes().toString().padStart(2, '0');
+        horaFinal = `${h}:${m}`;
       }
 
       return {
         Id_Agendamento: ag.Id_Agendamento,
-        Data: ag.Data ? ag.Data.toISOString().split('T')[0] : '', // YYYY-MM-DD
-        HoraInicio: horaFormatada,
-        HoraFinal: ag.HoraFinal
-          ? `${ag.HoraFinal.getHours().toString().padStart(2, '0')}:${ag.HoraFinal.getMinutes().toString().padStart(2, '0')}`
-          : '',
+        Data: ag.Data ? ag.Data.toISOString().split('T')[0] : '',
+        HoraInicio: horaInicio,
+        HoraFinal: horaFinal,
         Status: ag.Status || '',
         Servico: ag.servicos?.Nome || '',
         Valor: ag.servicos?.Valor || 0,
         Funcionario: ag.funcionarios?.Nome || null,
+        Cliente: ag.clientes?.Nome || null, // caso queira exibir no front
+        Observacoes: ag.Observacoes || null,
       };
     });
 
-
     return NextResponse.json(agendamentosFormatados);
+
+
   } catch (error) {
     console.error('Erro ao buscar agendamentos:', error);
     return NextResponse.json({ error: 'Erro ao buscar agendamentos' }, { status: 500 });
   }
 }
+
 
 // POST: Criar novo agendamento
 export async function POST(request: Request) {
@@ -179,19 +182,17 @@ export async function PUT(request: Request) {
       include: {
         servicos: {
           include: {
-            produtos: true, // Supondo que existe relação servicos -> produtos
+            produtos: true, // <- se serviços tiverem relação N:N com produtos
           },
         },
       },
     });
 
-    // Se o status foi alterado para 'Realizado', diminui o estoque do produto associado ao serviço
-    if (Status === "Realizado" && agendamentoAtualizado.servicos?.produtos?.Id_Produto) {
-      const produtoId = agendamentoAtualizado.servicos.produtos.Id_Produto;
+    if (Status === "Realizado" && agendamentoAtualizado.servicos?.produtos) {
+      const produto = agendamentoAtualizado.servicos.produtos;
 
-      // Diminui o estoque em 1, mas nunca abaixo de zero
       await prisma.produtos.update({
-        where: { Id_Produto: produtoId },
+        where: { Id_Produto: produto.Id_Produto },
         data: {
           Estoque: {
             decrement: 1,
@@ -201,6 +202,7 @@ export async function PUT(request: Request) {
     }
 
     return NextResponse.json(agendamentoAtualizado);
+
   } catch (error) {
     console.error('Erro ao atualizar agendamento:', error);
     return NextResponse.json({ error: 'Erro ao atualizar agendamento' }, { status: 500 });
