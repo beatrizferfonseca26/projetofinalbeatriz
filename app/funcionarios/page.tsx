@@ -2,11 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/sideBar';
-import Button from '@/components/ui/button';
-import { FormularioModal } from '@/components/ui/form';
 
-// Tipagens locais
 interface Funcionario {
   Id_Funcionario: number;
   Nome: string;
@@ -14,41 +12,35 @@ interface Funcionario {
   Administrador: boolean;
 }
 
-interface Agendamento {
-  Id_Agendamento: number;
-  Data: string | null;
-  HoraInicio: string | null;
-  HoraFinal: string | null;
-  Status: string | null;
-  servicos: {
-    Nome: string | null;
-  };
-  clientes: {
-    Nome: string | null;
-  };
-}
-
 export default function FuncionarioPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
-  const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
   const [loading, setLoading] = useState(true);
-  const [openForm, setOpenForm] = useState(false);
-  const [editAgendamento, setEditAgendamento] = useState<Agendamento | null>(null);
-  const [statusEdit, setStatusEdit] = useState<string>('');
 
-  // Buscar dados do funcionário logado
+  // Modal de edição do perfil
+  const [openForm, setOpenForm] = useState(false);
+
+  // Estados do formulário
+  const [nome, setNome] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+
   useEffect(() => {
     if (!session?.user?.email) return;
 
     const fetchFuncionario = async () => {
       setLoading(true);
       try {
-        const res = await fetch(
-          `/api/interna/funcionarios/by-email?email=${session.user.email}`
-        );
-        const data = await res.json();
+        const res = await fetch(`/api/interna/funcionarios`);
+        const funcionarios = await res.json();
+        const data = funcionarios.find((f: Funcionario) => f.Email === session.user.email);
         setFuncionario(data);
+
+        if (data) {
+          setNome(data.Nome);
+          setEmail(data.Email);
+        }
       } catch (err) {
         console.error('Erro ao buscar funcionário:', err);
       } finally {
@@ -59,67 +51,25 @@ export default function FuncionarioPage() {
     fetchFuncionario();
   }, [session?.user?.email]);
 
-  // Buscar agendamentos do funcionário logado
-  useEffect(() => {
-    if (!funcionario?.Id_Funcionario) return;
-
-    const fetchAgendamentos = async () => {
-      try {
-        const res = await fetch(
-          `/api/interna/agendamentos?funcionarioId=${funcionario.Id_Funcionario}`
-        );
-        const data = await res.json();
-        setAgendamentos(data);
-      } catch (err) {
-        console.error('Erro ao buscar agendamentos:', err);
-      }
-    };
-
-    fetchAgendamentos();
-  }, [funcionario?.Id_Funcionario]);
-
-  // Atualizar email/senha do funcionário
-  const handleSubmit = async (formData: Record<string, string>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!funcionario) return;
-
-    const { email, senha } = formData;
 
     try {
       await fetch(`/api/interna/funcionarios/${funcionario.Id_Funcionario}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, senha }),
+        body: JSON.stringify({ nome, email, senha }),
       });
 
       setFuncionario((prev) =>
-        prev ? { ...prev, Email: email || prev.Email } : prev
+        prev ? { ...prev, Nome: nome || prev.Nome, Email: email || prev.Email } : prev
       );
     } catch (err) {
       console.error('Erro ao atualizar funcionário:', err);
     } finally {
       setOpenForm(false);
-    }
-  };
-
-  // Atualizar status do agendamento
-  const handleStatusUpdate = async (agendamentoId: number, status: string) => {
-    try {
-      await fetch(`/api/interna/agendamentos/${agendamentoId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ Status: status }),
-      });
-
-      setAgendamentos((prev) =>
-        prev.map((a) =>
-          a.Id_Agendamento === agendamentoId ? { ...a, Status: status } : a
-        )
-      );
-    } catch (err) {
-      console.error('Erro ao atualizar status do agendamento:', err);
-    } finally {
-      setEditAgendamento(null);
-      setStatusEdit('');
+      setSenha(''); // limpa campo senha
     }
   };
 
@@ -132,135 +82,125 @@ export default function FuncionarioPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar />
+    <div className="flex flex-col min-h-screen bg-gray-100">
+      <div className="flex flex-1">
+        <Sidebar />
 
-      <main className="flex-1 p-6 md:p-10">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-2xl font-bold mb-4">Perfil do Funcionário</h1>
+        <main className="flex-1 p-6 md:p-10">
+          <div className="flex flex-col gap-6">
+            <h1 className="text-3xl font-bold text-gray-800">Área do Funcionário</h1>
 
-          {/* Bloco de perfil */}
-          <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <div className="mb-2">
-              <span className="font-semibold">Nome:</span> {funcionario.Nome}
-            </div>
-            <div className="mb-2">
-              <span className="font-semibold">Email:</span> {funcionario.Email}
-            </div>
-            <div className="mb-2">
-              <span className="font-semibold">Administrador:</span>{' '}
-              {funcionario.Administrador ? 'Sim' : 'Não'}
-            </div>
+            <section className="bg-white p-6 rounded-xl shadow-md">
+              <h2 className="text-xl font-semibold mb-2 text-gray-700">
+                Bem-vindo, {funcionario.Nome}!
+              </h2>
+              <p className="text-gray-600">
+                Aqui você pode gerenciar seus agendamentos, editar seu perfil e acessar
+                funções administrativas (se disponível).
+              </p>
+            </section>
 
-            <Button
-              variant="primary"
-              className="mt-4"
-              onClick={() => setOpenForm(true)}
-            >
-              Editar Email/Senha
-            </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div
+                onClick={() => router.push('/funcionarios/agendamentos')}
+                className="cursor-pointer bg-white p-5 rounded-xl shadow-sm hover:shadow-lg transition"
+              >
+                <h3 className="font-medium text-gray-700 mb-2">Meus Agendamentos</h3>
+                <p className="text-sm text-gray-600">
+                  Visualize e edite os agendamentos atribuídos a você.
+                </p>
+              </div>
+
+              <div
+                onClick={() => setOpenForm(true)}
+                className="cursor-pointer bg-white p-5 rounded-xl shadow-sm hover:shadow-lg transition"
+              >
+                <h3 className="font-medium text-gray-700 mb-2">Editar Perfil</h3>
+                <p className="text-sm text-gray-600">
+                  Atualize seu nome, email ou senha de acesso.
+                </p>
+              </div>
+
+              {funcionario.Administrador && (
+                <div
+                  onClick={() => router.push('/funcionarios/gestao')}
+                  className="cursor-pointer bg-white p-5 rounded-xl shadow-sm hover:shadow-lg transition"
+                >
+                  <h3 className="font-medium text-gray-700 mb-2">Gestão de Funcionários</h3>
+                  <p className="text-sm text-gray-600">
+                    Adicione ou gerencie os dados de outros funcionários.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
+        </main>
+      </div>
 
-          {/* Bloco de agendamentos */}
-          <h2 className="text-xl font-semibold mb-2">Meus Agendamentos</h2>
-          <div className="bg-white rounded-lg shadow p-4 overflow-x-auto">
-            {agendamentos.length === 0 ? (
-              <div className="text-gray-500">Nenhum agendamento encontrado.</div>
-            ) : (
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="p-2">Cliente</th>
-                    <th className="p-2">Serviço</th>
-                    <th className="p-2">Data</th>
-                    <th className="p-2">Hora Início</th>
-                    <th className="p-2">Hora Final</th>
-                    <th className="p-2">Status</th>
-                    <th className="p-2">Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {agendamentos.map((a) => (
-                    <tr key={a.Id_Agendamento} className="border-t">
-                      <td className="p-2">{a.clientes?.Nome || '-'}</td>
-                      <td className="p-2">{a.servicos?.Nome || '-'}</td>
-                      <td className="p-2">
-                        {a.Data ? new Date(a.Data).toLocaleDateString() : '-'}
-                      </td>
-                      <td className="p-2">
-                        {a.HoraInicio ? a.HoraInicio.slice(0, 5) : '-'}
-                      </td>
-                      <td className="p-2">
-                        {a.HoraFinal ? a.HoraFinal.slice(0, 5) : '-'}
-                      </td>
-                      <td className="p-2">
-                        {editAgendamento?.Id_Agendamento === a.Id_Agendamento ? (
-                          <select
-                            value={statusEdit}
-                            onChange={(e) => setStatusEdit(e.target.value)}
-                            className="border rounded px-2 py-1"
-                          >
-                            <option value="">Selecione</option>
-                            <option value="Realizado">Realizado</option>
-                            <option value="Confirmado">Confirmado</option>
-                            <option value="Cancelado">Cancelado</option>
-                            <option value="Marcado">Marcado</option>
-                          </select>
-                        ) : (
-                          a.Status || '-'
-                        )}
-                      </td>
-                      <td className="p-2">
-                        {editAgendamento?.Id_Agendamento === a.Id_Agendamento ? (
-                          <div className="flex gap-2">
-                            <Button
-                              variant="primary"
-                              onClick={() =>
-                                handleStatusUpdate(a.Id_Agendamento, statusEdit)
-                              }
-                              disabled={!statusEdit}
-                            >
-                              Salvar
-                            </Button>
-                            <Button
-                              variant="secondary"
-                              onClick={() => setEditAgendamento(null)}
-                            >
-                              Cancelar
-                            </Button>
-                          </div>
-                        ) : (
-                          <Button
-                            variant="secondary"
-                            onClick={() => {
-                              setEditAgendamento(a);
-                              setStatusEdit(a.Status || '');
-                            }}
-                          >
-                            Editar Status
-                          </Button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+      {/* Modal do formulário */}
+      {openForm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg relative">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl"
+              onClick={() => setOpenForm(false)}
+              aria-label="Fechar"
+            >
+              ×
+            </button>
+            <h2 className="text-xl font-bold mb-4">Editar Funcionário</h2>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Nome</label>
+                <input
+                  type="text"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  className="w-full border rounded p-2"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full border rounded p-2"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Senha <span className="text-xs text-gray-500">(preencha para alterar)</span>
+                </label>
+                <input
+                  type="password"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  className="w-full border rounded p-2"
+                  placeholder="Nova senha (opcional)"
+                />
+              </div>
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  type="button"
+                  onClick={() => setOpenForm(false)}
+                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Salvar
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-
-        {/* Modal para editar email/senha */}
-        <FormularioModal
-          showEmail
-          showSenha
-          isOpen={openForm}
-          setOpen={setOpenForm}
-          onSubmit={handleSubmit}
-          initialData={{
-            email: funcionario.Email,
-          }}
-        />
-      </main>
+      )}
 
       <footer className="bg-gray-900 text-white text-center py-4 mt-auto">
         <p>Powered by Beatriz Fonseca | {new Date().getFullYear()}</p>
@@ -268,4 +208,3 @@ export default function FuncionarioPage() {
     </div>
   );
 }
-

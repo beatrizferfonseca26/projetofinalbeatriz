@@ -208,7 +208,7 @@ export default function FuncionariosPage() {
           </div>
         </main>
 
-        {/* Modal do formulário igual ao de produtos */}
+        {/* Modal do formulário  */}
         {openForm && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
             <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg relative">

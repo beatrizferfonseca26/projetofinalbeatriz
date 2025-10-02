@@ -2,7 +2,9 @@
 
 import Sidebar from '@/components/sideBar';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+import Button from '@/components/ui/button';
 
 export default function ClientesPage() {
   const router = useRouter();
@@ -17,7 +19,46 @@ export default function ClientesPage() {
   const [morada, setMorada] = useState('');
   const [nif, setNif] = useState('');
   const [senhaVisible, setSenhaVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  // Função para buscar cliente
+  const fetchCliente = async (email: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/interna/clientes?email=${email}`);
+      const data = await res.json();
+
+      if (res.ok) {
+        setNome(data.Nome || '');
+        setEmail(data.Email || '');
+        setTelemovel(data.Telemovel || '');
+        setSenha(''); // nunca preencher senha
+        setDataNascimento(
+          data.DataNascimento ? new Date(data.DataNascimento).toISOString().split('T')[0] : ''
+        );
+        setMorada(data.Morada || '');
+        setNif(data.Nif?.toString() || '');
+      } else {
+        console.error('Erro:', data.message);
+      }
+    } catch (err) {
+      console.error('Erro ao buscar cliente:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // sempre que abrir o form, busca os dados do cliente logado
+  useEffect(() => {
+    if (openForm) {
+      const userEmail = localStorage.getItem('userEmail');
+      if (userEmail) {
+        fetchCliente(userEmail);
+      }
+    }
+  }, [openForm]);
+
+  // Submeter dados
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
@@ -25,7 +66,7 @@ export default function ClientesPage() {
       Nome: nome || null,
       Email: email || null,
       Telemovel: telemovel || null,
-      Senha: senha || null,
+      Senha: senha ? senha : null, // só envia se preenchida
       DataNascimento: dataNascimento ? new Date(dataNascimento) : null,
       Morada: morada || null,
       Nif: nif ? Number(nif) : null,
@@ -33,8 +74,21 @@ export default function ClientesPage() {
 
     console.log('Dados enviados:', formData);
 
-    // TODO: Enviar para API (PUT ou POST dependendo do caso)
-    // await fetch('/api/clientes', { method: 'POST', body: JSON.stringify(formData) })
+    const res = await fetch("/api/interna/clientes/update", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome, email, morada, telemovel, senha }),
+    });
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      toast.success("Conta atualizada com sucesso!");
+      setSenha("");
+    } else {
+      toast.error(data.error || "Erro ao atualizar conta.");
+    }
+
+    console.log('Dados enviados pelo formulário: ', formData)
 
     setOpenForm(false);
   };
@@ -97,87 +151,94 @@ export default function ClientesPage() {
               ×
             </button>
             <h2 className="text-xl font-bold mb-4">Editar Perfil</h2>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Nome</label>
-                <input
-                  type="text"
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  className="w-full border rounded p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border rounded p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Telemóvel</label>
-                <input
-                  type="text"
-                  value={telemovel}
-                  onChange={(e) => setTelemovel(e.target.value)}
-                  className="w-full border rounded p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Senha</label>
-                <input
-                  value={senha}
-                  type={senhaVisible ? 'text' : 'password'}
-                  onChange={(e) => setSenha(e.target.value)}
-                  className="w-full border rounded p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Data de Nascimento</label>
-                <input
-                  type="date"
-                  value={dataNascimento}
-                  onChange={(e) => setDataNascimento(e.target.value)}
-                  className="w-full border rounded p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Morada</label>
-                <input
-                  type="text"
-                  value={morada}
-                  onChange={(e) => setMorada(e.target.value)}
-                  className="w-full border rounded p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">NIF</label>
-                <input
-                  type="number"
-                  value={nif}
-                  onChange={(e) => setNif(e.target.value)}
-                  className="w-full border rounded p-2"
-                />
-              </div>
 
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  type="button"
-                  onClick={() => setOpenForm(false)}
-                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Salvar
-                </button>
-              </div>
-            </form>
+            {loading ? (
+              <p className="text-gray-500 text-center">Carregando dados...</p>
+            ) : (
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Nome</label>
+                  <input
+                    type="text"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    className="w-full border rounded p-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full border rounded p-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Telemóvel</label>
+                  <input
+                    type="text"
+                    value={telemovel}
+                    onChange={(e) => setTelemovel(e.target.value)}
+                    className="w-full border rounded p-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Senha</label>
+                  <input
+                    value={senha}
+                    type={senhaVisible ? 'text' : 'password'}
+                    onChange={(e) => setSenha(e.target.value)}
+                    className="w-full border rounded p-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Data de Nascimento</label>
+                  <input
+                    type="date"
+                    value={dataNascimento}
+                    onChange={(e) => setDataNascimento(e.target.value)}
+                    className="w-full border rounded p-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Morada</label>
+                  <input
+                    type="text"
+                    value={morada}
+                    onChange={(e) => setMorada(e.target.value)}
+                    className="w-full border rounded p-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">NIF</label>
+                  <input
+                    type="number"
+                    value={nif}
+                    onChange={(e) => setNif(e.target.value)}
+                    className="w-full border rounded p-2"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 mt-4">
+                  <Button
+                    variant='secondary'
+                    type="button"
+                    onClick={() => setOpenForm(false)}
+                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Salvar
+                  </Button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}
