@@ -68,47 +68,70 @@ export default function ProdutosPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     let produtoId = editProduto?.Id_Produto;
 
-    // Criação ou edição do produto
-    const res = await fetch(
-      editProduto
-        ? `/api/interna/produtos/${produtoId}`
-        : "/api/interna/produtos",
-      {
-        method: editProduto ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: editProduto?.Id_Produto,
-          nome,
-          estoque: estoque === "" ? null : Number(estoque),
-          estoqueCritico: estoqueCritico === "" ? null : Number(estoqueCritico),
-        }),
+    try {
+      // Criação ou edição do produto
+      const res = await fetch(
+        editProduto
+          ? `/api/interna/produtos/${produtoId}`
+          : "/api/interna/produtos",
+        {
+          method: editProduto ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: editProduto?.Id_Produto,
+            nome,
+            estoque: estoque === "" ? null : Number(estoque),
+            estoqueCritico: estoqueCritico === "" ? null : Number(estoqueCritico),
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.error || "Erro ao salvar produto.");
+        console.error("Erro ao salvar produto:", err);
+        return;
       }
-    );
 
-    if (!res.ok) {
-      toast.error("Erro ao salvar produto.");
-      return;
+      const produtoSalvo = await res.json();
+
+      // Upload de imagens (se houver)
+      if (imagens.length > 0) {
+        const formData = new FormData();
+        imagens.forEach((img) => formData.append("imagens", img));
+
+        const uploadRes = await fetch(
+          `/api/interna/produtos/${produtoSalvo.Id_Produto}/imagens`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const uploadData = await uploadRes.json();
+
+        if (!uploadRes.ok) {
+          toast.error(uploadData.error || "Erro ao enviar imagens.");
+          console.error("Erro no upload:", uploadData);
+          return;
+        }
+
+        toast.success("Imagens enviadas com sucesso!");
+      }
+
+      toast.success(editProduto ? "Produto atualizado!" : "Produto criado!");
+      setOpenForm(false);
+      resetForm();
+      fetchProdutos();
+    } catch (error) {
+      console.error("Erro inesperado:", error);
+      toast.error("Erro inesperado ao salvar produto.");
     }
-
-    const produtoSalvo = await res.json();
-
-    // Upload de imagens (se houver)
-    if (imagens.length > 0) {
-      const formData = new FormData();
-      imagens.forEach((img) => formData.append("imagens", img));
-      await fetch(`/api/interna/produtos/${produtoSalvo.Id_Produto}/imagens`, {
-        method: "POST",
-        body: formData,
-      });
-    }
-
-    toast.success(editProduto ? "Produto atualizado!" : "Produto criado!");
-    setOpenForm(false);
-    resetForm();
-    fetchProdutos();
   };
+
 
   const handleDelete = async (id: number) => {
     if (!confirm("Tem certeza que deseja excluir este produto?")) return;
@@ -348,36 +371,56 @@ export default function ProdutosPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Imagens</label>
+
+                  {/* Botão estilizado para upload */}
+                  <div className="flex items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => document.getElementById("input-imagens")?.click()}
+                    >
+                      Escolher ficheiros
+                    </Button>
+                    <span className="text-gray-500 text-sm">
+                      {imagens.length > 0 ? `${imagens.length} ficheiro(s) selecionado(s)` : "Nenhum ficheiro"}
+                    </span>
+                  </div>
+
+                  {/* Input file escondido */}
                   <input
+                    id="input-imagens"
                     type="file"
                     multiple
                     accept="image/*"
+                    className="hidden"
                     onChange={(e) => setImagens(Array.from(e.target.files || []))}
-                    className="w-full"
                   />
-                  {imagens.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
+
+                  {/* Preview das imagens com borda */}
+                  {(imagens.length > 0 || (editProduto && editProduto.imagens.length > 0)) && (
+                    <div className="mt-3 p-3 border rounded-lg grid grid-cols-3 gap-3">
+                      {/* Imagens novas */}
                       {imagens.map((img, idx) => (
                         <div key={idx} className="relative">
                           <img
                             src={URL.createObjectURL(img)}
                             alt={img.name}
-                            className="w-12 h-12 object-cover rounded border"
+                            className="w-24 h-24 object-cover rounded border"
                           />
                         </div>
                       ))}
-                    </div>
-                  )}
-                  {editProduto && editProduto.imagens.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {editProduto.imagens.map((img) => (
-                        <img
-                          key={img.Id_Imagem}
-                          src={img.CaminhoImagem}
-                          alt={img.AltText || "Imagem"}
-                          className="w-12 h-12 object-cover rounded border"
-                        />
-                      ))}
+
+                      {/* Imagens já existentes no produto */}
+                      {editProduto &&
+                        editProduto.imagens.map((img) => (
+                          <div key={img.Id_Imagem} className="relative">
+                            <img
+                              src={img.CaminhoImagem}
+                              alt={img.AltText || "Imagem"}
+                              className="w-24 h-24 object-cover rounded border"
+                            />
+                          </div>
+                        ))}
                     </div>
                   )}
                 </div>
