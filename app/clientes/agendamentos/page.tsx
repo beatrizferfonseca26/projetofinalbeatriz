@@ -41,9 +41,9 @@ export default function AgendamentosPage() {
 
   const fetchAgendamentos = async () => {
     try {
-      const res = await fetch('/api/interna/agendamentos');
-      const data = await res.json();
-      setAgendamentos(data);
+  const res = await fetch('/api/interna/clientes/agendamentos');
+  const data = await res.json();
+  setAgendamentos(Array.isArray(data.agendamentos) ? data.agendamentos : []);
     } catch (error) {
       console.error('Erro ao carregar agendamentos:', error);
     } finally {

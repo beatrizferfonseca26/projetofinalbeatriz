@@ -1,12 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { format, addMinutes, parse } from 'date-fns';
+import { format, addMinutes, parse, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { toast } from 'react-toastify';
 import Button from './ui/button';
+
+type Disponibilidade = {
+  Id_Disponibilidade: number;
+  Data: string; // yyyy-MM-dd
+  HoraInicio: string; // HH:mm
+  HoraFinal: string; // HH:mm
+};
 
 type Servico = {
   Id_Servico: number;
@@ -14,6 +21,7 @@ type Servico = {
   Descricao: string;
   Duracao: number;
   Valor: number;
+  disponibilidadeprod?: Disponibilidade[];
 };
 
 type Funcionario = {
@@ -40,45 +48,49 @@ export default function AgendamentoModal({
   onAgendamentoCriado,
 }: AgendamentoModalProps) {
   const [servicos, setServicos] = useState<Servico[]>([]);
+  const [disponibilidades, setDisponibilidades] = useState<Disponibilidade[]>([]);
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [selectedServico, setSelectedServico] = useState<number | null>(null);
   const [selectedFuncionario, setSelectedFuncionario] = useState<number | null>(null);
   const [dataSelecionada, setDataSelecionada] = useState<Date | null>(null);
   const [horarios, setHorarios] = useState<string[]>([]);
   const [horarioSelecionado, setHorarioSelecionado] = useState<string | null>(null);
+  const [agendando, setAgendando] = useState(false);
 
   // Buscar serviços e funcionários
   useEffect(() => {
     if (!isOpen) return;
 
-
     fetch('/api/interna/servicos/disponibilidade')
       .then((res) => res.json())
-      .then(setServicos)
+      .then((data) => {
+        // data.servicosDisponiveis: [{..., disponibilidadeprod: [...] }]
+        setServicos(data.servicosDisponiveis || []);
+      })
       .catch(() => toast.error('Erro ao carregar serviços'));
 
     fetch('/api/interna/funcionarios')
       .then((res) => res.json())
       .then(setFuncionarios)
       .catch(() => toast.error('Erro ao carregar funcionários'));
-
-
   }, [isOpen]);
 
   // Gerar horários disponíveis
   useEffect(() => {
-    if (!dataSelecionada) return;
-
-    const generated: string[] = [];
-    for (let h = 9; h <= 17; h++) {
-      generated.push(`${h.toString().padStart(2, '0')}:00`);
-      generated.push(`${h.toString().padStart(2, '0')}: 30`);
+    if (!selectedServico || !dataSelecionada) {
+      setHorarios([]);
+      setHorarioSelecionado(null);
+      return;
     }
-    setHorarios(generated);
+    // Gera horários fixos das 09:00 às 18:00 a cada 30 minutos
+    const horariosGerados: string[] = [];
+    for (let h = 9; h < 18; h++) {
+      horariosGerados.push(`${h.toString().padStart(2, '0')}:00`);
+      horariosGerados.push(`${h.toString().padStart(2, '0')}:30`);
+    }
+    setHorarios(horariosGerados);
     setHorarioSelecionado(null);
-
-
-  }, [dataSelecionada]);
+  }, [selectedServico, dataSelecionada]);
 
   // Resetar funcionário se mudar serviço
   useEffect(() => {
@@ -86,14 +98,18 @@ export default function AgendamentoModal({
   }, [selectedServico]);
 
   const handleAgendar = async () => {
+    if (agendando) return;
+    setAgendando(true);
     if (!selectedServico || !dataSelecionada || !horarioSelecionado) {
       toast.error('Preencha todos os campos obrigatórios antes de confirmar.');
+      setAgendando(false);
       return;
     }
 
     const servico = servicos.find((s) => s.Id_Servico === selectedServico);
     if (!servico) {
       toast.error('Serviço inválido.');
+      setAgendando(false);
       return;
     }
 
@@ -126,9 +142,9 @@ export default function AgendamentoModal({
       }
     } catch {
       toast.error('Erro inesperado ao agendar.');
+    } finally {
+      setAgendando(false);
     }
-
-
   };
 
   if (!isOpen) return null;
@@ -181,7 +197,7 @@ export default function AgendamentoModal({
     )}
 
     {/* Horários */}
-    {dataSelecionada && (
+    {dataSelecionada && horarios.length > 0 && (
       <div className="mb-4">
         <label className="block mb-1 text-sm">Horário disponível:</label>
         <div className="grid grid-cols-3 gap-2">
@@ -200,17 +216,21 @@ export default function AgendamentoModal({
         </div>
       </div>
     )}
+    {dataSelecionada && horarios.length === 0 && (
+      <div className="mb-4 text-sm text-red-600">Nenhum horário disponível para esta data.</div>
+    )}
 
     {/* Botão Agendar */}
+
     {horarioSelecionado && (
-      <Button
-        variant="primary"
+      <button
+        type="button"
         onClick={handleAgendar}
-        loadingText="Agendando..."
-        className="mt-4 w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
+        disabled={agendando}
+        className={`mt-4 w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition ${agendando ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
-        Confirmar Agendamento
-      </Button>
+        {agendando ? 'Agendando...' : 'Confirmar Agendamento'}
+      </button>
     )}
 
     <Button

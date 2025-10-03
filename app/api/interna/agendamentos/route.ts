@@ -66,83 +66,117 @@ export async function GET() {
 
 // POST: Criar novo agendamento
 export async function POST(request: Request) {
+  console.log('POST /api/interna/agendamentos chamado', Date.now());
   try {
     const session = await getServerSession(authOptions);
-
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
     }
 
     const { Id_Servico, Id_Funcionario, Data, HoraInicio, Observacoes } = await request.json();
-
     if (!Id_Servico || !Data || !HoraInicio) {
       return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
     }
 
-    const cliente = await prisma.clientes.findFirst({
-      where: { Email: session.user.email },
+    // Tudo dentro de uma transação para garantir atomicidade
+    const resultado = await prisma.$transaction(async (tx) => {
+      const cliente = await tx.clientes.findFirst({
+        where: { Email: session.user.email },
+      });
+      if (!cliente) {
+        throw new Error('Cliente não encontrado');
+      }
+
+      // Buscar duração do serviço
+      const servico = await tx.servicos.findUnique({
+        where: { Id_Servico: Id_Servico },
+        select: { Duracao: true, Nome: true },
+      });
+      if (!servico || !servico.Duracao) {
+        throw new Error('Serviço não encontrado ou sem duração definida');
+      }
+
+      // Converter HoraInicio em objeto Date apenas para hora
+      const [hours, minutes] = HoraInicio.split(':').map(Number);
+      if (hours == null || minutes == null) {
+        throw new Error('Hora inválida');
+      }
+
+      // Data apenas (sem hora)
+      const dataOnly = new Date(Data + 'T00:00:00');
+      if (isNaN(dataOnly.getTime())) {
+        throw new Error('Data inválida');
+      }
+
+      // HoraInicio e HoraFinal como Date na data correta
+      const horaInicioDate = new Date(Data + 'T' + HoraInicio + ':00');
+      if (isNaN(horaInicioDate.getTime())) {
+        throw new Error('Hora de início inválida');
+      }
+      const horaFinalDate = new Date(horaInicioDate);
+      horaFinalDate.setMinutes(horaFinalDate.getMinutes() + servico.Duracao);
+
+      // Verificar se já existe agendamento igual (mesmo cliente, serviço, data e hora de início)
+      const agendamentoExistente = await tx.agendamentos.findFirst({
+        where: {
+          Id_Cliente: cliente.Id_Cliente,
+          Id_Servico: Id_Servico,
+          Data: dataOnly,
+          HoraInicio: horaInicioDate,
+        },
+      });
+      if (agendamentoExistente) {
+        throw new Error('Já existe um agendamento para este horário.');
+      }
+
+      // Verificar conflito de horário para o mesmo serviço e funcionário (ou qualquer funcionário se não selecionado)
+      const conflitos = await tx.agendamentos.findMany({
+        where: {
+          Data: dataOnly,
+          Id_Servico: Id_Servico,
+          ...(Id_Funcionario ? { Id_Funcionario: Id_Funcionario } : {}),
+          OR: [
+            {
+              HoraInicio: { lt: horaFinalDate },
+              HoraFinal: { gt: horaInicioDate },
+            },
+          ],
+        },
+      });
+      if (conflitos.length > 0) {
+        throw new Error('Horário indisponível. Escolha outro horário.');
+      }
+
+      const novoAgendamento = await tx.agendamentos.create({
+        data: {
+          Id_Servico,
+          Id_Cliente: cliente.Id_Cliente,
+          Id_Funcionario: Id_Funcionario ?? null,
+          Data: dataOnly,
+          HoraInicio: horaInicioDate,
+          HoraFinal: horaFinalDate,
+          Observacoes: Observacoes ?? null,
+        },
+        include: {
+          servicos: true,
+          clientes: true,
+          funcionarios: true,
+        },
+      });
+      return { novoAgendamento, cliente, servico, horaFinalDate };
     });
 
-    if (!cliente) {
-      return NextResponse.json({ error: 'Cliente não encontrado' }, { status: 404 });
-    }
-
-    // Buscar duração do serviço
-    const servico = await prisma.servicos.findUnique({
-      where: { Id_Servico: Id_Servico },
-      select: { Duracao: true, Nome: true },
-    });
-
-    if (!servico || !servico.Duracao) {
-      return NextResponse.json({ error: 'Serviço não encontrado ou sem duração definida' }, { status: 400 });
-    }
-
-    // Converter HoraInicio em objeto Date apenas para hora
-    const [hours, minutes] = HoraInicio.split(':').map(Number);
-    if (hours == null || minutes == null) {
-      return NextResponse.json({ error: 'Hora inválida' }, { status: 400 });
-    }
-
-    // Data completa do agendamento
-    const dataAgendamento = new Date(`${Data}T${HoraInicio}:00`);
-    if (isNaN(dataAgendamento.getTime())) {
-      return NextResponse.json({ error: 'Data ou hora inválida' }, { status: 400 });
-    }
-
-    // Calcular HoraFinal com base na duração do serviço (em minutos)
-    const horaFinalDate = new Date(dataAgendamento);
-    horaFinalDate.setMinutes(horaFinalDate.getMinutes() + servico.Duracao);
-
-    // HoraInicio e HoraFinal como objetos Date (apenas hora)
-    const horaInicioDate = new Date(0, 0, 0, hours, minutes);
-    const horaFinalOnly = new Date(0, 0, 0, horaFinalDate.getHours(), horaFinalDate.getMinutes());
-
-    const novoAgendamento = await prisma.agendamentos.create({
-      data: {
-        Id_Servico,
-        Id_Cliente: cliente.Id_Cliente,
-        Id_Funcionario: Id_Funcionario ?? null,
-        Data: dataAgendamento,
-        HoraInicio: horaInicioDate,
-        HoraFinal: horaFinalOnly,
-        Observacoes: Observacoes ?? null,
-      },
-      include: {
-        servicos: true,
-        clientes: true,
-        funcionarios: true,
-      },
-    });
+    // Fora da transação: enviar e-mail
+    const { novoAgendamento, cliente, servico, horaFinalDate } = resultado;
     const emailHtml = `
-  <h2>Confirmação de Agendamento</h2>
-  <p><strong>Serviço:</strong> ${novoAgendamento.servicos.Nome}</p>
-  <p><strong>Data:</strong> ${Data}</p>
-  <p><strong>Hora:</strong> ${HoraInicio} - ${horaFinalOnly.getHours().toString().padStart(2, '0')}:${horaFinalOnly.getMinutes().toString().padStart(2, '0')}</p>
-  ${novoAgendamento.funcionarios ? `<p><strong>Profissional:</strong> ${novoAgendamento.funcionarios.Nome}</p>` : ''}
-  <p>Obrigado por escolher a ${process.env.APP_NAME}</p>
-`;
+      <h2>Confirmação de Agendamento</h2>
+      <p><strong>Serviço:</strong> ${novoAgendamento.servicos.Nome}</p>
+      <p><strong>Data:</strong> ${Data}</p>
+      <p><strong>Hora:</strong> ${HoraInicio} - ${horaFinalDate.getHours().toString().padStart(2, '0')}:${horaFinalDate.getMinutes().toString().padStart(2, '0')}</p>
+      ${novoAgendamento.funcionarios ? `<p><strong>Profissional:</strong> ${novoAgendamento.funcionarios.Nome}</p>` : ''}
+      <p>Obrigado por escolher a ${process.env.APP_NAME}</p>
+    `;
 
-    // Chama a rota de envio de email
     await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/interna/email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -155,8 +189,12 @@ export async function POST(request: Request) {
     console.log('E-mail de confirmação enviado para:', cliente.Email);
     return NextResponse.json(novoAgendamento, { status: 201 });
   } catch (error) {
+    let msg = 'Erro ao criar agendamento';
+    if (typeof error === 'object' && error && 'message' in error) {
+      msg = (error as any).message;
+    }
     console.error('Erro ao criar agendamento:', error);
-    return NextResponse.json({ error: 'Erro ao criar agendamento' }, { status: 500 });
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
@@ -169,10 +207,16 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
     }
 
+
     const { Id_Agendamento, Status } = await request.json();
 
     if (!Id_Agendamento || !Status) {
       return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
+    }
+
+    // Só permite Confirmado ou Cancelado
+    if (Status !== 'Confirmado' && Status !== 'Cancelado') {
+      return NextResponse.json({ error: 'Status inválido. Só é permitido Confirmado ou Cancelado.' }, { status: 400 });
     }
 
     // Atualiza o status do agendamento
@@ -187,19 +231,6 @@ export async function PUT(request: Request) {
         },
       },
     });
-
-    if (Status === "Realizado" && agendamentoAtualizado.servicos?.produtos) {
-      const produto = agendamentoAtualizado.servicos.produtos;
-
-      await prisma.produtos.update({
-        where: { Id_Produto: produto.Id_Produto },
-        data: {
-          Estoque: {
-            decrement: 1,
-          },
-        },
-      });
-    }
 
     return NextResponse.json(agendamentoAtualizado);
 
