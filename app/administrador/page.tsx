@@ -61,6 +61,13 @@ export default function AdminDashboardPage() {
                 <p className="text-sm text-gray-600 mt-2">Defina horários disponíveis.</p>
               </div>
             </Link>
+              {/* Pagamentos */}
+            <Link href="/administrador/pagamentos">
+              <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
+                <h2 className="text-lg font-semibold">Pagamentos</h2>
+                <p className="text-sm text-gray-600 mt-2">Gerencie pagamentos realizados.</p>
+              </div>
+            </Link>
           </div>
         </div>
       </main>

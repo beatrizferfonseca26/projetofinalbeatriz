@@ -111,6 +111,9 @@ export default function AgendamentosPage() {
             hora={`${item.HoraInicio} - ${item.HoraFinal}`}
             valor={item.Valor}
             local="Unidade Padrão"
+            status={item.Status}
+            idAgendamento={item.Id_Agendamento}
+            onStatusChange={() => fetchAgendamentos()}
           />
         ))}
       </div>

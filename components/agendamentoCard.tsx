@@ -2,6 +2,7 @@
 
 import { CalendarDays, Clock, MapPin } from 'lucide-react';
 import { useState } from 'react';
+import Button from './ui/button';
 
 
 export type AgendamentoCardProps = {
@@ -88,23 +89,39 @@ export default function AgendamentoCard({
         {localFormatado}
       </div>
 
-      {/* Botão de alterar status */}
+      {/* Botão de alterar status - destaque visual */}
       {idAgendamento && (
-        <div className="flex gap-2 mt-2">
-          <button
-            className={`px-3 py-1 rounded ${status === 'Confirmado' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-800'} disabled:opacity-50`}
-            disabled={alterando || status === 'Confirmado'}
-            onClick={() => alterarStatus('Confirmado')}
-          >
-            Confirmar
-          </button>
-          <button
-            className={`px-3 py-1 rounded ${status === 'Cancelado' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-800'} disabled:opacity-50`}
-            disabled={alterando || status === 'Cancelado'}
-            onClick={() => alterarStatus('Cancelado')}
-          >
-            Cancelar
-          </button>
+        <div className="flex flex-col items-center gap-2 mt-4">
+          <div className="mb-1 text-base font-semibold">
+            Status atual:
+            {status === 'Confirmado' && (
+              <span className="ml-2 px-2 py-1 rounded bg-green-100 text-green-800 border border-green-400">✔️ Confirmado</span>
+            )}
+            {status === 'Cancelado' && (
+              <span className="ml-2 px-2 py-1 rounded bg-red-100 text-red-800 border border-red-400">❌ Cancelado</span>
+            )}
+            {!status && (
+              <span className="ml-2 px-2 py-1 rounded bg-gray-100 text-gray-800 border border-gray-300">Pendente</span>
+            )}
+          </div>
+          <div className="flex gap-4 w-full" style={{ justifyItems: 'center' }}>
+            <Button
+              variant="primary"
+              disabled={alterando || status === 'Confirmado'}
+              loadingText="Confirmando..."
+              onClick={() => alterarStatus('Confirmado')}
+            >
+              ✔️ Confirmar
+            </Button>
+            <Button
+              variant="secondary"
+              disabled={alterando || status === 'Cancelado'}
+              loadingText="Cancelando..."
+              onClick={() => alterarStatus('Cancelado')}
+            >
+              ❌ Cancelar
+            </Button>
+          </div>
         </div>
       )}
     </div>

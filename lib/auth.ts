@@ -29,7 +29,7 @@ export const authOptions: NextAuthOptions = {
             id: funcionario.Id_Funcionario.toString(),
             email: funcionario.Email ?? "",
             name: funcionario.Nome ?? "",
-            tipo: funcionario.Administrador ? "administrador" : "funcionario",
+            tipo: funcionario.Administrador ? "admin" : "funcionario",
           };
         }
 
