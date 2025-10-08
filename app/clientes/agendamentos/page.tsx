@@ -36,6 +36,7 @@ function calcularHoraFinal(horaInicio: string, duracao: number): string {
 
 export default function AgendamentosPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingAgendamento, setEditingAgendamento] = useState<Agendamento | null>(null);
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -83,6 +84,39 @@ export default function AgendamentosPage() {
     }
   };
 
+  // Abrir modal em modo de edição
+  const handleEdit = (id?: number) => {
+    if (!id) return;
+    const ag = agendamentos.find((a) => a.Id_Agendamento === id) || null;
+    if (!ag) return;
+    setEditingAgendamento(ag);
+    setIsModalOpen(true);
+  };
+
+  // Callback quando edição salva
+  const handleEditSaved = async (dados: any) => {
+    // dados deve conter os campos atualizados
+    try {
+      const res = await fetch('/api/interna/agendamentos', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados),
+      });
+
+      if (res.ok) {
+        toast.success('Agendamento atualizado com sucesso!');
+        fetchAgendamentos();
+        setEditingAgendamento(null);
+        setIsModalOpen(false);
+      } else {
+        const err = await res.json();
+        toast.error(err?.error || 'Erro ao atualizar agendamento.');
+      }
+    } catch (e) {
+      toast.error('Erro inesperado ao atualizar.');
+    }
+  };
+
 
   return (<div className="flex min-h-screen bg-gray-100"> <Sidebar /> <div className="flex-1 flex flex-col p-8">
     {/* Título e botão no topo */} <div className="flex justify-between items-center mb-6"> <h2 className="text-xl font-semibold">Meus Agendamentos</h2>
@@ -114,6 +148,7 @@ export default function AgendamentosPage() {
             status={item.Status}
             idAgendamento={item.Id_Agendamento}
             onStatusChange={() => fetchAgendamentos()}
+            onEdit={(id) => handleEdit(id)}
           />
         ))}
       </div>
@@ -122,8 +157,22 @@ export default function AgendamentosPage() {
     {/* Modal para novo agendamento */}
     <AgendamentoModal
       isOpen={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
+      onClose={() => {
+        setIsModalOpen(false);
+        setEditingAgendamento(null);
+      }}
       onAgendamentoCriado={handleNovoAgendamento}
+      isEditing={!!editingAgendamento}
+      initialData={editingAgendamento ? {
+        Id_Agendamento: editingAgendamento.Id_Agendamento,
+        Data: editingAgendamento.Data,
+        HoraInicio: editingAgendamento.HoraInicio,
+        HoraFinal: editingAgendamento.HoraFinal,
+        Id_Servico: undefined,
+        Id_Funcionario: undefined,
+        Observacoes: undefined,
+      } : null}
+      onEditSaved={handleEditSaved}
     />
   </div>
   </div>

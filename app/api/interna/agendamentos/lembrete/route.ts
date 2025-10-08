@@ -25,7 +25,10 @@ export async function GET() {
             const cliente = ag.clientes;
             const servico = ag.servicos;
 
-            if (!cliente?.Email) continue;
+            // Se já foi enviado, pular
+            if ((ag as any).LembreteEnviado) continue;
+
+            if (!cliente?.Email && !cliente?.Telemovel) continue;
 
             const emailHtml = `
   <h2>Lembrete de Agendamento</h2>
@@ -48,8 +51,25 @@ export async function GET() {
                     html: emailHtml,
                 }),
             });
+            // Envia WhatsApp (usa rota interna que integra com Twilio WhatsApp)
+            if (cliente?.Telemovel) {
+                try {
+                    await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/externa/whatsApp`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ agendamentoId: ag.Id_Agendamento, mensagem: `Lembrete: Olá ${cliente.Nome}, tem agendamento amanhã para ${servico.Nome} às ${ag.HoraInicio?.toString().slice(0,5)}` }),
+                    });
+                } catch (e) {
+                    console.error('Erro ao agendar/enviar WhatsApp:', e);
+                }
+            }
 
-            // Se quiser SMS → integrar aqui com Twilio, etc.
+            // Marcar lembrete como enviado para não duplicar
+            try {
+                await prisma.agendamentos.update({ where: { Id_Agendamento: ag.Id_Agendamento }, data: { LembreteEnviado: true } as any });
+            } catch (e) {
+                console.error('Erro ao marcar lembrete como enviado:', e);
+            }
         }
 
         return NextResponse.json({ message: 'Lembretes enviados', count: agendamentos.length });

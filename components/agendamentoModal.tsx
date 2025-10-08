@@ -40,12 +40,27 @@ type AgendamentoModalProps = {
     Id_Funcionario?: number | null;
     Observacoes?: string;
   }) => void | Promise<void>;
+  // Optional - edit mode props
+  isEditing?: boolean;
+  initialData?: {
+    Id_Agendamento?: number;
+    Data?: string;
+    HoraInicio?: string;
+    HoraFinal?: string;
+    Id_Servico?: number;
+    Id_Funcionario?: number | null;
+    Observacoes?: string | null;
+  } | null;
+  onEditSaved?: (dados: any) => void | Promise<void>;
 };
 
 export default function AgendamentoModal({
   isOpen,
   onClose,
   onAgendamentoCriado,
+  isEditing = false,
+  initialData = null,
+  onEditSaved,
 }: AgendamentoModalProps) {
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [disponibilidades, setDisponibilidades] = useState<Disponibilidade[]>([]);
@@ -56,6 +71,25 @@ export default function AgendamentoModal({
   const [horarios, setHorarios] = useState<string[]>([]);
   const [horarioSelecionado, setHorarioSelecionado] = useState<string | null>(null);
   const [agendando, setAgendando] = useState(false);
+  const [modalidadePagamento, setModalidadePagamento] = useState<'Online' | 'Presencial'>('Online');
+  // preencher quando for editar
+  useEffect(() => {
+    if (!isOpen) return;
+    if (isEditing && initialData) {
+      // Preencher serviço e funcionário
+      if (initialData.Id_Servico) setSelectedServico(initialData.Id_Servico);
+      if (initialData.Id_Funcionario) setSelectedFuncionario(initialData.Id_Funcionario);
+      if (initialData.Data) setDataSelecionada(new Date(initialData.Data + 'T00:00:00'));
+      if (initialData.HoraInicio) setHorarioSelecionado(initialData.HoraInicio);
+    } else {
+      // reset
+      setSelectedServico(null);
+      setSelectedFuncionario(null);
+      setDataSelecionada(null);
+      setHorarios([]);
+      setHorarioSelecionado(null);
+    }
+  }, [isOpen, isEditing, initialData]);
 
   // Buscar serviços e funcionários
   useEffect(() => {
@@ -124,21 +158,40 @@ export default function AgendamentoModal({
       HoraInicio: format(inicio, 'HH:mm'),
       HoraFinal: format(final, 'HH:mm'),
       Observacoes: '',
+      ModalidadePagamento: modalidadePagamento,
     };
 
     try {
-      const res = await fetch('/api/interna/agendamentos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dados),
-      });
-
-      if (res.ok) {
-        toast.success('Agendamento realizado com sucesso!');
-        onAgendamentoCriado(dados);
-        onClose();
+      if (isEditing && initialData && onEditSaved) {
+        // Delegate update to parent handler to avoid duplicate requests
+        const payload = {
+          Id_Agendamento: initialData.Id_Agendamento,
+          Id_Servico: dados.Id_Servico,
+          Id_Funcionario: dados.Id_Funcionario,
+          Data: dados.Data,
+          HoraInicio: dados.HoraInicio,
+          Observacoes: dados.Observacoes || null,
+        };
+        try {
+          await onEditSaved(payload);
+        } catch (e) {
+          // Parent will surface error via toast; show a fallback
+          toast.error('Erro ao atualizar agendamento.');
+        }
       } else {
-        toast.error('Erro ao realizar agendamento.');
+        const res = await fetch('/api/interna/agendamentos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados),
+        });
+
+        if (res.ok) {
+          toast.success('Agendamento realizado com sucesso!');
+          onAgendamentoCriado(dados);
+          onClose();
+        } else {
+          toast.error('Erro ao realizar agendamento.');
+        }
       }
     } catch {
       toast.error('Erro inesperado ao agendar.');
@@ -222,6 +275,21 @@ export default function AgendamentoModal({
 
     {/* Botão Agendar */}
 
+    {/* Pagamento */}
+    {selectedServico && (
+      <div className="mb-4">
+        <label className="block mb-1 text-sm">Modalidade de pagamento:</label>
+        <select
+          className="w-full border p-2 mb-2 rounded"
+          value={modalidadePagamento}
+          onChange={(e) => setModalidadePagamento(e.target.value as 'Online' | 'Presencial')}
+        >
+          <option value="Online">Online</option>
+          <option value="Presencial">Presencial</option>
+        </select>
+      </div>
+    )}
+
     {horarioSelecionado && (
       <button
         type="button"
@@ -229,7 +297,7 @@ export default function AgendamentoModal({
         disabled={agendando}
         className={`mt-4 w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition ${agendando ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
-        {agendando ? 'Agendando...' : 'Confirmar Agendamento'}
+        {agendando ? (isEditing ? 'Atualizando...' : 'Agendando...') : (isEditing ? 'Salvar Alterações' : 'Confirmar Agendamento')}
       </button>
     )}
 

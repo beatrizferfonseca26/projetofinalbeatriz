@@ -9,19 +9,20 @@ datasource db {
 }
 
 model agendamentos {
-  Id_Agendamento Int                  @id @default(autoincrement())
-  Id_Servico     Int
-  Id_Cliente     Int
-  Id_Funcionario Int?
-  Data           DateTime             @db.Date
-  HoraInicio     DateTime             @db.Time(0)
-  HoraFinal      DateTime?            @db.Time(0)
-  Status         agendamentos_Status?
-  Observacoes    String?              @db.VarChar(255)
-  servicos       servicos             @relation(fields: [Id_Servico], references: [Id_Servico], onDelete: NoAction, onUpdate: NoAction, map: "agendamentos_ibfk_1")
-  clientes       clientes             @relation(fields: [Id_Cliente], references: [Id_Cliente], onDelete: NoAction, onUpdate: NoAction, map: "agendamentos_ibfk_2")
-  funcionarios   funcionarios?        @relation(fields: [Id_Funcionario], references: [Id_Funcionario], onDelete: NoAction, onUpdate: NoAction, map: "agendamentos_ibfk_3")
-  pagamentos     pagamentos[]
+  Id_Agendamento  Int                  @id @default(autoincrement())
+  Id_Servico      Int
+  Id_Cliente      Int
+  Id_Funcionario  Int?
+  Data            DateTime?            @db.Date
+  HoraInicio      DateTime?            @db.Time(0)
+  HoraFinal       DateTime?            @db.Time(0)
+  Status          agendamentos_Status?
+  Observacoes     String?              @db.VarChar(255)
+  LembreteEnviado Boolean              @default(false)
+  servicos        servicos             @relation(fields: [Id_Servico], references: [Id_Servico], onDelete: NoAction, onUpdate: NoAction, map: "agendamentos_ibfk_1")
+  clientes        clientes             @relation(fields: [Id_Cliente], references: [Id_Cliente], onDelete: NoAction, onUpdate: NoAction, map: "agendamentos_ibfk_2")
+  funcionarios    funcionarios?        @relation(fields: [Id_Funcionario], references: [Id_Funcionario], onDelete: NoAction, onUpdate: NoAction, map: "agendamentos_ibfk_3")
+  pagamentos      pagamentos[]
 
   @@index([Id_Cliente], map: "Id_Cliente")
   @@index([Id_Funcionario], map: "Id_Funcionario")
@@ -40,16 +41,14 @@ model clientes {
   agendamentos   agendamentos[]
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model disponibilidadeprod {
-  Id_Produto Int
-  Id_Servico Int
+  Id_Disponibilidade Int @id @default(autoincrement())
+  Id_Servico         Int
+  Id_Produto         Int
 
-  produtos produtos @relation(fields: [Id_Produto], references: [Id_Produto], onDelete: NoAction, onUpdate: NoAction, map: "disponibilidadeprod_ibfk_1")
-  servicos servicos @relation(fields: [Id_Servico], references: [Id_Servico], onDelete: NoAction, onUpdate: NoAction, map: "disponibilidadeprod_ibfk_2")
-
-  @@id([Id_Produto, Id_Servico]) // chave primária composta
-  @@index([Id_Produto], map: "Id_Produto")
-  @@index([Id_Servico], map: "Id_Servico")
+  servicos servicos @relation(fields: [Id_Servico], references: [Id_Servico])
+  produtos produtos @relation(fields: [Id_Produto], references: [Id_Produto])
 }
 
 model funcionarios {

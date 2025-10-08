@@ -15,6 +15,7 @@ export type AgendamentoCardProps = {
   status?: string;
   idAgendamento?: number;
   onStatusChange?: (novoStatus: string) => void;
+  onEdit?: (id?: number) => void;
 };
 
 export default function AgendamentoCard({
@@ -27,6 +28,7 @@ export default function AgendamentoCard({
   status,
   idAgendamento,
   onStatusChange,
+  onEdit,
 }: AgendamentoCardProps) {
   const [alterando, setAlterando] = useState(false);
   const dataFormatada = data
@@ -121,6 +123,17 @@ export default function AgendamentoCard({
             >
               ❌ Cancelar
             </Button>
+            {/* Mostrar botão de editar apenas se NÃO estiver confirmado */}
+            {status !== 'Confirmado' && idAgendamento && (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  if (typeof onEdit === 'function') onEdit(idAgendamento);
+                }}
+              >
+                ✏️ Editar
+              </Button>
+            )}
           </div>
         </div>
       )}

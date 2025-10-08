@@ -73,7 +73,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
     }
 
-    const { Id_Servico, Id_Funcionario, Data, HoraInicio, Observacoes } = await request.json();
+    const { Id_Servico, Id_Funcionario, Data, HoraInicio, Observacoes, ModalidadePagamento } = await request.json();
     if (!Id_Servico || !Data || !HoraInicio) {
       return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
     }
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
       // Buscar duração do serviço
       const servico = await tx.servicos.findUnique({
         where: { Id_Servico: Id_Servico },
-        select: { Duracao: true, Nome: true },
+        select: { Duracao: true, Nome: true, Valor: true },
       });
       if (!servico || !servico.Duracao) {
         throw new Error('Serviço não encontrado ou sem duração definida');
@@ -163,7 +163,20 @@ export async function POST(request: Request) {
           funcionarios: true,
         },
       });
-      return { novoAgendamento, cliente, servico, horaFinalDate };
+
+      // Criar registro de pagamento vinculado (valor do serviço)
+      // ModalidadePagamento pode ser 'Online' ou 'Presencial' (default Online)
+      const pagamento = await tx.pagamentos.create({
+        data: {
+          Valor: servico?.Valor ?? undefined,
+          Status: null,
+          Modalidade: ModalidadePagamento === 'Presencial' ? 'Presencial' : 'Online',
+          Fatura: null,
+          Id_Agendamento: novoAgendamento.Id_Agendamento,
+        },
+      });
+
+      return { novoAgendamento, cliente, servico, horaFinalDate, pagamento };
     });
 
     // Fora da transação: enviar e-mail
@@ -189,6 +202,11 @@ export async function POST(request: Request) {
     console.log('E-mail de confirmação enviado para:', cliente.Email);
     return NextResponse.json(novoAgendamento, { status: 201 });
   } catch (error) {
+    // Prisma unique constraint error (duplicate)
+    if (typeof error === 'object' && error && 'code' in error && (error as any).code === 'P2002') {
+      console.error('Erro de duplicado ao criar agendamento:', error);
+      return NextResponse.json({ error: 'Agendamento duplicado.' }, { status: 409 });
+    }
     let msg = 'Erro ao criar agendamento';
     if (typeof error === 'object' && error && 'message' in error) {
       msg = (error as any).message;
@@ -208,33 +226,110 @@ export async function PUT(request: Request) {
     }
 
 
-    const { Id_Agendamento, Status } = await request.json();
+    const body = await request.json();
 
-    if (!Id_Agendamento || !Status) {
-      return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
-    }
+    // If the request includes only Status and Id_Agendamento, keep legacy status-only path
+    if (body.Id_Agendamento && body.Status && Object.keys(body).length === 2) {
+      const { Id_Agendamento, Status } = body;
+      if (Status !== 'Confirmado' && Status !== 'Cancelado') {
+        return NextResponse.json({ error: 'Status inválido. Só é permitido Confirmado ou Cancelado.' }, { status: 400 });
+      }
 
-    // Só permite Confirmado ou Cancelado
-    if (Status !== 'Confirmado' && Status !== 'Cancelado') {
-      return NextResponse.json({ error: 'Status inválido. Só é permitido Confirmado ou Cancelado.' }, { status: 400 });
-    }
-
-    // Atualiza o status do agendamento
-    const agendamentoAtualizado = await prisma.agendamentos.update({
-      where: { Id_Agendamento: Number(Id_Agendamento) },
-      data: { Status },
-      include: {
-        servicos: {
-          include: {
-            produtos: true, // <- se serviços tiverem relação N:N com produtos
+      const agendamentoAtualizado = await prisma.agendamentos.update({
+        where: { Id_Agendamento: Number(Id_Agendamento) },
+        data: { Status },
+        include: {
+          servicos: {
+            include: {
+              produtos: true,
+            },
           },
         },
-      },
+      });
+
+      return NextResponse.json(agendamentoAtualizado);
+    }
+
+    // Otherwise, treat as a full edit: Id_Agendamento, Id_Servico, Data, HoraInicio, optional Id_Funcionario, Observacoes
+    const { Id_Agendamento, Id_Servico, Data, HoraInicio, Id_Funcionario, Observacoes } = body;
+    if (!Id_Agendamento || !Id_Servico || !Data || !HoraInicio) {
+      return NextResponse.json({ error: 'Dados incompletos para edição' }, { status: 400 });
+    }
+
+    // Run in transaction: validate client ownership, service duration, compute HoraFinal, check conflicts, then update
+    const resultado = await prisma.$transaction(async (tx) => {
+      const ag = await tx.agendamentos.findUnique({ where: { Id_Agendamento: Number(Id_Agendamento) } });
+      if (!ag) throw new Error('Agendamento não encontrado');
+
+      // Optional: only allow owner to edit (if cliente)
+      const sessionEmail = session.user.email;
+      const cliente = await tx.clientes.findFirst({ where: { Email: sessionEmail } });
+      if (!cliente) throw new Error('Cliente não encontrado');
+      if (ag.Id_Cliente !== cliente.Id_Cliente) throw new Error('Não autorizado a editar este agendamento');
+
+      const servico = await tx.servicos.findUnique({ where: { Id_Servico: Number(Id_Servico) }, select: { Duracao: true } });
+      if (!servico || !servico.Duracao) throw new Error('Serviço inválido');
+
+      const horaInicioDate = new Date(Data + 'T' + HoraInicio + ':00');
+      if (isNaN(horaInicioDate.getTime())) throw new Error('Hora de início inválida');
+      const horaFinalDate = new Date(horaInicioDate);
+      horaFinalDate.setMinutes(horaFinalDate.getMinutes() + servico.Duracao);
+
+      const dataOnly = new Date(Data + 'T00:00:00');
+
+      // Check for identical duplicate (another appointment of same cliente/service at same start) excluding this one
+      const duplicado = await tx.agendamentos.findFirst({
+        where: {
+          Id_Cliente: cliente.Id_Cliente,
+          Id_Servico: Number(Id_Servico),
+          Data: dataOnly,
+          HoraInicio: horaInicioDate,
+          NOT: { Id_Agendamento: Number(Id_Agendamento) },
+        },
+      });
+      if (duplicado) throw new Error('Já existe um agendamento para este horário.');
+
+      // Check overlapping conflicts with other agendamentos for same service and (optional) funcionario
+      const conflitos = await tx.agendamentos.findMany({
+        where: {
+          Data: dataOnly,
+          Id_Servico: Number(Id_Servico),
+          ...(Id_Funcionario ? { Id_Funcionario: Number(Id_Funcionario) } : {}),
+          NOT: { Id_Agendamento: Number(Id_Agendamento) },
+          OR: [
+            {
+              HoraInicio: { lt: horaFinalDate },
+              HoraFinal: { gt: horaInicioDate },
+            },
+          ],
+        },
+      });
+      if (conflitos.length > 0) throw new Error('Horário indisponível. Escolha outro horário.');
+
+      // Perform update
+      const atualizado = await tx.agendamentos.update({
+        where: { Id_Agendamento: Number(Id_Agendamento) },
+        data: {
+          Id_Servico: Number(Id_Servico),
+          Id_Funcionario: Id_Funcionario ?? null,
+          Data: dataOnly,
+          HoraInicio: horaInicioDate,
+          HoraFinal: horaFinalDate,
+          Observacoes: Observacoes ?? null,
+        },
+        include: { servicos: true, clientes: true, funcionarios: true },
+      });
+
+      return atualizado;
     });
 
-    return NextResponse.json(agendamentoAtualizado);
+    return NextResponse.json(resultado);
 
   } catch (error) {
+    if (typeof error === 'object' && error && 'code' in error && (error as any).code === 'P2002') {
+      console.error('Erro de duplicado ao editar agendamento:', error);
+      return NextResponse.json({ error: 'Agendamento duplicado ao editar.' }, { status: 409 });
+    }
     console.error('Erro ao atualizar agendamento:', error);
     return NextResponse.json({ error: 'Erro ao atualizar agendamento' }, { status: 500 });
   }

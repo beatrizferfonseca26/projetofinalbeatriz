@@ -25,7 +25,7 @@ export type agendamentos = $Result.DefaultSelection<Prisma.$agendamentosPayload>
 export type clientes = $Result.DefaultSelection<Prisma.$clientesPayload>
 /**
  * Model disponibilidadeprod
- * 
+ * The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
  */
 export type disponibilidadeprod = $Result.DefaultSelection<Prisma.$disponibilidadeprodPayload>
 /**
@@ -1705,6 +1705,7 @@ export namespace Prisma {
     HoraFinal: Date | null
     Status: $Enums.agendamentos_Status | null
     Observacoes: string | null
+    LembreteEnviado: boolean | null
   }
 
   export type AgendamentosMaxAggregateOutputType = {
@@ -1717,6 +1718,7 @@ export namespace Prisma {
     HoraFinal: Date | null
     Status: $Enums.agendamentos_Status | null
     Observacoes: string | null
+    LembreteEnviado: boolean | null
   }
 
   export type AgendamentosCountAggregateOutputType = {
@@ -1729,6 +1731,7 @@ export namespace Prisma {
     HoraFinal: number
     Status: number
     Observacoes: number
+    LembreteEnviado: number
     _all: number
   }
 
@@ -1757,6 +1760,7 @@ export namespace Prisma {
     HoraFinal?: true
     Status?: true
     Observacoes?: true
+    LembreteEnviado?: true
   }
 
   export type AgendamentosMaxAggregateInputType = {
@@ -1769,6 +1773,7 @@ export namespace Prisma {
     HoraFinal?: true
     Status?: true
     Observacoes?: true
+    LembreteEnviado?: true
   }
 
   export type AgendamentosCountAggregateInputType = {
@@ -1781,6 +1786,7 @@ export namespace Prisma {
     HoraFinal?: true
     Status?: true
     Observacoes?: true
+    LembreteEnviado?: true
     _all?: true
   }
 
@@ -1875,11 +1881,12 @@ export namespace Prisma {
     Id_Servico: number
     Id_Cliente: number
     Id_Funcionario: number | null
-    Data: Date
-    HoraInicio: Date
+    Data: Date | null
+    HoraInicio: Date | null
     HoraFinal: Date | null
     Status: $Enums.agendamentos_Status | null
     Observacoes: string | null
+    LembreteEnviado: boolean
     _count: AgendamentosCountAggregateOutputType | null
     _avg: AgendamentosAvgAggregateOutputType | null
     _sum: AgendamentosSumAggregateOutputType | null
@@ -1911,6 +1918,7 @@ export namespace Prisma {
     HoraFinal?: boolean
     Status?: boolean
     Observacoes?: boolean
+    LembreteEnviado?: boolean
     servicos?: boolean | servicosDefaultArgs<ExtArgs>
     clientes?: boolean | clientesDefaultArgs<ExtArgs>
     funcionarios?: boolean | agendamentos$funcionariosArgs<ExtArgs>
@@ -1930,9 +1938,10 @@ export namespace Prisma {
     HoraFinal?: boolean
     Status?: boolean
     Observacoes?: boolean
+    LembreteEnviado?: boolean
   }
 
-  export type agendamentosOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"Id_Agendamento" | "Id_Servico" | "Id_Cliente" | "Id_Funcionario" | "Data" | "HoraInicio" | "HoraFinal" | "Status" | "Observacoes", ExtArgs["result"]["agendamentos"]>
+  export type agendamentosOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"Id_Agendamento" | "Id_Servico" | "Id_Cliente" | "Id_Funcionario" | "Data" | "HoraInicio" | "HoraFinal" | "Status" | "Observacoes" | "LembreteEnviado", ExtArgs["result"]["agendamentos"]>
   export type agendamentosInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     servicos?: boolean | servicosDefaultArgs<ExtArgs>
     clientes?: boolean | clientesDefaultArgs<ExtArgs>
@@ -1954,11 +1963,12 @@ export namespace Prisma {
       Id_Servico: number
       Id_Cliente: number
       Id_Funcionario: number | null
-      Data: Date
-      HoraInicio: Date
+      Data: Date | null
+      HoraInicio: Date | null
       HoraFinal: Date | null
       Status: $Enums.agendamentos_Status | null
       Observacoes: string | null
+      LembreteEnviado: boolean
     }, ExtArgs["result"]["agendamentos"]>
     composites: {}
   }
@@ -2341,6 +2351,7 @@ export namespace Prisma {
     readonly HoraFinal: FieldRef<"agendamentos", 'DateTime'>
     readonly Status: FieldRef<"agendamentos", 'agendamentos_Status'>
     readonly Observacoes: FieldRef<"agendamentos", 'String'>
+    readonly LembreteEnviado: FieldRef<"agendamentos", 'Boolean'>
   }
     
 
@@ -3784,55 +3795,65 @@ export namespace Prisma {
   }
 
   export type DisponibilidadeprodAvgAggregateOutputType = {
-    Id_Produto: number | null
+    Id_Disponibilidade: number | null
     Id_Servico: number | null
+    Id_Produto: number | null
   }
 
   export type DisponibilidadeprodSumAggregateOutputType = {
-    Id_Produto: number | null
+    Id_Disponibilidade: number | null
     Id_Servico: number | null
+    Id_Produto: number | null
   }
 
   export type DisponibilidadeprodMinAggregateOutputType = {
-    Id_Produto: number | null
+    Id_Disponibilidade: number | null
     Id_Servico: number | null
+    Id_Produto: number | null
   }
 
   export type DisponibilidadeprodMaxAggregateOutputType = {
-    Id_Produto: number | null
+    Id_Disponibilidade: number | null
     Id_Servico: number | null
+    Id_Produto: number | null
   }
 
   export type DisponibilidadeprodCountAggregateOutputType = {
-    Id_Produto: number
+    Id_Disponibilidade: number
     Id_Servico: number
+    Id_Produto: number
     _all: number
   }
 
 
   export type DisponibilidadeprodAvgAggregateInputType = {
-    Id_Produto?: true
+    Id_Disponibilidade?: true
     Id_Servico?: true
+    Id_Produto?: true
   }
 
   export type DisponibilidadeprodSumAggregateInputType = {
-    Id_Produto?: true
+    Id_Disponibilidade?: true
     Id_Servico?: true
+    Id_Produto?: true
   }
 
   export type DisponibilidadeprodMinAggregateInputType = {
-    Id_Produto?: true
+    Id_Disponibilidade?: true
     Id_Servico?: true
+    Id_Produto?: true
   }
 
   export type DisponibilidadeprodMaxAggregateInputType = {
-    Id_Produto?: true
+    Id_Disponibilidade?: true
     Id_Servico?: true
+    Id_Produto?: true
   }
 
   export type DisponibilidadeprodCountAggregateInputType = {
-    Id_Produto?: true
+    Id_Disponibilidade?: true
     Id_Servico?: true
+    Id_Produto?: true
     _all?: true
   }
 
@@ -3923,8 +3944,9 @@ export namespace Prisma {
   }
 
   export type DisponibilidadeprodGroupByOutputType = {
-    Id_Produto: number
+    Id_Disponibilidade: number
     Id_Servico: number
+    Id_Produto: number
     _count: DisponibilidadeprodCountAggregateOutputType | null
     _avg: DisponibilidadeprodAvgAggregateOutputType | null
     _sum: DisponibilidadeprodSumAggregateOutputType | null
@@ -3947,34 +3969,37 @@ export namespace Prisma {
 
 
   export type disponibilidadeprodSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    Id_Produto?: boolean
+    Id_Disponibilidade?: boolean
     Id_Servico?: boolean
-    produtos?: boolean | produtosDefaultArgs<ExtArgs>
+    Id_Produto?: boolean
     servicos?: boolean | servicosDefaultArgs<ExtArgs>
+    produtos?: boolean | produtosDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["disponibilidadeprod"]>
 
 
 
   export type disponibilidadeprodSelectScalar = {
-    Id_Produto?: boolean
+    Id_Disponibilidade?: boolean
     Id_Servico?: boolean
+    Id_Produto?: boolean
   }
 
-  export type disponibilidadeprodOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"Id_Produto" | "Id_Servico", ExtArgs["result"]["disponibilidadeprod"]>
+  export type disponibilidadeprodOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"Id_Disponibilidade" | "Id_Servico" | "Id_Produto", ExtArgs["result"]["disponibilidadeprod"]>
   export type disponibilidadeprodInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    produtos?: boolean | produtosDefaultArgs<ExtArgs>
     servicos?: boolean | servicosDefaultArgs<ExtArgs>
+    produtos?: boolean | produtosDefaultArgs<ExtArgs>
   }
 
   export type $disponibilidadeprodPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "disponibilidadeprod"
     objects: {
-      produtos: Prisma.$produtosPayload<ExtArgs>
       servicos: Prisma.$servicosPayload<ExtArgs>
+      produtos: Prisma.$produtosPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      Id_Produto: number
+      Id_Disponibilidade: number
       Id_Servico: number
+      Id_Produto: number
     }, ExtArgs["result"]["disponibilidadeprod"]>
     composites: {}
   }
@@ -4058,8 +4083,8 @@ export namespace Prisma {
      * // Get first 10 Disponibilidadeprods
      * const disponibilidadeprods = await prisma.disponibilidadeprod.findMany({ take: 10 })
      * 
-     * // Only select the `Id_Produto`
-     * const disponibilidadeprodWithId_ProdutoOnly = await prisma.disponibilidadeprod.findMany({ select: { Id_Produto: true } })
+     * // Only select the `Id_Disponibilidade`
+     * const disponibilidadeprodWithId_DisponibilidadeOnly = await prisma.disponibilidadeprod.findMany({ select: { Id_Disponibilidade: true } })
      * 
      */
     findMany<T extends disponibilidadeprodFindManyArgs>(args?: SelectSubset<T, disponibilidadeprodFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$disponibilidadeprodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -4315,8 +4340,8 @@ export namespace Prisma {
    */
   export interface Prisma__disponibilidadeprodClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    produtos<T extends produtosDefaultArgs<ExtArgs> = {}>(args?: Subset<T, produtosDefaultArgs<ExtArgs>>): Prisma__produtosClient<$Result.GetResult<Prisma.$produtosPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     servicos<T extends servicosDefaultArgs<ExtArgs> = {}>(args?: Subset<T, servicosDefaultArgs<ExtArgs>>): Prisma__servicosClient<$Result.GetResult<Prisma.$servicosPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    produtos<T extends produtosDefaultArgs<ExtArgs> = {}>(args?: Subset<T, produtosDefaultArgs<ExtArgs>>): Prisma__produtosClient<$Result.GetResult<Prisma.$produtosPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4346,8 +4371,9 @@ export namespace Prisma {
    * Fields of the disponibilidadeprod model
    */
   interface disponibilidadeprodFieldRefs {
-    readonly Id_Produto: FieldRef<"disponibilidadeprod", 'Int'>
+    readonly Id_Disponibilidade: FieldRef<"disponibilidadeprod", 'Int'>
     readonly Id_Servico: FieldRef<"disponibilidadeprod", 'Int'>
+    readonly Id_Produto: FieldRef<"disponibilidadeprod", 'Int'>
   }
     
 
@@ -9828,7 +9854,8 @@ export namespace Prisma {
     HoraInicio: 'HoraInicio',
     HoraFinal: 'HoraFinal',
     Status: 'Status',
-    Observacoes: 'Observacoes'
+    Observacoes: 'Observacoes',
+    LembreteEnviado: 'LembreteEnviado'
   };
 
   export type AgendamentosScalarFieldEnum = (typeof AgendamentosScalarFieldEnum)[keyof typeof AgendamentosScalarFieldEnum]
@@ -9849,8 +9876,9 @@ export namespace Prisma {
 
 
   export const DisponibilidadeprodScalarFieldEnum: {
-    Id_Produto: 'Id_Produto',
-    Id_Servico: 'Id_Servico'
+    Id_Disponibilidade: 'Id_Disponibilidade',
+    Id_Servico: 'Id_Servico',
+    Id_Produto: 'Id_Produto'
   };
 
   export type DisponibilidadeprodScalarFieldEnum = (typeof DisponibilidadeprodScalarFieldEnum)[keyof typeof DisponibilidadeprodScalarFieldEnum]
@@ -10059,11 +10087,12 @@ export namespace Prisma {
     Id_Servico?: IntFilter<"agendamentos"> | number
     Id_Cliente?: IntFilter<"agendamentos"> | number
     Id_Funcionario?: IntNullableFilter<"agendamentos"> | number | null
-    Data?: DateTimeFilter<"agendamentos"> | Date | string
-    HoraInicio?: DateTimeFilter<"agendamentos"> | Date | string
+    Data?: DateTimeNullableFilter<"agendamentos"> | Date | string | null
+    HoraInicio?: DateTimeNullableFilter<"agendamentos"> | Date | string | null
     HoraFinal?: DateTimeNullableFilter<"agendamentos"> | Date | string | null
     Status?: Enumagendamentos_StatusNullableFilter<"agendamentos"> | $Enums.agendamentos_Status | null
     Observacoes?: StringNullableFilter<"agendamentos"> | string | null
+    LembreteEnviado?: BoolFilter<"agendamentos"> | boolean
     servicos?: XOR<ServicosScalarRelationFilter, servicosWhereInput>
     clientes?: XOR<ClientesScalarRelationFilter, clientesWhereInput>
     funcionarios?: XOR<FuncionariosNullableScalarRelationFilter, funcionariosWhereInput> | null
@@ -10075,11 +10104,12 @@ export namespace Prisma {
     Id_Servico?: SortOrder
     Id_Cliente?: SortOrder
     Id_Funcionario?: SortOrderInput | SortOrder
-    Data?: SortOrder
-    HoraInicio?: SortOrder
+    Data?: SortOrderInput | SortOrder
+    HoraInicio?: SortOrderInput | SortOrder
     HoraFinal?: SortOrderInput | SortOrder
     Status?: SortOrderInput | SortOrder
     Observacoes?: SortOrderInput | SortOrder
+    LembreteEnviado?: SortOrder
     servicos?: servicosOrderByWithRelationInput
     clientes?: clientesOrderByWithRelationInput
     funcionarios?: funcionariosOrderByWithRelationInput
@@ -10095,11 +10125,12 @@ export namespace Prisma {
     Id_Servico?: IntFilter<"agendamentos"> | number
     Id_Cliente?: IntFilter<"agendamentos"> | number
     Id_Funcionario?: IntNullableFilter<"agendamentos"> | number | null
-    Data?: DateTimeFilter<"agendamentos"> | Date | string
-    HoraInicio?: DateTimeFilter<"agendamentos"> | Date | string
+    Data?: DateTimeNullableFilter<"agendamentos"> | Date | string | null
+    HoraInicio?: DateTimeNullableFilter<"agendamentos"> | Date | string | null
     HoraFinal?: DateTimeNullableFilter<"agendamentos"> | Date | string | null
     Status?: Enumagendamentos_StatusNullableFilter<"agendamentos"> | $Enums.agendamentos_Status | null
     Observacoes?: StringNullableFilter<"agendamentos"> | string | null
+    LembreteEnviado?: BoolFilter<"agendamentos"> | boolean
     servicos?: XOR<ServicosScalarRelationFilter, servicosWhereInput>
     clientes?: XOR<ClientesScalarRelationFilter, clientesWhereInput>
     funcionarios?: XOR<FuncionariosNullableScalarRelationFilter, funcionariosWhereInput> | null
@@ -10111,11 +10142,12 @@ export namespace Prisma {
     Id_Servico?: SortOrder
     Id_Cliente?: SortOrder
     Id_Funcionario?: SortOrderInput | SortOrder
-    Data?: SortOrder
-    HoraInicio?: SortOrder
+    Data?: SortOrderInput | SortOrder
+    HoraInicio?: SortOrderInput | SortOrder
     HoraFinal?: SortOrderInput | SortOrder
     Status?: SortOrderInput | SortOrder
     Observacoes?: SortOrderInput | SortOrder
+    LembreteEnviado?: SortOrder
     _count?: agendamentosCountOrderByAggregateInput
     _avg?: agendamentosAvgOrderByAggregateInput
     _max?: agendamentosMaxOrderByAggregateInput
@@ -10131,11 +10163,12 @@ export namespace Prisma {
     Id_Servico?: IntWithAggregatesFilter<"agendamentos"> | number
     Id_Cliente?: IntWithAggregatesFilter<"agendamentos"> | number
     Id_Funcionario?: IntNullableWithAggregatesFilter<"agendamentos"> | number | null
-    Data?: DateTimeWithAggregatesFilter<"agendamentos"> | Date | string
-    HoraInicio?: DateTimeWithAggregatesFilter<"agendamentos"> | Date | string
+    Data?: DateTimeNullableWithAggregatesFilter<"agendamentos"> | Date | string | null
+    HoraInicio?: DateTimeNullableWithAggregatesFilter<"agendamentos"> | Date | string | null
     HoraFinal?: DateTimeNullableWithAggregatesFilter<"agendamentos"> | Date | string | null
     Status?: Enumagendamentos_StatusNullableWithAggregatesFilter<"agendamentos"> | $Enums.agendamentos_Status | null
     Observacoes?: StringNullableWithAggregatesFilter<"agendamentos"> | string | null
+    LembreteEnviado?: BoolWithAggregatesFilter<"agendamentos"> | boolean
   }
 
   export type clientesWhereInput = {
@@ -10215,33 +10248,36 @@ export namespace Prisma {
     AND?: disponibilidadeprodWhereInput | disponibilidadeprodWhereInput[]
     OR?: disponibilidadeprodWhereInput[]
     NOT?: disponibilidadeprodWhereInput | disponibilidadeprodWhereInput[]
-    Id_Produto?: IntFilter<"disponibilidadeprod"> | number
+    Id_Disponibilidade?: IntFilter<"disponibilidadeprod"> | number
     Id_Servico?: IntFilter<"disponibilidadeprod"> | number
-    produtos?: XOR<ProdutosScalarRelationFilter, produtosWhereInput>
+    Id_Produto?: IntFilter<"disponibilidadeprod"> | number
     servicos?: XOR<ServicosScalarRelationFilter, servicosWhereInput>
+    produtos?: XOR<ProdutosScalarRelationFilter, produtosWhereInput>
   }
 
   export type disponibilidadeprodOrderByWithRelationInput = {
-    Id_Produto?: SortOrder
+    Id_Disponibilidade?: SortOrder
     Id_Servico?: SortOrder
-    produtos?: produtosOrderByWithRelationInput
+    Id_Produto?: SortOrder
     servicos?: servicosOrderByWithRelationInput
+    produtos?: produtosOrderByWithRelationInput
   }
 
   export type disponibilidadeprodWhereUniqueInput = Prisma.AtLeast<{
-    Id_Produto_Id_Servico?: disponibilidadeprodId_ProdutoId_ServicoCompoundUniqueInput
+    Id_Disponibilidade?: number
     AND?: disponibilidadeprodWhereInput | disponibilidadeprodWhereInput[]
     OR?: disponibilidadeprodWhereInput[]
     NOT?: disponibilidadeprodWhereInput | disponibilidadeprodWhereInput[]
-    Id_Produto?: IntFilter<"disponibilidadeprod"> | number
     Id_Servico?: IntFilter<"disponibilidadeprod"> | number
-    produtos?: XOR<ProdutosScalarRelationFilter, produtosWhereInput>
+    Id_Produto?: IntFilter<"disponibilidadeprod"> | number
     servicos?: XOR<ServicosScalarRelationFilter, servicosWhereInput>
-  }, "Id_Produto_Id_Servico">
+    produtos?: XOR<ProdutosScalarRelationFilter, produtosWhereInput>
+  }, "Id_Disponibilidade">
 
   export type disponibilidadeprodOrderByWithAggregationInput = {
-    Id_Produto?: SortOrder
+    Id_Disponibilidade?: SortOrder
     Id_Servico?: SortOrder
+    Id_Produto?: SortOrder
     _count?: disponibilidadeprodCountOrderByAggregateInput
     _avg?: disponibilidadeprodAvgOrderByAggregateInput
     _max?: disponibilidadeprodMaxOrderByAggregateInput
@@ -10253,8 +10289,9 @@ export namespace Prisma {
     AND?: disponibilidadeprodScalarWhereWithAggregatesInput | disponibilidadeprodScalarWhereWithAggregatesInput[]
     OR?: disponibilidadeprodScalarWhereWithAggregatesInput[]
     NOT?: disponibilidadeprodScalarWhereWithAggregatesInput | disponibilidadeprodScalarWhereWithAggregatesInput[]
-    Id_Produto?: IntWithAggregatesFilter<"disponibilidadeprod"> | number
+    Id_Disponibilidade?: IntWithAggregatesFilter<"disponibilidadeprod"> | number
     Id_Servico?: IntWithAggregatesFilter<"disponibilidadeprod"> | number
+    Id_Produto?: IntWithAggregatesFilter<"disponibilidadeprod"> | number
   }
 
   export type funcionariosWhereInput = {
@@ -10569,11 +10606,12 @@ export namespace Prisma {
   }
 
   export type agendamentosCreateInput = {
-    Data: Date | string
-    HoraInicio: Date | string
+    Data?: Date | string | null
+    HoraInicio?: Date | string | null
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    LembreteEnviado?: boolean
     servicos: servicosCreateNestedOneWithoutAgendamentosInput
     clientes: clientesCreateNestedOneWithoutAgendamentosInput
     funcionarios?: funcionariosCreateNestedOneWithoutAgendamentosInput
@@ -10585,20 +10623,22 @@ export namespace Prisma {
     Id_Servico: number
     Id_Cliente: number
     Id_Funcionario?: number | null
-    Data: Date | string
-    HoraInicio: Date | string
+    Data?: Date | string | null
+    HoraInicio?: Date | string | null
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    LembreteEnviado?: boolean
     pagamentos?: pagamentosUncheckedCreateNestedManyWithoutAgendamentosInput
   }
 
   export type agendamentosUpdateInput = {
-    Data?: DateTimeFieldUpdateOperationsInput | Date | string
-    HoraInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     servicos?: servicosUpdateOneRequiredWithoutAgendamentosNestedInput
     clientes?: clientesUpdateOneRequiredWithoutAgendamentosNestedInput
     funcionarios?: funcionariosUpdateOneWithoutAgendamentosNestedInput
@@ -10610,11 +10650,12 @@ export namespace Prisma {
     Id_Servico?: IntFieldUpdateOperationsInput | number
     Id_Cliente?: IntFieldUpdateOperationsInput | number
     Id_Funcionario?: NullableIntFieldUpdateOperationsInput | number | null
-    Data?: DateTimeFieldUpdateOperationsInput | Date | string
-    HoraInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     pagamentos?: pagamentosUncheckedUpdateManyWithoutAgendamentosNestedInput
   }
 
@@ -10623,19 +10664,21 @@ export namespace Prisma {
     Id_Servico: number
     Id_Cliente: number
     Id_Funcionario?: number | null
-    Data: Date | string
-    HoraInicio: Date | string
+    Data?: Date | string | null
+    HoraInicio?: Date | string | null
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    LembreteEnviado?: boolean
   }
 
   export type agendamentosUpdateManyMutationInput = {
-    Data?: DateTimeFieldUpdateOperationsInput | Date | string
-    HoraInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type agendamentosUncheckedUpdateManyInput = {
@@ -10643,11 +10686,12 @@ export namespace Prisma {
     Id_Servico?: IntFieldUpdateOperationsInput | number
     Id_Cliente?: IntFieldUpdateOperationsInput | number
     Id_Funcionario?: NullableIntFieldUpdateOperationsInput | number | null
-    Data?: DateTimeFieldUpdateOperationsInput | Date | string
-    HoraInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type clientesCreateInput = {
@@ -10729,28 +10773,31 @@ export namespace Prisma {
   }
 
   export type disponibilidadeprodCreateInput = {
-    produtos: produtosCreateNestedOneWithoutDisponibilidadeprodInput
     servicos: servicosCreateNestedOneWithoutDisponibilidadeprodInput
+    produtos: produtosCreateNestedOneWithoutDisponibilidadeprodInput
   }
 
   export type disponibilidadeprodUncheckedCreateInput = {
-    Id_Produto: number
+    Id_Disponibilidade?: number
     Id_Servico: number
+    Id_Produto: number
   }
 
   export type disponibilidadeprodUpdateInput = {
-    produtos?: produtosUpdateOneRequiredWithoutDisponibilidadeprodNestedInput
     servicos?: servicosUpdateOneRequiredWithoutDisponibilidadeprodNestedInput
+    produtos?: produtosUpdateOneRequiredWithoutDisponibilidadeprodNestedInput
   }
 
   export type disponibilidadeprodUncheckedUpdateInput = {
-    Id_Produto?: IntFieldUpdateOperationsInput | number
+    Id_Disponibilidade?: IntFieldUpdateOperationsInput | number
     Id_Servico?: IntFieldUpdateOperationsInput | number
+    Id_Produto?: IntFieldUpdateOperationsInput | number
   }
 
   export type disponibilidadeprodCreateManyInput = {
-    Id_Produto: number
+    Id_Disponibilidade?: number
     Id_Servico: number
+    Id_Produto: number
   }
 
   export type disponibilidadeprodUpdateManyMutationInput = {
@@ -10758,8 +10805,9 @@ export namespace Prisma {
   }
 
   export type disponibilidadeprodUncheckedUpdateManyInput = {
-    Id_Produto?: IntFieldUpdateOperationsInput | number
+    Id_Disponibilidade?: IntFieldUpdateOperationsInput | number
     Id_Servico?: IntFieldUpdateOperationsInput | number
+    Id_Produto?: IntFieldUpdateOperationsInput | number
   }
 
   export type funcionariosCreateInput = {
@@ -11084,17 +11132,6 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
-  export type DateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
-  }
-
   export type DateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | null
@@ -11126,6 +11163,11 @@ export namespace Prisma {
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     search?: string
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type ServicosScalarRelationFilter = {
@@ -11174,6 +11216,7 @@ export namespace Prisma {
     HoraFinal?: SortOrder
     Status?: SortOrder
     Observacoes?: SortOrder
+    LembreteEnviado?: SortOrder
   }
 
   export type agendamentosAvgOrderByAggregateInput = {
@@ -11193,6 +11236,7 @@ export namespace Prisma {
     HoraFinal?: SortOrder
     Status?: SortOrder
     Observacoes?: SortOrder
+    LembreteEnviado?: SortOrder
   }
 
   export type agendamentosMinOrderByAggregateInput = {
@@ -11205,6 +11249,7 @@ export namespace Prisma {
     HoraFinal?: SortOrder
     Status?: SortOrder
     Observacoes?: SortOrder
+    LembreteEnviado?: SortOrder
   }
 
   export type agendamentosSumOrderByAggregateInput = {
@@ -11244,20 +11289,6 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-
-  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -11300,6 +11331,14 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type AgendamentosListRelationFilter = {
@@ -11366,34 +11405,34 @@ export namespace Prisma {
     isNot?: produtosWhereInput
   }
 
-  export type disponibilidadeprodId_ProdutoId_ServicoCompoundUniqueInput = {
-    Id_Produto: number
-    Id_Servico: number
-  }
-
   export type disponibilidadeprodCountOrderByAggregateInput = {
-    Id_Produto?: SortOrder
+    Id_Disponibilidade?: SortOrder
     Id_Servico?: SortOrder
+    Id_Produto?: SortOrder
   }
 
   export type disponibilidadeprodAvgOrderByAggregateInput = {
-    Id_Produto?: SortOrder
+    Id_Disponibilidade?: SortOrder
     Id_Servico?: SortOrder
+    Id_Produto?: SortOrder
   }
 
   export type disponibilidadeprodMaxOrderByAggregateInput = {
-    Id_Produto?: SortOrder
+    Id_Disponibilidade?: SortOrder
     Id_Servico?: SortOrder
+    Id_Produto?: SortOrder
   }
 
   export type disponibilidadeprodMinOrderByAggregateInput = {
-    Id_Produto?: SortOrder
+    Id_Disponibilidade?: SortOrder
     Id_Servico?: SortOrder
+    Id_Produto?: SortOrder
   }
 
   export type disponibilidadeprodSumOrderByAggregateInput = {
-    Id_Produto?: SortOrder
+    Id_Disponibilidade?: SortOrder
     Id_Servico?: SortOrder
+    Id_Produto?: SortOrder
   }
 
   export type BoolNullableFilter<$PrismaModel = never> = {
@@ -11740,10 +11779,6 @@ export namespace Prisma {
     connect?: pagamentosWhereUniqueInput | pagamentosWhereUniqueInput[]
   }
 
-  export type DateTimeFieldUpdateOperationsInput = {
-    set?: Date | string
-  }
-
   export type NullableDateTimeFieldUpdateOperationsInput = {
     set?: Date | string | null
   }
@@ -11754,6 +11789,10 @@ export namespace Prisma {
 
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type servicosUpdateOneRequiredWithoutAgendamentosNestedInput = {
@@ -11868,24 +11907,16 @@ export namespace Prisma {
     deleteMany?: agendamentosScalarWhereInput | agendamentosScalarWhereInput[]
   }
 
-  export type produtosCreateNestedOneWithoutDisponibilidadeprodInput = {
-    create?: XOR<produtosCreateWithoutDisponibilidadeprodInput, produtosUncheckedCreateWithoutDisponibilidadeprodInput>
-    connectOrCreate?: produtosCreateOrConnectWithoutDisponibilidadeprodInput
-    connect?: produtosWhereUniqueInput
-  }
-
   export type servicosCreateNestedOneWithoutDisponibilidadeprodInput = {
     create?: XOR<servicosCreateWithoutDisponibilidadeprodInput, servicosUncheckedCreateWithoutDisponibilidadeprodInput>
     connectOrCreate?: servicosCreateOrConnectWithoutDisponibilidadeprodInput
     connect?: servicosWhereUniqueInput
   }
 
-  export type produtosUpdateOneRequiredWithoutDisponibilidadeprodNestedInput = {
+  export type produtosCreateNestedOneWithoutDisponibilidadeprodInput = {
     create?: XOR<produtosCreateWithoutDisponibilidadeprodInput, produtosUncheckedCreateWithoutDisponibilidadeprodInput>
     connectOrCreate?: produtosCreateOrConnectWithoutDisponibilidadeprodInput
-    upsert?: produtosUpsertWithoutDisponibilidadeprodInput
     connect?: produtosWhereUniqueInput
-    update?: XOR<XOR<produtosUpdateToOneWithWhereWithoutDisponibilidadeprodInput, produtosUpdateWithoutDisponibilidadeprodInput>, produtosUncheckedUpdateWithoutDisponibilidadeprodInput>
   }
 
   export type servicosUpdateOneRequiredWithoutDisponibilidadeprodNestedInput = {
@@ -11894,6 +11925,14 @@ export namespace Prisma {
     upsert?: servicosUpsertWithoutDisponibilidadeprodInput
     connect?: servicosWhereUniqueInput
     update?: XOR<XOR<servicosUpdateToOneWithWhereWithoutDisponibilidadeprodInput, servicosUpdateWithoutDisponibilidadeprodInput>, servicosUncheckedUpdateWithoutDisponibilidadeprodInput>
+  }
+
+  export type produtosUpdateOneRequiredWithoutDisponibilidadeprodNestedInput = {
+    create?: XOR<produtosCreateWithoutDisponibilidadeprodInput, produtosUncheckedCreateWithoutDisponibilidadeprodInput>
+    connectOrCreate?: produtosCreateOrConnectWithoutDisponibilidadeprodInput
+    upsert?: produtosUpsertWithoutDisponibilidadeprodInput
+    connect?: produtosWhereUniqueInput
+    update?: XOR<XOR<produtosUpdateToOneWithWhereWithoutDisponibilidadeprodInput, produtosUpdateWithoutDisponibilidadeprodInput>, produtosUncheckedUpdateWithoutDisponibilidadeprodInput>
   }
 
   export type agendamentosCreateNestedManyWithoutFuncionariosInput = {
@@ -12234,17 +12273,6 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
-  export type NestedDateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
-  }
-
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | null
@@ -12276,6 +12304,11 @@ export namespace Prisma {
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     search?: string
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -12332,20 +12365,6 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
-  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | null
@@ -12386,6 +12405,14 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedBoolNullableFilter<$PrismaModel = never> = {
@@ -12672,11 +12699,12 @@ export namespace Prisma {
   }
 
   export type agendamentosCreateWithoutClientesInput = {
-    Data: Date | string
-    HoraInicio: Date | string
+    Data?: Date | string | null
+    HoraInicio?: Date | string | null
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    LembreteEnviado?: boolean
     servicos: servicosCreateNestedOneWithoutAgendamentosInput
     funcionarios?: funcionariosCreateNestedOneWithoutAgendamentosInput
     pagamentos?: pagamentosCreateNestedManyWithoutAgendamentosInput
@@ -12686,11 +12714,12 @@ export namespace Prisma {
     Id_Agendamento?: number
     Id_Servico: number
     Id_Funcionario?: number | null
-    Data: Date | string
-    HoraInicio: Date | string
+    Data?: Date | string | null
+    HoraInicio?: Date | string | null
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    LembreteEnviado?: boolean
     pagamentos?: pagamentosUncheckedCreateNestedManyWithoutAgendamentosInput
   }
 
@@ -12728,33 +12757,12 @@ export namespace Prisma {
     Id_Servico?: IntFilter<"agendamentos"> | number
     Id_Cliente?: IntFilter<"agendamentos"> | number
     Id_Funcionario?: IntNullableFilter<"agendamentos"> | number | null
-    Data?: DateTimeFilter<"agendamentos"> | Date | string
-    HoraInicio?: DateTimeFilter<"agendamentos"> | Date | string
+    Data?: DateTimeNullableFilter<"agendamentos"> | Date | string | null
+    HoraInicio?: DateTimeNullableFilter<"agendamentos"> | Date | string | null
     HoraFinal?: DateTimeNullableFilter<"agendamentos"> | Date | string | null
     Status?: Enumagendamentos_StatusNullableFilter<"agendamentos"> | $Enums.agendamentos_Status | null
     Observacoes?: StringNullableFilter<"agendamentos"> | string | null
-  }
-
-  export type produtosCreateWithoutDisponibilidadeprodInput = {
-    Nome?: string | null
-    Estoque?: number | null
-    EstoqueCritico?: number | null
-    imagens?: imagensCreateNestedManyWithoutProdutosInput
-    servicos?: servicosCreateNestedManyWithoutProdutosInput
-  }
-
-  export type produtosUncheckedCreateWithoutDisponibilidadeprodInput = {
-    Id_Produto?: number
-    Nome?: string | null
-    Estoque?: number | null
-    EstoqueCritico?: number | null
-    imagens?: imagensUncheckedCreateNestedManyWithoutProdutosInput
-    servicos?: servicosUncheckedCreateNestedManyWithoutProdutosInput
-  }
-
-  export type produtosCreateOrConnectWithoutDisponibilidadeprodInput = {
-    where: produtosWhereUniqueInput
-    create: XOR<produtosCreateWithoutDisponibilidadeprodInput, produtosUncheckedCreateWithoutDisponibilidadeprodInput>
+    LembreteEnviado?: BoolFilter<"agendamentos"> | boolean
   }
 
   export type servicosCreateWithoutDisponibilidadeprodInput = {
@@ -12783,32 +12791,26 @@ export namespace Prisma {
     create: XOR<servicosCreateWithoutDisponibilidadeprodInput, servicosUncheckedCreateWithoutDisponibilidadeprodInput>
   }
 
-  export type produtosUpsertWithoutDisponibilidadeprodInput = {
-    update: XOR<produtosUpdateWithoutDisponibilidadeprodInput, produtosUncheckedUpdateWithoutDisponibilidadeprodInput>
+  export type produtosCreateWithoutDisponibilidadeprodInput = {
+    Nome?: string | null
+    Estoque?: number | null
+    EstoqueCritico?: number | null
+    imagens?: imagensCreateNestedManyWithoutProdutosInput
+    servicos?: servicosCreateNestedManyWithoutProdutosInput
+  }
+
+  export type produtosUncheckedCreateWithoutDisponibilidadeprodInput = {
+    Id_Produto?: number
+    Nome?: string | null
+    Estoque?: number | null
+    EstoqueCritico?: number | null
+    imagens?: imagensUncheckedCreateNestedManyWithoutProdutosInput
+    servicos?: servicosUncheckedCreateNestedManyWithoutProdutosInput
+  }
+
+  export type produtosCreateOrConnectWithoutDisponibilidadeprodInput = {
+    where: produtosWhereUniqueInput
     create: XOR<produtosCreateWithoutDisponibilidadeprodInput, produtosUncheckedCreateWithoutDisponibilidadeprodInput>
-    where?: produtosWhereInput
-  }
-
-  export type produtosUpdateToOneWithWhereWithoutDisponibilidadeprodInput = {
-    where?: produtosWhereInput
-    data: XOR<produtosUpdateWithoutDisponibilidadeprodInput, produtosUncheckedUpdateWithoutDisponibilidadeprodInput>
-  }
-
-  export type produtosUpdateWithoutDisponibilidadeprodInput = {
-    Nome?: NullableStringFieldUpdateOperationsInput | string | null
-    Estoque?: NullableIntFieldUpdateOperationsInput | number | null
-    EstoqueCritico?: NullableIntFieldUpdateOperationsInput | number | null
-    imagens?: imagensUpdateManyWithoutProdutosNestedInput
-    servicos?: servicosUpdateManyWithoutProdutosNestedInput
-  }
-
-  export type produtosUncheckedUpdateWithoutDisponibilidadeprodInput = {
-    Id_Produto?: IntFieldUpdateOperationsInput | number
-    Nome?: NullableStringFieldUpdateOperationsInput | string | null
-    Estoque?: NullableIntFieldUpdateOperationsInput | number | null
-    EstoqueCritico?: NullableIntFieldUpdateOperationsInput | number | null
-    imagens?: imagensUncheckedUpdateManyWithoutProdutosNestedInput
-    servicos?: servicosUncheckedUpdateManyWithoutProdutosNestedInput
   }
 
   export type servicosUpsertWithoutDisponibilidadeprodInput = {
@@ -12843,12 +12845,41 @@ export namespace Prisma {
     agendamentos?: agendamentosUncheckedUpdateManyWithoutServicosNestedInput
   }
 
+  export type produtosUpsertWithoutDisponibilidadeprodInput = {
+    update: XOR<produtosUpdateWithoutDisponibilidadeprodInput, produtosUncheckedUpdateWithoutDisponibilidadeprodInput>
+    create: XOR<produtosCreateWithoutDisponibilidadeprodInput, produtosUncheckedCreateWithoutDisponibilidadeprodInput>
+    where?: produtosWhereInput
+  }
+
+  export type produtosUpdateToOneWithWhereWithoutDisponibilidadeprodInput = {
+    where?: produtosWhereInput
+    data: XOR<produtosUpdateWithoutDisponibilidadeprodInput, produtosUncheckedUpdateWithoutDisponibilidadeprodInput>
+  }
+
+  export type produtosUpdateWithoutDisponibilidadeprodInput = {
+    Nome?: NullableStringFieldUpdateOperationsInput | string | null
+    Estoque?: NullableIntFieldUpdateOperationsInput | number | null
+    EstoqueCritico?: NullableIntFieldUpdateOperationsInput | number | null
+    imagens?: imagensUpdateManyWithoutProdutosNestedInput
+    servicos?: servicosUpdateManyWithoutProdutosNestedInput
+  }
+
+  export type produtosUncheckedUpdateWithoutDisponibilidadeprodInput = {
+    Id_Produto?: IntFieldUpdateOperationsInput | number
+    Nome?: NullableStringFieldUpdateOperationsInput | string | null
+    Estoque?: NullableIntFieldUpdateOperationsInput | number | null
+    EstoqueCritico?: NullableIntFieldUpdateOperationsInput | number | null
+    imagens?: imagensUncheckedUpdateManyWithoutProdutosNestedInput
+    servicos?: servicosUncheckedUpdateManyWithoutProdutosNestedInput
+  }
+
   export type agendamentosCreateWithoutFuncionariosInput = {
-    Data: Date | string
-    HoraInicio: Date | string
+    Data?: Date | string | null
+    HoraInicio?: Date | string | null
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    LembreteEnviado?: boolean
     servicos: servicosCreateNestedOneWithoutAgendamentosInput
     clientes: clientesCreateNestedOneWithoutAgendamentosInput
     pagamentos?: pagamentosCreateNestedManyWithoutAgendamentosInput
@@ -12858,11 +12889,12 @@ export namespace Prisma {
     Id_Agendamento?: number
     Id_Servico: number
     Id_Cliente: number
-    Data: Date | string
-    HoraInicio: Date | string
+    Data?: Date | string | null
+    HoraInicio?: Date | string | null
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    LembreteEnviado?: boolean
     pagamentos?: pagamentosUncheckedCreateNestedManyWithoutAgendamentosInput
   }
 
@@ -12943,11 +12975,12 @@ export namespace Prisma {
   }
 
   export type agendamentosCreateWithoutPagamentosInput = {
-    Data: Date | string
-    HoraInicio: Date | string
+    Data?: Date | string | null
+    HoraInicio?: Date | string | null
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    LembreteEnviado?: boolean
     servicos: servicosCreateNestedOneWithoutAgendamentosInput
     clientes: clientesCreateNestedOneWithoutAgendamentosInput
     funcionarios?: funcionariosCreateNestedOneWithoutAgendamentosInput
@@ -12958,11 +12991,12 @@ export namespace Prisma {
     Id_Servico: number
     Id_Cliente: number
     Id_Funcionario?: number | null
-    Data: Date | string
-    HoraInicio: Date | string
+    Data?: Date | string | null
+    HoraInicio?: Date | string | null
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    LembreteEnviado?: boolean
   }
 
   export type agendamentosCreateOrConnectWithoutPagamentosInput = {
@@ -12982,11 +13016,12 @@ export namespace Prisma {
   }
 
   export type agendamentosUpdateWithoutPagamentosInput = {
-    Data?: DateTimeFieldUpdateOperationsInput | Date | string
-    HoraInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     servicos?: servicosUpdateOneRequiredWithoutAgendamentosNestedInput
     clientes?: clientesUpdateOneRequiredWithoutAgendamentosNestedInput
     funcionarios?: funcionariosUpdateOneWithoutAgendamentosNestedInput
@@ -12997,11 +13032,12 @@ export namespace Prisma {
     Id_Servico?: IntFieldUpdateOperationsInput | number
     Id_Cliente?: IntFieldUpdateOperationsInput | number
     Id_Funcionario?: NullableIntFieldUpdateOperationsInput | number | null
-    Data?: DateTimeFieldUpdateOperationsInput | Date | string
-    HoraInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type disponibilidadeprodCreateWithoutProdutosInput = {
@@ -13009,6 +13045,7 @@ export namespace Prisma {
   }
 
   export type disponibilidadeprodUncheckedCreateWithoutProdutosInput = {
+    Id_Disponibilidade?: number
     Id_Servico: number
   }
 
@@ -13094,8 +13131,9 @@ export namespace Prisma {
     AND?: disponibilidadeprodScalarWhereInput | disponibilidadeprodScalarWhereInput[]
     OR?: disponibilidadeprodScalarWhereInput[]
     NOT?: disponibilidadeprodScalarWhereInput | disponibilidadeprodScalarWhereInput[]
-    Id_Produto?: IntFilter<"disponibilidadeprod"> | number
+    Id_Disponibilidade?: IntFilter<"disponibilidadeprod"> | number
     Id_Servico?: IntFilter<"disponibilidadeprod"> | number
+    Id_Produto?: IntFilter<"disponibilidadeprod"> | number
   }
 
   export type imagensUpsertWithWhereUniqueWithoutProdutosInput = {
@@ -13154,11 +13192,12 @@ export namespace Prisma {
   }
 
   export type agendamentosCreateWithoutServicosInput = {
-    Data: Date | string
-    HoraInicio: Date | string
+    Data?: Date | string | null
+    HoraInicio?: Date | string | null
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    LembreteEnviado?: boolean
     clientes: clientesCreateNestedOneWithoutAgendamentosInput
     funcionarios?: funcionariosCreateNestedOneWithoutAgendamentosInput
     pagamentos?: pagamentosCreateNestedManyWithoutAgendamentosInput
@@ -13168,11 +13207,12 @@ export namespace Prisma {
     Id_Agendamento?: number
     Id_Cliente: number
     Id_Funcionario?: number | null
-    Data: Date | string
-    HoraInicio: Date | string
+    Data?: Date | string | null
+    HoraInicio?: Date | string | null
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    LembreteEnviado?: boolean
     pagamentos?: pagamentosUncheckedCreateNestedManyWithoutAgendamentosInput
   }
 
@@ -13191,6 +13231,7 @@ export namespace Prisma {
   }
 
   export type disponibilidadeprodUncheckedCreateWithoutServicosInput = {
+    Id_Disponibilidade?: number
     Id_Produto: number
   }
 
@@ -13321,19 +13362,21 @@ export namespace Prisma {
     Id_Agendamento?: number
     Id_Servico: number
     Id_Funcionario?: number | null
-    Data: Date | string
-    HoraInicio: Date | string
+    Data?: Date | string | null
+    HoraInicio?: Date | string | null
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    LembreteEnviado?: boolean
   }
 
   export type agendamentosUpdateWithoutClientesInput = {
-    Data?: DateTimeFieldUpdateOperationsInput | Date | string
-    HoraInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     servicos?: servicosUpdateOneRequiredWithoutAgendamentosNestedInput
     funcionarios?: funcionariosUpdateOneWithoutAgendamentosNestedInput
     pagamentos?: pagamentosUpdateManyWithoutAgendamentosNestedInput
@@ -13343,11 +13386,12 @@ export namespace Prisma {
     Id_Agendamento?: IntFieldUpdateOperationsInput | number
     Id_Servico?: IntFieldUpdateOperationsInput | number
     Id_Funcionario?: NullableIntFieldUpdateOperationsInput | number | null
-    Data?: DateTimeFieldUpdateOperationsInput | Date | string
-    HoraInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     pagamentos?: pagamentosUncheckedUpdateManyWithoutAgendamentosNestedInput
   }
 
@@ -13355,30 +13399,33 @@ export namespace Prisma {
     Id_Agendamento?: IntFieldUpdateOperationsInput | number
     Id_Servico?: IntFieldUpdateOperationsInput | number
     Id_Funcionario?: NullableIntFieldUpdateOperationsInput | number | null
-    Data?: DateTimeFieldUpdateOperationsInput | Date | string
-    HoraInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type agendamentosCreateManyFuncionariosInput = {
     Id_Agendamento?: number
     Id_Servico: number
     Id_Cliente: number
-    Data: Date | string
-    HoraInicio: Date | string
+    Data?: Date | string | null
+    HoraInicio?: Date | string | null
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    LembreteEnviado?: boolean
   }
 
   export type agendamentosUpdateWithoutFuncionariosInput = {
-    Data?: DateTimeFieldUpdateOperationsInput | Date | string
-    HoraInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     servicos?: servicosUpdateOneRequiredWithoutAgendamentosNestedInput
     clientes?: clientesUpdateOneRequiredWithoutAgendamentosNestedInput
     pagamentos?: pagamentosUpdateManyWithoutAgendamentosNestedInput
@@ -13388,11 +13435,12 @@ export namespace Prisma {
     Id_Agendamento?: IntFieldUpdateOperationsInput | number
     Id_Servico?: IntFieldUpdateOperationsInput | number
     Id_Cliente?: IntFieldUpdateOperationsInput | number
-    Data?: DateTimeFieldUpdateOperationsInput | Date | string
-    HoraInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     pagamentos?: pagamentosUncheckedUpdateManyWithoutAgendamentosNestedInput
   }
 
@@ -13400,14 +13448,16 @@ export namespace Prisma {
     Id_Agendamento?: IntFieldUpdateOperationsInput | number
     Id_Servico?: IntFieldUpdateOperationsInput | number
     Id_Cliente?: IntFieldUpdateOperationsInput | number
-    Data?: DateTimeFieldUpdateOperationsInput | Date | string
-    HoraInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type disponibilidadeprodCreateManyProdutosInput = {
+    Id_Disponibilidade?: number
     Id_Servico: number
   }
 
@@ -13431,10 +13481,12 @@ export namespace Prisma {
   }
 
   export type disponibilidadeprodUncheckedUpdateWithoutProdutosInput = {
+    Id_Disponibilidade?: IntFieldUpdateOperationsInput | number
     Id_Servico?: IntFieldUpdateOperationsInput | number
   }
 
   export type disponibilidadeprodUncheckedUpdateManyWithoutProdutosInput = {
+    Id_Disponibilidade?: IntFieldUpdateOperationsInput | number
     Id_Servico?: IntFieldUpdateOperationsInput | number
   }
 
@@ -13489,23 +13541,26 @@ export namespace Prisma {
     Id_Agendamento?: number
     Id_Cliente: number
     Id_Funcionario?: number | null
-    Data: Date | string
-    HoraInicio: Date | string
+    Data?: Date | string | null
+    HoraInicio?: Date | string | null
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    LembreteEnviado?: boolean
   }
 
   export type disponibilidadeprodCreateManyServicosInput = {
+    Id_Disponibilidade?: number
     Id_Produto: number
   }
 
   export type agendamentosUpdateWithoutServicosInput = {
-    Data?: DateTimeFieldUpdateOperationsInput | Date | string
-    HoraInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     clientes?: clientesUpdateOneRequiredWithoutAgendamentosNestedInput
     funcionarios?: funcionariosUpdateOneWithoutAgendamentosNestedInput
     pagamentos?: pagamentosUpdateManyWithoutAgendamentosNestedInput
@@ -13515,11 +13570,12 @@ export namespace Prisma {
     Id_Agendamento?: IntFieldUpdateOperationsInput | number
     Id_Cliente?: IntFieldUpdateOperationsInput | number
     Id_Funcionario?: NullableIntFieldUpdateOperationsInput | number | null
-    Data?: DateTimeFieldUpdateOperationsInput | Date | string
-    HoraInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     pagamentos?: pagamentosUncheckedUpdateManyWithoutAgendamentosNestedInput
   }
 
@@ -13527,11 +13583,12 @@ export namespace Prisma {
     Id_Agendamento?: IntFieldUpdateOperationsInput | number
     Id_Cliente?: IntFieldUpdateOperationsInput | number
     Id_Funcionario?: NullableIntFieldUpdateOperationsInput | number | null
-    Data?: DateTimeFieldUpdateOperationsInput | Date | string
-    HoraInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type disponibilidadeprodUpdateWithoutServicosInput = {
@@ -13539,10 +13596,12 @@ export namespace Prisma {
   }
 
   export type disponibilidadeprodUncheckedUpdateWithoutServicosInput = {
+    Id_Disponibilidade?: IntFieldUpdateOperationsInput | number
     Id_Produto?: IntFieldUpdateOperationsInput | number
   }
 
   export type disponibilidadeprodUncheckedUpdateManyWithoutServicosInput = {
+    Id_Disponibilidade?: IntFieldUpdateOperationsInput | number
     Id_Produto?: IntFieldUpdateOperationsInput | number
   }
 
