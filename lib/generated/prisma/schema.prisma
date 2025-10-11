@@ -45,11 +45,14 @@ model clientes {
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model disponibilidadeprod {
   Id_Disponibilidade Int @id @default(autoincrement())
-  Id_Servico         Int
   Id_Produto         Int
+  Id_Servico         Int
 
-  servicos servicos @relation(fields: [Id_Servico], references: [Id_Servico])
-  produtos produtos @relation(fields: [Id_Produto], references: [Id_Produto])
+  produtos produtos @relation(fields: [Id_Produto], references: [Id_Produto], onDelete: NoAction, onUpdate: NoAction, map: "disponibilidadeprod_ibfk_1")
+  servicos servicos @relation(fields: [Id_Servico], references: [Id_Servico], onDelete: NoAction, onUpdate: NoAction, map: "disponibilidadeprod_ibfk_2")
+
+  @@index([Id_Produto], map: "Id_Produto")
+  @@index([Id_Servico], map: "Id_Servico")
 }
 
 model funcionarios {
