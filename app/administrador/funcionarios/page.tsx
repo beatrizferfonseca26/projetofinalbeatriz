@@ -65,7 +65,7 @@ export default function FuncionariosPage() {
     e.preventDefault();
 
     if (!nome || !email || (!editFuncionario && !senha)) {
-      alert("Preencha todos os campos obrigatórios.");
+      toast.error("Preencha todos os campos obrigatórios.");
       return;
     }
 

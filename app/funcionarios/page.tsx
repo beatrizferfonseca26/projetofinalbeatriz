@@ -18,14 +18,18 @@ export default function FuncionarioPage() {
   const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Modal de edição do perfil
-  const [openForm, setOpenForm] = useState(false);
-
-  // Estados do formulário
+  // estados do perfil
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [openForm, setOpenForm] = useState(false);
 
+  // --- Abas: Meus Agendamentos | Editar Perfil | Gerir Clientes ---
+  const [activeTab, setActiveTab] = useState<'agendamentos' | 'perfil' | 'clientes'>('agendamentos');
+
+  
+
+  // --- carregar dados do funcionário ---
   useEffect(() => {
     if (!session?.user?.email) return;
 
@@ -69,7 +73,7 @@ export default function FuncionarioPage() {
       console.error('Erro ao atualizar funcionário:', err);
     } finally {
       setOpenForm(false);
-      setSenha(''); // limpa campo senha
+      setSenha('');
     }
   };
 
@@ -90,6 +94,7 @@ export default function FuncionarioPage() {
           <div className="flex flex-col gap-6">
             <h1 className="text-3xl font-bold text-gray-800">Área do Funcionário</h1>
 
+            {/* --- Abas no mesmo estilo de "Meus agendamentos" / "Editar Perfil" / "Gerir Clientes" --- */}
             <section className="bg-white p-6 rounded-xl shadow-md">
               <h2 className="text-xl font-semibold mb-2 text-gray-700">
                 Bem-vindo, {funcionario.Nome}!
@@ -121,6 +126,16 @@ export default function FuncionarioPage() {
                 </p>
               </div>
 
+              <div
+                onClick={() => router.push('/funcionarios/clientes')}
+                className="cursor-pointer bg-white p-5 rounded-xl shadow-sm hover:shadow-lg transition"
+              >
+                <h3 className="font-medium text-gray-700 mb-2">Gerir Clientes</h3>
+                <p className="text-sm text-gray-600">
+                  Criar, editar e listar clientes.
+                </p>
+              </div>
+              
               {funcionario.Administrador && (
                 <div
                   onClick={() => router.push('/funcionarios/gestao')}
@@ -133,78 +148,50 @@ export default function FuncionarioPage() {
                 </div>
               )}
             </div>
+
+            {/* --- Aba Editar Perfil --- */}
+        {activeTab === 'perfil' && (
+               <section className="bg-white p-6 rounded-xl shadow-md">
+                 <h2 className="text-xl font-semibold mb-4 text-gray-700">Editar Perfil</h2>
+                 <form onSubmit={handleSubmit}>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                     <input
+                       name="nome"
+                       value={nome}
+                       onChange={(e) => setNome(e.target.value)}
+                       placeholder="Nome"
+                       className="w-full border rounded p-2"
+                     />
+                     <input
+                       name="email"
+                       type="email"
+                       value={email}
+                       onChange={(e) => setEmail(e.target.value)}
+                       placeholder="Email"
+                       className="w-full border rounded p-2"
+                     />
+                     <input
+                       name="senha"
+                       type="password"
+                       value={senha}
+                       onChange={(e) => setSenha(e.target.value)}
+                       placeholder="Senha (deixe em branco para manter)"
+                       className="w-full border rounded p-2"
+                     />
+                   </div>
+                   <div className="flex justify-end gap-2 mt-4">
+                     <button type="submit" className="px-3 py-1 bg-black text-white rounded">
+                       Salvar Perfil
+                     </button>
+                   </div>
+                 </form>
+               </section>
+             )}
+
+             {/* Gerir Clientes foi movido para página dedicada: /funcionarios/clientes */}
           </div>
         </main>
       </div>
-
-      {/* Modal do formulário */}
-      {openForm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg relative">
-            <button
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl"
-              onClick={() => setOpenForm(false)}
-              aria-label="Fechar"
-            >
-              ×
-            </button>
-            <h2 className="text-xl font-bold mb-4">Editar Funcionário</h2>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Nome</label>
-                <input
-                  type="text"
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  className="w-full border rounded p-2"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border rounded p-2"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Senha <span className="text-xs text-gray-500">(preencha para alterar)</span>
-                </label>
-                <input
-                  type="password"
-                  value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
-                  className="w-full border rounded p-2"
-                  placeholder="Nova senha (opcional)"
-                />
-              </div>
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  type="button"
-                  onClick={() => setOpenForm(false)}
-                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Salvar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      <footer className="bg-gray-900 text-white text-center py-4 mt-auto">
-        <p>Powered by Beatriz Fonseca | {new Date().getFullYear()}</p>
-      </footer>
     </div>
   );
 }

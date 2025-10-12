@@ -19,6 +19,7 @@ const sidebarOptions: Record<string, SidebarItem[]> = {
   funcionario: [
     { label: 'Início', href: '/funcionarios' },
     { label: 'Agenda', href: '/funcionarios/agendamentos' },
+    { label: 'Gerir Clientes', href: '/funcionarios/clientes' },
     { label: 'Terminar Sessão', action: () => signOut({ callbackUrl: '/' }) },
   ],
   admin: [

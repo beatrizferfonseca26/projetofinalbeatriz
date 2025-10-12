@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/ui/button";
 import Sidebar from "@/components/sideBar";
 import bcrypt from "bcryptjs";
+import { toast } from "react-toastify";
 
 export default function NovoFuncionarioPage() {
   const router = useRouter();
@@ -35,14 +36,14 @@ export default function NovoFuncionarioPage() {
       });
 
       if (res.ok) {
-        alert("Funcionário cadastrado com sucesso!");
+        toast.success("Funcionário cadastrado com sucesso!");
         router.push("/administrador/funcionarios");
       } else {
-        alert("Erro ao cadastrar funcionário");
+        toast.error("Erro ao cadastrar funcionário");
       }
     } catch (err) {
       console.error("Erro:", err);
-      alert("Falha na conexão com o servidor");
+      toast.error("Falha na conexão com o servidor");
     }
   };
 

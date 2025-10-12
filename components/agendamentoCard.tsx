@@ -3,6 +3,7 @@
 import { CalendarDays, Clock, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import Button from './ui/button';
+import { toast } from 'react-toastify';
 
 
 export type AgendamentoCardProps = {
@@ -60,10 +61,10 @@ export default function AgendamentoCard({
         if (onStatusChange) onStatusChange(novoStatus);
         // Opcional: feedback visual
       } else {
-        alert('Erro ao alterar status');
+        toast.error('Erro ao alterar status');
       }
     } catch {
-      alert('Erro ao alterar status');
+      toast.error('Erro ao alterar status');
     } finally {
       setAlterando(false);
     }

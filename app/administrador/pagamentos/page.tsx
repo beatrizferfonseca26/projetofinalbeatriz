@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/sideBar";
 import Button from "@/components/ui/button";
+import { toast } from "react-toastify";
 
 type EditPagamento = {
 	Status: string;
@@ -85,10 +86,10 @@ export default function PagamentosAdminPage() {
 					setEditId(null);
 					setEditFields({});
 				} else {
-					alert('Erro ao salvar pagamento');
+					toast.error('Erro ao salvar pagamento');
 				}
 			} catch {
-				alert('Erro ao salvar pagamento');
+				toast.error('Erro ao salvar pagamento');
 			}
 		};
 
