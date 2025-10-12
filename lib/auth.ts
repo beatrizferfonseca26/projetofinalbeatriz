@@ -1,3 +1,4 @@
+// lib/auth.ts
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
@@ -7,12 +8,17 @@ export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
-      credentials: { email: { label: "Email", type: "text" }, senha: { label: "Senha", type: "password" } },
+      credentials: {
+        email: { label: "Email", type: "text" },
+        senha: { label: "Senha", type: "password" },
+      },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.senha) return null;
 
         // 🔹 Buscar Cliente
-        const cliente = await prisma.clientes.findFirst({ where: { Email: credentials.email } });
+        const cliente = await prisma.clientes.findFirst({
+          where: { Email: credentials.email },
+        });
         if (cliente?.Senha && bcrypt.compareSync(credentials.senha, cliente.Senha)) {
           return {
             id: cliente.Id_Cliente.toString(),
@@ -22,14 +28,16 @@ export const authOptions: NextAuthOptions = {
           };
         }
 
-        // 🔹 Buscar Funcionário
-        const funcionario = await prisma.funcionarios.findFirst({ where: { Email: credentials.email } });
+        // 🔹 Buscar Funcionário (inclui admin)
+        const funcionario = await prisma.funcionarios.findFirst({
+          where: { Email: credentials.email },
+        });
         if (funcionario?.Senha && bcrypt.compareSync(credentials.senha, funcionario.Senha)) {
           return {
             id: funcionario.Id_Funcionario.toString(),
             email: funcionario.Email ?? "",
             name: funcionario.Nome ?? "",
-            tipo: funcionario.Administrador ? "admin" : "funcionario",
+            tipo: funcionario.Administrador ? "administrador" : "funcionario",
           };
         }
 
@@ -49,8 +57,9 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token) {
-        (session as any).id = token.id;
-        (session as any).tipo = token.tipo;
+        (session.user as any).id = token.id;
+        (session.user as any).tipo = token.tipo;
+        (session.user as any).isAdmin = token.tipo === "administrador";
       }
       return session;
     },

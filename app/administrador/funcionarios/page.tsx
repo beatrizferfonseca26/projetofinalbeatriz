@@ -31,8 +31,15 @@ export default function FuncionariosPage() {
     const fetchFuncionarios = async () => {
       try {
         const res = await fetch("/api/interna/admin/funcionarios");
-        const data = await res.json();
-        setFuncionarios(data || []);
+        console.log('GET /api/interna/admin/funcionarios ->', res.status);
+        const data = await res.json().catch(() => null);
+        // normalizar resposta: aceitar array direto ou objeto com chave 'funcionarios'
+        const list = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.funcionarios)
+          ? data.funcionarios
+          : [];
+        setFuncionarios(list);
       } catch (err) {
         console.error("Erro ao carregar funcionários", err);
       } finally {

@@ -1,8 +1,33 @@
 'use client';
 
 import Link from "next/link";
+import { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export default function AdminDashboardPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  // Protege a página — redireciona se não for admin
+  useEffect(() => {
+    if (status === "loading") return;
+    if (!session) {
+      router.push("/"); // não autenticado
+    } else if (session.user?.tipo !== "administrador") {
+      router.push("/"); // autenticado mas não é admin
+    }
+    console.log('Admin page session status:', status, session);
+  }, [status, session, router]);
+
+  if (status === "loading" || !session) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <p className="text-gray-600 text-lg">Carregando...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Conteúdo principal */}
@@ -61,7 +86,8 @@ export default function AdminDashboardPage() {
                 <p className="text-sm text-gray-600 mt-2">Defina horários disponíveis.</p>
               </div>
             </Link>
-              {/* Pagamentos */}
+
+            {/* Pagamentos */}
             <Link href="/administrador/pagamentos">
               <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
                 <h2 className="text-lg font-semibold">Pagamentos</h2>
@@ -74,7 +100,7 @@ export default function AdminDashboardPage() {
 
       {/* Rodapé fixo */}
       <footer className="bg-gray-900 text-white text-center py-4 mt-auto">
-       <p>Powered by Beatriz Fonseca | {new Date().getFullYear()}</p>
+        <p>Powered by Beatriz Fonseca | {new Date().getFullYear()}</p>
       </footer>
     </div>
   );

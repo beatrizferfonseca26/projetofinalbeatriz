@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Button from './ui/button';
 import { toast } from 'react-toastify';
+
 type LoginModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -22,6 +23,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
 
     const result = await signIn('credentials', {
       redirect: false,
@@ -31,30 +33,30 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
 
     if (result?.error) {
       setError('Email ou senha inválidos.');
+      return;
+    }
+
+    // 🔹 Buscar sessão atualizada após login
+    const session = await fetch('/api/auth/session').then((res) => res.json());
+
+    // 🔹 Redirecionar conforme o tipo do utilizador
+    if (session?.tipo === 'admin') {
+      router.push('/administrador');
+    } else if (session?.tipo === 'funcionario') {
+      router.push('/funcionarios');
+    } else if (session?.tipo === 'cliente') {
+      router.push('/clientes');
     } else {
-      const session = await fetch('/api/auth/session').then((res) => res.json());
-
-      if (session.tipo === 'administrador') {
-        router.push('/administrador');
-      } else if (session.tipo === 'funcionario') {
-        router.push('/funcionarios');
-      } else if (session.tipo === 'cliente') {
-        router.push('/clientes');
-      } else {
-        router.push('/');
-      }
-
+      router.push('/');
     }
-    if (result?.ok) {
-      toast.success('Login realizado com sucesso!');
-      onClose();
-    }
+
+    toast.success('Login realizado com sucesso!');
+    onClose();
   };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md relative animate-fade-in">
-        {/* Botão X */}
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl"
@@ -74,19 +76,18 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
               className="border p-2 rounded w-full pr-20"
               required
             />
-            {/* Botão limpar email */}
             {email && (
               <button
                 type="button"
                 onClick={() => setEmail('')}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm px-2 py-1"
                 tabIndex={-1}
-                aria-label="Limpar email"
               >
                 Limpar
               </button>
             )}
           </div>
+
           <div className="relative">
             <input
               type={senhaVisible ? 'text' : 'password'}
@@ -96,24 +97,20 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
               className="border p-2 rounded w-full pr-28"
               required
             />
-            {/* Botão ver senha */}
             <button
               type="button"
               onClick={() => setSenhaVisible((v) => !v)}
               className="absolute right-16 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm px-2 py-1"
               tabIndex={-1}
-              aria-label={senhaVisible ? "Ocultar senha" : "Ver senha"}
             >
-              {senhaVisible ? "Ocultar" : "Ver"}
+              {senhaVisible ? 'Ocultar' : 'Ver'}
             </button>
-            {/* Botão limpar senha */}
             {senha && (
               <button
                 type="button"
                 onClick={() => setSenha('')}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm px-2 py-1"
                 tabIndex={-1}
-                aria-label="Limpar senha"
               >
                 Limpar
               </button>
@@ -122,16 +119,14 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
-          {/* Botão Entrar */}
           <Button
-            variant='primary'
+            variant="primary"
             type="submit"
-            loadingText='Login...'
+            loadingText="Login..."
             className="bg-black text-white py-2 rounded hover:bg-gray-800 transition"
           >
             Entrar
           </Button>
-
 
           <Button
             variant="secondary"
