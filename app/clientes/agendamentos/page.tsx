@@ -6,6 +6,7 @@ import AgendamentoCard from '@/components/agendamentoCard';
 import AgendamentoModal from '@/components/agendamentoModal';
 import Button from '@/components/ui/button';
 import { toast } from 'react-toastify';
+import Link from 'next/link';
 
 type Agendamento = {
   Id_Agendamento: number;
@@ -40,13 +41,25 @@ export default function AgendamentosPage() {
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const realizadosStatus = ['concluido', 'concluído', 'realizado', 'finalizado', 'feito'];
+
   const fetchAgendamentos = async () => {
+    setLoading(true);
     try {
-  const res = await fetch('/api/interna/clientes/agendamentos');
-  const data = await res.json();
-  setAgendamentos(Array.isArray(data.agendamentos) ? data.agendamentos : []);
-    } catch (error) {
-      console.error('Erro ao carregar agendamentos:', error);
+      const res = await fetch('/api/interna/clientes/agendamentos');
+      const data = await res.json();
+      const lista: Agendamento[] = Array.isArray(data.agendamentos) ? (data.agendamentos as Agendamento[]) : [];
+
+      // EXCLUIR os que já estão realizados (case-insensitive)
+      const filtrados = lista.filter((a: Agendamento) => {
+        const s = (a.Status ?? '').toString().toLowerCase();
+        return !realizadosStatus.includes(s);
+      });
+
+      setAgendamentos(filtrados);
+    } catch (err) {
+      console.error('Erro ao buscar agendamentos:', err);
+      toast.error('Erro ao carregar agendamentos.');
     } finally {
       setLoading(false);
     }
@@ -77,7 +90,8 @@ export default function AgendamentosPage() {
         toast.success('Agendamento criado com sucesso!');
         fetchAgendamentos(); // recarregar lista
       } else {
-        toast.error('Erro ao criar agendamento.');
+        const err = await res.json().catch(() => null);
+        toast.error(err?.error || 'Erro ao criar agendamento.');
       }
     } catch {
       toast.error('Erro inesperado.');
@@ -117,65 +131,79 @@ export default function AgendamentosPage() {
     }
   };
 
+  return (
+    <div className="flex min-h-screen bg-gray-100">
+      <Sidebar />
+      <div className="flex-1 flex flex-col p-8">
+        {/* Título e botão no topo */}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">Meus Agendamentos</h2>
 
-  return (<div className="flex min-h-screen bg-gray-100"> <Sidebar /> <div className="flex-1 flex flex-col p-8">
-    {/* Título e botão no topo */} <div className="flex justify-between items-center mb-6"> <h2 className="text-xl font-semibold">Meus Agendamentos</h2>
-      <Button
-        variant="primary"
-        onClick={() => setIsModalOpen(true)}
-        className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition"
-      >
-        Novo Agendamento </Button> </div>
+          <div className="flex gap-3">
+            <Button
+              variant="primary"
+              onClick={() => setIsModalOpen(true)}
+              className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition"
+            >
+              Novo Agendamento
+            </Button>
 
+            {/* Link para a página de realizados */}
+            <Link href="/clientes/agendamentos/realizados">
+              <Button variant="secondary" className="px-3 py-2 rounded">
+                Ver Realizados
+              </Button>
+            </Link>
+          </div>
+        </div>
 
-    {/* Estado de carregamento */}
-    {loading && <p className="text-gray-500">Carregando agendamentos...</p>}
+        {/* Estado de carregamento */}
+        {loading && <p className="text-gray-500">Carregando agendamentos...</p>}
 
-    {/* Lista de agendamentos */}
-    {!loading && agendamentos.length === 0 ? (
-      <p className="text-gray-500">Nenhum agendamento encontrado.</p>
-    ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {agendamentos.map((item) => (
-          <AgendamentoCard
-            key={item.Id_Agendamento}
-            servico={item.Servico}
-            profissional={item.Funcionario || 'Não atribuído'}
-            data={item.Data}
-            hora={`${item.HoraInicio} - ${item.HoraFinal}`}
-            valor={item.Valor}
-            local="Unidade Padrão"
-            status={item.Status}
-            idAgendamento={item.Id_Agendamento}
-            onStatusChange={() => fetchAgendamentos()}
-            onEdit={(id) => handleEdit(id)}
-          />
-        ))}
+        {/* Lista de agendamentos */}
+        {!loading && agendamentos.length === 0 ? (
+          <p className="text-gray-500">Nenhum agendamento encontrado.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {agendamentos.map((item) => (
+              <AgendamentoCard
+                key={item.Id_Agendamento}
+                servico={item.Servico}
+                profissional={item.Funcionario || 'Não atribuído'}
+                data={item.Data}
+                hora={`${item.HoraInicio} - ${item.HoraFinal}`}
+                valor={item.Valor}
+                local="Unidade Padrão"
+                status={item.Status}
+                idAgendamento={item.Id_Agendamento}
+                onStatusChange={() => fetchAgendamentos()}
+                onEdit={(id) => handleEdit(id)}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Modal para novo agendamento */}
+        <AgendamentoModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditingAgendamento(null);
+          }}
+          onAgendamentoCriado={handleNovoAgendamento}
+          isEditing={!!editingAgendamento}
+          initialData={editingAgendamento ? {
+            Id_Agendamento: editingAgendamento.Id_Agendamento,
+            Data: editingAgendamento.Data,
+            HoraInicio: editingAgendamento.HoraInicio,
+            HoraFinal: editingAgendamento.HoraFinal,
+            Id_Servico: undefined,
+            Id_Funcionario: undefined,
+            Observacoes: undefined,
+          } : null}
+          onEditSaved={handleEditSaved}
+        />
       </div>
-    )}
-
-    {/* Modal para novo agendamento */}
-    <AgendamentoModal
-      isOpen={isModalOpen}
-      onClose={() => {
-        setIsModalOpen(false);
-        setEditingAgendamento(null);
-      }}
-      onAgendamentoCriado={handleNovoAgendamento}
-      isEditing={!!editingAgendamento}
-      initialData={editingAgendamento ? {
-        Id_Agendamento: editingAgendamento.Id_Agendamento,
-        Data: editingAgendamento.Data,
-        HoraInicio: editingAgendamento.HoraInicio,
-        HoraFinal: editingAgendamento.HoraFinal,
-        Id_Servico: undefined,
-        Id_Funcionario: undefined,
-        Observacoes: undefined,
-      } : null}
-      onEditSaved={handleEditSaved}
-    />
-  </div>
-  </div>
-
+    </div>
   );
 }

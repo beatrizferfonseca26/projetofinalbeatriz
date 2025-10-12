@@ -21,28 +21,80 @@ export default function ClientesPage() {
   const [senhaVisible, setSenhaVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Função para buscar cliente
-  const fetchCliente = async (email: string) => {
+  const fetchClienteByEmail = async (emailParam: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/interna/clientes?email=${email}`);
+      const res = await fetch(`/api/interna/clientes?email=${encodeURIComponent(emailParam)}`);
       const data = await res.json();
-
       if (res.ok) {
         setNome(data.Nome || '');
         setEmail(data.Email || '');
         setTelemovel(data.Telemovel || '');
-        setSenha(''); // nunca preencher senha
+        setSenha('');
         setDataNascimento(
           data.DataNascimento ? new Date(data.DataNascimento).toISOString().split('T')[0] : ''
         );
         setMorada(data.Morada || '');
         setNif(data.Nif?.toString() || '');
+        return true;
       } else {
-        console.error('Erro:', data.message);
+        console.error('Erro:', data.message || data);
+        return false;
       }
     } catch (err) {
-      console.error('Erro ao buscar cliente:', err);
+      console.error('Erro ao buscar cliente por email:', err);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchClienteCurrent = async () => {
+    setLoading(true);
+    try {
+      // 1) tentar rota dedicada que retorne o cliente atual 
+      let res = await fetch('/api/interna/clientes/me');
+      if (res.ok) {
+        const data = await res.json();
+        setNome(data.Nome || '');
+        setEmail(data.Email || '');
+        setTelemovel(data.Telemovel || '');
+        setSenha('');
+        setDataNascimento(
+          data.DataNascimento ? new Date(data.DataNascimento).toISOString().split('T')[0] : ''
+        );
+        setMorada(data.Morada || '');
+        setNif(data.Nif?.toString() || '');
+        return;
+      }
+
+      // 2) tentar rota sem query (alguns backends usam sessão)
+      res = await fetch('/api/interna/clientes');
+      if (res.ok) {
+        const data = await res.json();
+        setNome(data.Nome || '');
+        setEmail(data.Email || '');
+        setTelemovel(data.Telemovel || '');
+        setSenha('');
+        setDataNascimento(
+          data.DataNascimento ? new Date(data.DataNascimento).toISOString().split('T')[0] : ''
+        );
+        setMorada(data.Morada || '');
+        setNif(data.Nif?.toString() || '');
+        return;
+      }
+
+      // 3) fallback: tentar buscar email em localStorage e usar fetchClienteByEmail
+      const storedEmail = localStorage.getItem('userEmail');
+      if (storedEmail) {
+        const ok = await fetchClienteByEmail(storedEmail);
+        if (ok) return;
+      }
+
+      toast.error('Não foi possível carregar os dados do cliente. Faça login novamente.');
+    } catch (err) {
+      console.error('Erro ao buscar cliente atual:', err);
+      toast.error('Erro ao carregar dados do cliente.');
     } finally {
       setLoading(false);
     }
@@ -51,10 +103,8 @@ export default function ClientesPage() {
   // sempre que abrir o form, busca os dados do cliente logado
   useEffect(() => {
     if (openForm) {
-      const userEmail = localStorage.getItem('userEmail');
-      if (userEmail) {
-        fetchCliente(userEmail);
-      }
+      // primeiro tenta carregar via sessão/rota dedicada, se não usar fallback para localStorage
+      fetchClienteCurrent();
     }
   }, [openForm]);
 
@@ -62,35 +112,55 @@ export default function ClientesPage() {
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
-    const formData = {
-      Nome: nome || null,
-      Email: email || null,
-      Telemovel: telemovel || null,
-      Senha: senha ? senha : null, // só envia se preenchida
-      DataNascimento: dataNascimento ? new Date(dataNascimento) : null,
-      Morada: morada || null,
-      Nif: nif ? Number(nif) : null,
-    };
-
-    console.log('Dados enviados:', formData);
-
-    const res = await fetch("/api/interna/clientes/update", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nome, email, morada, telemovel, senha }),
-    });
-    const data = await res.json();
-
-    if (res.ok && data.success) {
-      toast.success("Conta atualizada com sucesso!");
-      setSenha("");
-    } else {
-      toast.error(data.error || "Erro ao atualizar conta.");
+    // validação cliente-side
+    if (nif && nif.length !== 6) {
+      toast.error('NIF deve ter exatamente 6 dígitos.');
+      return;
     }
 
-    console.log('Dados enviados pelo formulário: ', formData)
+    setLoading(true);
+    try {
+      const body = {
+        Nome: nome || null,
+        Email: email || null,
+        Telemovel: telemovel || null,
+        Senha: senha ? senha : null,
+        // enviar como ISO string para evitar problemas de serialização no servidor
+        DataNascimento: dataNascimento ? new Date(dataNascimento).toISOString() : null,
+        Morada: morada || null,
+        Nif: nif ? Number(nif) : null,
+      };
 
-    setOpenForm(false);
+      console.log('Dados enviados:', body);
+
+      const res = await fetch('/api/interna/clientes/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      // tratar respostas não-json
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        data = null;
+      }
+
+      if (res.ok && data?.success) {
+        toast.success('Conta atualizada com sucesso!');
+        setSenha('');
+        setOpenForm(false); // fechar apenas em sucesso
+      } else {
+        const msg = data?.error || data?.message || `Erro ao atualizar (status ${res.status})`;
+        toast.error(msg);
+      }
+    } catch (err) {
+      console.error('Erro ao submeter formulário:', err);
+      toast.error('Erro inesperado ao atualizar.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -213,11 +283,18 @@ export default function ClientesPage() {
                 <div>
                   <label className="block text-sm font-medium mb-1">NIF</label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="\d{6}"
+                    maxLength={6}
                     value={nif}
-                    onChange={(e) => setNif(e.target.value)}
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, '').slice(0, 6);
+                      setNif(digits);
+                    }}
                     className="w-full border rounded p-2"
                   />
+                  <p className="text-xs text-gray-500 mt-1">Máx. 6 dígitos — apenas números.</p>
                 </div>
 
                 <div className="flex justify-end gap-2 mt-4">

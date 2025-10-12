@@ -50,11 +50,10 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
       setError('Senha deve ter no mínimo 6 caracteres.');
       return;
     }
-    if (!validateNIF(nif)) {
-      setError('NIF deve ter 9 dígitos.');
+    if (nif && nif.length !== 6) {
+      toast.error('NIF deve ter exatamente 6 dígitos.');
       return;
     }
-
 
     try {
       const res = await fetch('/api/interna/clientes', {
@@ -154,15 +153,22 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
             className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
-          <input
-            type="text"
-            placeholder="Contribuinte"
-            value={nif}
-            onChange={(e) => setNif(e.target.value)}
-            className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-black"
-            required
-          />
-
+          <div>
+            <label className="block text-sm font-medium mb-1">NIF</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="\d{6}"
+              maxLength={6}
+              value={nif}
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, '').slice(0, 6);
+                setNif(digits);
+              }}
+              className="w-full border rounded p-2"
+            />
+            <p className="text-xs text-gray-500 mt-1">Máx. 6 dígitos — apenas números.</p>
+          </div>
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
           {success && <p className="text-green-600 text-sm">{success}</p>}

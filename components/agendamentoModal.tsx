@@ -1,5 +1,6 @@
 'use client';
 
+import { debounce } from 'lodash';
 import { useEffect, useState } from 'react';
 import { format, addMinutes, parse, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -72,6 +73,9 @@ export default function AgendamentoModal({
   const [horarioSelecionado, setHorarioSelecionado] = useState<string | null>(null);
   const [agendando, setAgendando] = useState(false);
   const [modalidadePagamento, setModalidadePagamento] = useState<'Online' | 'Presencial'>('Online');
+  // add observacoes state
+  const [observacoes, setObservacoes] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   // preencher quando for editar
   useEffect(() => {
     if (!isOpen) return;
@@ -131,7 +135,7 @@ export default function AgendamentoModal({
     setSelectedFuncionario(null);
   }, [selectedServico]);
 
-  const handleAgendar = async () => {
+  const handleAgendar = debounce(async () => {
     if (agendando) return;
     setAgendando(true);
     if (!selectedServico || !dataSelecionada || !horarioSelecionado) {
@@ -157,7 +161,7 @@ export default function AgendamentoModal({
       Data: format(dataSelecionada, 'yyyy-MM-dd'),
       HoraInicio: format(inicio, 'HH:mm'),
       HoraFinal: format(final, 'HH:mm'),
-      Observacoes: '',
+      Observacoes: observacoes || null,
       ModalidadePagamento: modalidadePagamento,
     };
 
@@ -187,7 +191,16 @@ export default function AgendamentoModal({
 
         if (res.ok) {
           toast.success('Agendamento realizado com sucesso!');
-          onAgendamentoCriado(dados);
+          // Prepare callback data matching onAgendamentoCriado signature (no null values)
+          const callbackDados = {
+            Data: dados.Data,
+            HoraInicio: dados.HoraInicio,
+            HoraFinal: dados.HoraFinal,
+            Id_Servico: dados.Id_Servico,
+            Id_Funcionario: dados.Id_Funcionario ?? undefined,
+            Observacoes: dados.Observacoes ?? undefined,
+          };
+          onAgendamentoCriado(callbackDados);
           onClose();
         } else {
           toast.error('Erro ao realizar agendamento.');
@@ -198,7 +211,52 @@ export default function AgendamentoModal({
     } finally {
       setAgendando(false);
     }
-  };
+  }, 500);
+
+  async function handleSave() {
+    if (isSubmitting) return;
+    // validações locais aqui...
+    if (!selectedServico || !dataSelecionada || !horarioSelecionado) {
+      toast.error('Preencha todos os campos obrigatórios antes de salvar.');
+      return;
+    }
+
+    const payload = {
+      Data: format(dataSelecionada, 'yyyy-MM-dd'),
+      HoraInicio: horarioSelecionado,
+      HoraFinal: horarioSelecionado,
+      Id_Servico: selectedServico,
+      Id_Funcionario: selectedFuncionario ?? undefined,
+      Observacoes: observacoes ?? undefined,
+    };
+
+    try {
+      setIsSubmitting(true);
+      const result = await onAgendamentoCriado(payload);
+
+      // Se o parent retorna Response, você pode checar status e agir aqui
+      // o retorno de onAgendamentoCriado é tipado como void, então primeiro convertemos para any
+      // e só então verificamos se tem a propriedade 'ok' para tratar como Response.
+      const resultAny = result as any;
+      if (resultAny && typeof resultAny.ok === 'boolean') {
+        const res = resultAny as Response;
+        if (!res.ok) {
+          // opcional: mostrar erro localmente (não sucessos aqui)
+          const errBody = await res.json().catch(() => null);
+          console.error('Erro no create (modal):', errBody);
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // fechar modal apenas após o parent confirmar sucesso
+      onClose();
+    } catch (err) {
+      console.error('Erro ao salvar agendamento (modal):', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   if (!isOpen) return null;
 
@@ -289,6 +347,18 @@ export default function AgendamentoModal({
         </select>
       </div>
     )}
+
+    {/* Observações textarea */}
+    <div className="mt-3">
+      <label className="block text-sm font-medium mb-1">Observações</label>
+      <textarea
+        value={observacoes}
+        onChange={(e) => setObservacoes(e.target.value)}
+        className="w-full border rounded p-2"
+        rows={4}
+        placeholder="Anote observações do agendamento (opcional)"
+      />
+    </div>
 
     {horarioSelecionado && (
       <button

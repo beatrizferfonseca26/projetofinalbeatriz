@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import type { NextRequest } from 'next/server';
 
 // GET: Listar todos os agendamentos
 export async function GET() {
@@ -20,7 +21,7 @@ export async function GET() {
       include: {
         servicos: true,
         funcionarios: true,
-        clientes: true, // opcional, caso queira exibir o cliente
+        clientes: true,
       },
     });
 
@@ -63,156 +64,126 @@ export async function GET() {
   }
 }
 
-
 // POST: Criar novo agendamento
 export async function POST(request: Request) {
-  console.log('POST /api/interna/agendamentos chamado', Date.now());
+  console.log('POST /api/interna/agendamentos chamado', Date.now(), 'body preview:', await request.clone().text().catch(()=>null));
+
   try {
+    // 1️⃣ Verificar sessão
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
     }
 
-    const { Id_Servico, Id_Funcionario, Data, HoraInicio, Observacoes, ModalidadePagamento } = await request.json();
+    // 2️⃣ Buscar cliente pelo e-mail logado
+    const cliente = await prisma.clientes.findFirst({
+      where: { Email: session.user.email },
+      select: { Id_Cliente: true },
+    });
+    if (!cliente) {
+      return NextResponse.json({ error: 'Cliente não encontrado' }, { status: 404 });
+    }
+
+    // 3️⃣ Extrair e validar o corpo da requisição
+    const body = await request.json();
+    const {
+      Id_Servico,
+      Data,
+      HoraInicio,
+      HoraFinal,
+      Id_Funcionario = null,
+      Observacoes = null,
+      ModalidadePagamento = null,
+    } = body;
+
     if (!Id_Servico || !Data || !HoraInicio) {
-      return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
+      return NextResponse.json({ error: 'Campos obrigatórios em falta.' }, { status: 400 });
     }
 
-    // Tudo dentro de uma transação para garantir atomicidade
-    const resultado = await prisma.$transaction(async (tx) => {
-      const cliente = await tx.clientes.findFirst({
-        where: { Email: session.user.email },
-      });
-      if (!cliente) {
-        throw new Error('Cliente não encontrado');
+    // 4️⃣ Converter datas/horas para ISO
+    const dataISO = new Date(`${Data}T00:00:00Z`);
+    const horaInicioISO = new Date(`${Data}T${HoraInicio}:00Z`);
+    const horaFinalISO = HoraFinal ? new Date(`${Data}T${HoraFinal}:00Z`) : null;
+
+    // 5️⃣ Transação Prisma com bloqueio lógico
+    const novoAgendamento = await prisma.$transaction(
+      async (tx) => {
+        // Checar se já existe agendamento igual
+        const existente = await tx.agendamentos.findFirst({
+          where: {
+            Id_Cliente: cliente.Id_Cliente,
+            Data: dataISO,
+            HoraInicio: horaInicioISO,
+          },
+          select: { Id_Agendamento: true },
+        });
+
+        if (existente) throw new Error('DUPLICATE_AGENDAMENTO');
+
+        // Buscar valor do serviço dentro da transação
+        const servico = await tx.servicos.findUnique({
+          where: { Id_Servico: Number(Id_Servico) },
+          select: { Valor: true },
+        });
+
+        // Criar agendamento
+        const created = await tx.agendamentos.create({
+          data: {
+            Id_Cliente: cliente.Id_Cliente,
+            Id_Servico: Number(Id_Servico),
+            Id_Funcionario: Id_Funcionario ? Number(Id_Funcionario) : null,
+            Data: dataISO,
+            HoraInicio: horaInicioISO,
+            HoraFinal: horaFinalISO,
+            Observacoes: Observacoes ?? null,
+            Status: 'Marcado',
+          },
+        });
+
+        // Criar pagamento atrelado (tudo na mesma transação)
+        await tx.pagamentos.create({
+          data: {
+            Id_Agendamento: created.Id_Agendamento,
+            Modalidade: ModalidadePagamento ?? 'Presencial',
+            Valor: servico?.Valor ?? 0,
+            Status: 'OK',
+          },
+        });
+
+        return created;
+      },
+      {
+        // Isolamento SERIALIZABLE = impede race conditions de duplicação
+        isolationLevel: 'Serializable',
       }
+    );
 
-      // Buscar duração do serviço
-      const servico = await tx.servicos.findUnique({
-        where: { Id_Servico: Id_Servico },
-        select: { Duracao: true, Nome: true, Valor: true },
-      });
-      if (!servico || !servico.Duracao) {
-        throw new Error('Serviço não encontrado ou sem duração definida');
-      }
-
-      // Converter HoraInicio em objeto Date apenas para hora
-      const [hours, minutes] = HoraInicio.split(':').map(Number);
-      if (hours == null || minutes == null) {
-        throw new Error('Hora inválida');
-      }
-
-      // Data apenas (sem hora)
-      const dataOnly = new Date(Data + 'T00:00:00');
-      if (isNaN(dataOnly.getTime())) {
-        throw new Error('Data inválida');
-      }
-
-      // HoraInicio e HoraFinal como Date na data correta
-      const horaInicioDate = new Date(Data + 'T' + HoraInicio + ':00');
-      if (isNaN(horaInicioDate.getTime())) {
-        throw new Error('Hora de início inválida');
-      }
-      const horaFinalDate = new Date(horaInicioDate);
-      horaFinalDate.setMinutes(horaFinalDate.getMinutes() + servico.Duracao);
-
-      // Verificar se já existe agendamento igual (mesmo cliente, serviço, data e hora de início)
-      const agendamentoExistente = await tx.agendamentos.findFirst({
-        where: {
-          Id_Cliente: cliente.Id_Cliente,
-          Id_Servico: Id_Servico,
-          Data: dataOnly,
-          HoraInicio: horaInicioDate,
-        },
-      });
-      if (agendamentoExistente) {
-        throw new Error('Já existe um agendamento para este horário.');
-      }
-
-      // Verificar conflito de horário para o mesmo serviço e funcionário (ou qualquer funcionário se não selecionado)
-      const conflitos = await tx.agendamentos.findMany({
-        where: {
-          Data: dataOnly,
-          Id_Servico: Id_Servico,
-          ...(Id_Funcionario ? { Id_Funcionario: Id_Funcionario } : {}),
-          OR: [
-            {
-              HoraInicio: { lt: horaFinalDate },
-              HoraFinal: { gt: horaInicioDate },
-            },
-          ],
-        },
-      });
-      if (conflitos.length > 0) {
-        throw new Error('Horário indisponível. Escolha outro horário.');
-      }
-
-      const novoAgendamento = await tx.agendamentos.create({
-        data: {
-          Id_Servico,
-          Id_Cliente: cliente.Id_Cliente,
-          Id_Funcionario: Id_Funcionario ?? null,
-          Data: dataOnly,
-          HoraInicio: horaInicioDate,
-          HoraFinal: horaFinalDate,
-          Observacoes: Observacoes ?? null,
-        },
-        include: {
-          servicos: true,
-          clientes: true,
-          funcionarios: true,
-        },
-      });
-
-      // Criar registro de pagamento vinculado (valor do serviço)
-      // ModalidadePagamento pode ser 'Online' ou 'Presencial' (default Online)
-      const pagamento = await tx.pagamentos.create({
-        data: {
-          Valor: servico?.Valor ?? undefined,
-          Status: null,
-          Modalidade: ModalidadePagamento === 'Presencial' ? 'Presencial' : 'Online',
-          Fatura: null,
-          Id_Agendamento: novoAgendamento.Id_Agendamento,
-        },
-      });
-
-      return { novoAgendamento, cliente, servico, horaFinalDate, pagamento };
-    });
-
-    // Fora da transação: enviar e-mail
-    const { novoAgendamento, cliente, servico, horaFinalDate } = resultado;
-    const emailHtml = `
-      <h2>Confirmação de Agendamento</h2>
-      <p><strong>Serviço:</strong> ${novoAgendamento.servicos.Nome}</p>
-      <p><strong>Data:</strong> ${Data}</p>
-      <p><strong>Hora:</strong> ${HoraInicio} - ${horaFinalDate.getHours().toString().padStart(2, '0')}:${horaFinalDate.getMinutes().toString().padStart(2, '0')}</p>
-      ${novoAgendamento.funcionarios ? `<p><strong>Profissional:</strong> ${novoAgendamento.funcionarios.Nome}</p>` : ''}
-      <p>Obrigado por escolher a ${process.env.APP_NAME}</p>
-    `;
-
-    await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/interna/email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        to: cliente.Email,
-        subject: `Confirmação de Agendamento - ${process.env.APP_NAME}`,
-        html: emailHtml,
-      }),
-    });
-    console.log('E-mail de confirmação enviado para:', cliente.Email);
-    return NextResponse.json(novoAgendamento, { status: 201 });
-  } catch (error) {
-    // Prisma unique constraint error (duplicate)
-    if (typeof error === 'object' && error && 'code' in error && (error as any).code === 'P2002') {
-      console.error('Erro de duplicado ao criar agendamento:', error);
-      return NextResponse.json({ error: 'Agendamento duplicado.' }, { status: 409 });
+    return NextResponse.json(
+      { success: true, agendamento: novoAgendamento },
+      { status: 201 }
+    );
+  } catch (err: any) {
+    // 6️⃣ Tratamento de erros conhecidos
+    if (err?.message === 'DUPLICATE_AGENDAMENTO') {
+      return NextResponse.json(
+        { error: 'Já existe agendamento neste dia/horário para este cliente.' },
+        { status: 409 }
+      );
     }
-    let msg = 'Erro ao criar agendamento';
-    if (typeof error === 'object' && error && 'message' in error) {
-      msg = (error as any).message;
+
+    if (err?.code === 'P2002') {
+      // Erro de unique constraint do Prisma
+      return NextResponse.json(
+        { error: 'Agendamento duplicado detectado (conflito).' },
+        { status: 409 }
+      );
     }
-    console.error('Erro ao criar agendamento:', error);
-    return NextResponse.json({ error: msg }, { status: 500 });
+
+    console.error('❌ Erro ao criar agendamento:', err);
+    return NextResponse.json(
+      { error: 'Erro interno ao criar agendamento.' },
+      { status: 500 }
+    );
   }
 }
 

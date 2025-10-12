@@ -16,6 +16,7 @@ export type AgendamentoCardProps = {
   idAgendamento?: number;
   onStatusChange?: (novoStatus: string) => void;
   onEdit?: (id?: number) => void;
+  showActions?: boolean; // when false, hide action buttons and controls
 };
 
 export default function AgendamentoCard({
@@ -29,6 +30,7 @@ export default function AgendamentoCard({
   idAgendamento,
   onStatusChange,
   onEdit,
+  showActions = true,
 }: AgendamentoCardProps) {
   const [alterando, setAlterando] = useState(false);
   const dataFormatada = data
@@ -40,6 +42,10 @@ export default function AgendamentoCard({
   const profissionalFormatado = profissional || 'Não atribuído';
   const localFormatado = local || 'Local não informado';
 
+  // considerar status "realizado" para ocultar ações (case-insensitive)
+  const realizadosStatus = ['concluido', 'concluído', 'realizado', 'finalizado', 'feito'];
+  const isRealizado = realizadosStatus.includes((status ?? '').toString().toLowerCase().trim());
+  
   // Função para alterar status
   async function alterarStatus(novoStatus: 'Confirmado' | 'Cancelado') {
     if (!idAgendamento) return;
@@ -91,50 +97,37 @@ export default function AgendamentoCard({
         {localFormatado}
       </div>
 
-      {/* Botão de alterar status - destaque visual */}
-      {idAgendamento && (
-        <div className="flex flex-col items-center gap-2 mt-4">
-          <div className="mb-1 text-base font-semibold">
-            Status atual:
-            {status === 'Confirmado' && (
-              <span className="ml-2 px-2 py-1 rounded bg-green-100 text-green-800 border border-green-400">✔️ Confirmado</span>
-            )}
-            {status === 'Cancelado' && (
-              <span className="ml-2 px-2 py-1 rounded bg-red-100 text-red-800 border border-red-400">❌ Cancelado</span>
-            )}
-            {!status && (
-              <span className="ml-2 px-2 py-1 rounded bg-gray-100 text-gray-800 border border-gray-300">Pendente</span>
-            )}
-          </div>
-          <div className="flex gap-4 w-full" style={{ justifyItems: 'center' }}>
-            <Button
-              variant="primary"
-              disabled={alterando || status === 'Confirmado'}
-              loadingText="Confirmando..."
-              onClick={() => alterarStatus('Confirmado')}
-            >
-              ✔️ Confirmar
-            </Button>
-            <Button
-              variant="secondary"
-              disabled={alterando || status === 'Cancelado'}
-              loadingText="Cancelando..."
-              onClick={() => alterarStatus('Cancelado')}
-            >
-              ❌ Cancelar
-            </Button>
-            {/* Mostrar botão de editar apenas se NÃO estiver confirmado */}
-            {status !== 'Confirmado' && idAgendamento && (
+      <div className="status">
+        <span>{status ?? 'Desconhecido'}</span>
+      </div>
+      {/* mostrar ações somente se showActions não for explicitamente false e não for realizado */}
+      {showActions && !isRealizado && (
+        <div className="actions flex gap-2 mt-3">
+          {/* botões de ação (editar, cancelar, confirmar) alinhados lado a lado */}
               <Button
-                variant="secondary"
-                onClick={() => {
-                  if (typeof onEdit === 'function') onEdit(idAgendamento);
-                }}
-              >
-                ✏️ Editar
-              </Button>
-            )}
-          </div>
+            variant="primary"
+            disabled={alterando || status === 'Confirmado'}
+            loadingText="Confirmando..."
+            onClick={() => alterarStatus('Confirmado')}
+          >
+            ✔️ Confirmar
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              if (typeof onEdit === 'function') onEdit(idAgendamento);
+            }}
+          >
+            ✏️ Editar
+          </Button>
+          <Button
+            variant="secondary"
+            disabled={alterando || status === 'Cancelado'}
+            loadingText="Cancelando..."
+            onClick={() => alterarStatus('Cancelado')}
+          >
+            ❌ Cancelar
+          </Button>
         </div>
       )}
     </div>
