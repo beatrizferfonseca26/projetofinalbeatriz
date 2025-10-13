@@ -40,8 +40,8 @@ Olá ${ag.clientes.Nome} 👋
 Lembramos que tem um agendamento para *${ag.servicos.Nome}*
 amanhã, dia ${new Date(ag.Data!).toLocaleDateString("pt-PT")} às ${ag.HoraInicio}.
 
-📍 Salão Beleza Total
-☎️ 912 345 678
+📍 Sallon
+☎️ 913 426 124
 Até breve 💅
 `;
 

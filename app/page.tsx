@@ -1,12 +1,17 @@
+// src/app/page.tsx
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+
 import LoginModal from '@/components/loginModal';
 import RegisterModal from '@/components/registerModal';
 import NavBar from '@/components/navBar';
 import ServicosCard from '@/components/servicosCard';
 import Button from '@/components/ui/button';
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
+
 interface Imagem {
   Id_Imagem: number;
   CaminhoImagem?: string | null;
@@ -29,16 +34,20 @@ interface Servico {
 }
 
 export default function Home() {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [showNav, setShowNav] = useState(false);
   const [activeSection, setActiveSection] = useState('inicio');
 
-  // Refs para as seções
   const mainRef = useRef<HTMLDivElement | null>(null);
   const sobreRef = useRef<HTMLElement | null>(null);
   const servicosRef = useRef<HTMLElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
+
+
 
   const handleOpenModal = () => {
     setIsLoginModalOpen(true);
@@ -58,16 +67,16 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Scroll para serviços após 3s
   useEffect(() => {
     const timer = setTimeout(() => {
       servicosRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 3000); // 3 segundos
-
+    }, 3000);
     return () => clearTimeout(timer);
   }, []);
 
-
-  // Atualiza a seção ativa conforme o scroll
+  // Atualiza seção ativa
   useEffect(() => {
     function onScroll() {
       const mainTop = mainRef.current?.getBoundingClientRect().top ?? 0;
@@ -87,13 +96,6 @@ export default function Home() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Navbar customizada
-  const navLinks = [
-    { name: 'Início', id: 'inicio' },
-    { name: 'Sobre Nós', id: 'sobre-nos' },
-    { name: 'Serviços', id: 'servicos-card' },
-  ];
-
   return (
     <div>
       {/* Navbar dinâmica */}
@@ -104,7 +106,6 @@ export default function Home() {
         />
       )}
 
-      {/* HERO PRINCIPAL */}
       {/* HERO PRINCIPAL */}
       <main
         ref={mainRef}
@@ -126,7 +127,7 @@ export default function Home() {
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundColor: 'rgba(0,0,0,0.4)', // Transparência
+            backgroundColor: 'rgba(0,0,0,0.4)',
             zIndex: 1,
           }}
         />
@@ -140,9 +141,9 @@ export default function Home() {
             textAlign: 'center',
             padding: '0 1rem',
             display: 'flex',
-            flexDirection: 'column',   // alinhamento vertical
-            alignItems: 'center',      // centraliza horizontalmente
-            gap: '1rem',               // espaço entre h1, h2 e botão
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '1rem',
           }}
         >
           <h1 style={{ fontSize: '4rem', fontWeight: 'bold', margin: 0 }}>
@@ -159,29 +160,22 @@ export default function Home() {
             Agende já
           </Button>
         </div>
-
       </main>
-      {/* SOBRE NÓS */}
-      <section
-        id="sobre-nos"
-        ref={sobreRef}
-        className="bg-black text-white py-12 px-4"
-      >
-        <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
 
-          {/* Coluna com o texto principal em “folha branca” */}
+      {/* SOBRE NÓS */}
+      <section id="sobre-nos" ref={sobreRef} className="bg-black text-white py-12 px-4">
+        <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div className="bg-white text-black rounded-2xl shadow-lg p-8">
             <h2 className="text-3xl font-extrabold mb-6 text-center">Sobre nós</h2>
             <p className="text-lg leading-relaxed">
-              No coração da nossa cidade, nasceu o Sallon,
-              um espaço pensado para valorizar a beleza, o bem-estar e a autoestima de cada cliente.
-              O que começou como um sonho de oferecer cuidados personalizados e de qualidade, hoje é
-              uma realidade que combina tradição, técnica e inovação.
+              No coração da nossa cidade, nasceu o Sallon, um espaço pensado para valorizar a beleza, o
+              bem-estar e a autoestima de cada cliente. O que começou como um sonho de oferecer cuidados
+              personalizados e de qualidade, hoje é uma realidade que combina tradição, técnica e inovação.
               <br /><br />
               Somos apaixonados pelo que fazemos. Nossa equipe é formada por profissionais qualificados,
-              sempre atualizados com as últimas tendências em cortes, coloração, tratamentos capilares, manicure,
-              pedicure, maquiagem, depilação e estética. Mais do que serviços, entregamos experiências —
-              cada atendimento é planejado para que você se sinta único(a) e especial.
+              sempre atualizados com as últimas tendências em cortes, coloração, tratamentos capilares,
+              manicure, pedicure, maquiagem, depilação e estética. Mais do que serviços, entregamos
+              experiências — cada atendimento é planejado para que você se sinta único(a) e especial.
               <br /><br />
               Além de cuidar da sua beleza, oferecemos uma linha exclusiva de produtos para que você
               mantenha em casa os resultados conquistados no salão. E para facilitar ainda mais sua rotina,
@@ -193,18 +187,14 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Coluna animada (fadeInDown) */}
           <motion.div
             className="text-center text-lg leading-relaxed"
             initial={{ opacity: 0, y: -40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
           >
-            <p>
-    {/* Mais conteudo aqui, quero adicionar um desenho interessante */}
-            </p>
+            <p>{/* Conteúdo/ilustração adicional aqui */}</p>
           </motion.div>
-
         </div>
       </section>
 
@@ -229,7 +219,10 @@ export default function Home() {
         )}
         {isRegisterModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <RegisterModal isOpen={isRegisterModalOpen} onClose={() => setIsRegisterModalOpen(false)} />
+            <RegisterModal
+              isOpen={isRegisterModalOpen}
+              onClose={() => setIsRegisterModalOpen(false)}
+            />
           </div>
         )}
       </div>

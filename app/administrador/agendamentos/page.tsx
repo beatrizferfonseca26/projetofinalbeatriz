@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "@/components/sideBar";
 import Button from "@/components/ui/button";
 import { toast } from "react-toastify";
+import AgendamentoModal from "@/components/agendamentoModal";
 
 interface Agendamento {
   Id_Agendamento: number;
@@ -24,6 +25,7 @@ export default function AgendamentosPage() {
   const [loading, setLoading] = useState(true);
   const [editStatusId, setEditStatusId] = useState<number | null>(null);
   const [statusEdit, setStatusEdit] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchAgendamentos();
@@ -44,6 +46,14 @@ export default function AgendamentosPage() {
 
   };
 
+  // quando o modal criar um agendamento (modo funcionário), acrescenta à lista local
+  const handleAgendamentoCriado = (novo: any) => {
+    // normalizar se necessário (assume estrutura compatível)
+    setAgendamentos((prev) => [novo as Agendamento, ...prev]);
+    toast.success("Agendamento criado com sucesso!");
+    setIsModalOpen(false);
+  };
+ 
   const handleStatusUpdate = async (id: number, status: string) => {
     try {
       const res = await fetch(`/api/interna/agendamentos`, {
@@ -100,7 +110,12 @@ export default function AgendamentosPage() {
   return (<div className="flex min-h-screen bg-gray-100">
     <Sidebar />
     <main className="flex-1 p-6 md:p-10">
-      <h1 className="text-2xl font-bold mb-6">Agendamentos</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Agendamentos</h1>
+        <Button variant="primary" onClick={() => setIsModalOpen(true)}>
+          Novo Agendamento
+        </Button>
+      </div>
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         {loading ? (<p className="p-4 text-gray-600">Carregando...</p>
         ) : agendamentos.length === 0 ? (<p className="p-4 text-gray-600">Nenhum agendamento encontrado.</p>
@@ -171,6 +186,20 @@ export default function AgendamentosPage() {
                   </>
                 )} </td> </tr>
             ))} </tbody> </table>
-        )} </div> </main> </div>
+        )} </div>
+
+      {/* Agendamento modal em modo funcionário */}
+      <AgendamentoModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAgendamentoCriado={handleAgendamentoCriado}
+        isEditing={false}
+        initialData={null}
+        madeByFuncionario={true}
+        clientes={[]} // se quiser carregar clientes internos, pode trocar por prop de clients
+        loadingClientes={false}
+   />
+    </main>
+  </div>
   );
 }

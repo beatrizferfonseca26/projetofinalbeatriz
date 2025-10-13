@@ -90,7 +90,7 @@ export default function FuncionariosPage() {
           body: JSON.stringify({
             nome,
             email,
-            senha: hashedPassword, // só envia se foi preenchida
+            senha: hashedPassword, 
           }),
         });
 

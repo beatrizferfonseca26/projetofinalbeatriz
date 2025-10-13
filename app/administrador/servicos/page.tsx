@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Input } from "@heroui/react";
 import Button from "@/components/ui/button";
 import Sidebar from "@/components/sideBar";
+import { toast } from "react-toastify";
 
 interface Servico {
   Id_Servico: number;
@@ -26,15 +27,20 @@ export default function ServicosPage() {
   const [valor, setValor] = useState("");
   const [duracao, setDuracao] = useState("");
 
+  // edição
+  const [editingId, setEditingId] = useState<number | null>(null);
+
   useEffect(() => {
     fetchServicos();
   }, []);
 
   const fetchServicos = async () => {
     try {
-      const res = await fetch("/api/interna/servicos");
-      const data = await res.json();
-      setServicos(data);
+      const res = await fetch("/api/interna/servicos", { credentials: "include" });
+      console.log("GET /api/interna/servicos ->", res.status);
+      const data = await res.json().catch(() => null);
+      const list = Array.isArray(data) ? data : Array.isArray(data?.servicos) ? data.servicos : [];
+      setServicos(list);
     } catch (err) {
       console.error("Erro ao carregar serviços:", err);
     } finally {
@@ -48,30 +54,79 @@ export default function ServicosPage() {
     setDescricao("");
     setValor("");
     setDuracao("");
+    setEditingId(null);
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     try {
-      const res = await fetch("/api/interna/servicos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      // Se estiver editando, garante PUT para /api/interna/servicos/[id]
+      if (editingId) {
+        const url = `/api/interna/servicos/${editingId}`;
+        const payload = {
           Nome: nome,
           Titulo: titulo,
           Descricao: descricao,
           Valor: valor ? Number(valor) : null,
           Duracao: duracao ? Number(duracao) : null,
-        }),
-      });
+        };
+        console.log("PUT", url, "payload:", payload);
+        const res = await fetch(url, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        });
 
-      if (res.ok) {
-        await fetchServicos();
-        setOpenForm(false);
-        resetForm();
+        console.log("PUT response status:", res.status);
+        if (res.status === 401) {
+          toast.error("Não autorizado. Faça login novamente.");
+        } else if (res.status === 404) {
+          toast.error("Rota de atualização não encontrada (404). Verifique o servidor.");
+        } else if (res.status === 405) {
+          toast.error("Método não permitido (PUT) nesta rota.");
+        } else if (res.ok) {
+          const updated = await res.json().catch(() => null);
+          // atualizar localmente sem refetch completo
+          setServicos((prev) => prev.map((s) => (s.Id_Servico === editingId ? { ...(s as any), ...(updated || payload) } : s)));
+          setOpenForm(false);
+          resetForm();
+          toast.success("Serviço atualizado com sucesso!");
+        } else {
+          const txt = await res.text().catch(() => null);
+          console.error("Erro ao atualizar serviço:", res.status, txt);
+          toast.error(`Erro ao atualizar serviço: ${txt || res.status}`);
+        }
+      } else {
+        // criar novo serviço (POST)
+        const res = await fetch("/api/interna/servicos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            Nome: nome,
+            Titulo: titulo,
+            Descricao: descricao,
+            Valor: valor ? Number(valor) : null,
+            Duracao: duracao ? Number(duracao) : null,
+          }),
+        });
+
+        console.log("POST /api/interna/servicos ->", res.status);
+        if (res.ok) {
+          await fetchServicos();
+          setOpenForm(false);
+          resetForm();
+          toast.success("Serviço criado com sucesso!");
+        } else {
+          const txt = await res.text().catch(() => null);
+          console.error("Erro ao salvar serviço:", res.status, txt);
+          toast.error(`Erro ao salvar serviço: ${txt || res.status}`);
+        }
       }
     } catch (err) {
       console.error("Erro ao salvar serviço:", err);
+      toast.error("Erro ao salvar serviço. Ver console do servidor para detalhes.");
     }
   };
 
@@ -85,6 +140,16 @@ export default function ServicosPage() {
     } catch (err) {
       console.error("Erro ao excluir serviço:", err);
     }
+  };
+
+  const handleEdit = (s: Servico) => {
+    setEditingId(s.Id_Servico);
+    setNome(s.Nome ?? "");
+    setTitulo(s.Titulo ?? "");
+    setDescricao(s.Descricao ?? "");
+    setValor(s.Valor != null ? String(s.Valor) : "");
+    setDuracao(s.Duracao != null ? String(s.Duracao) : "");
+    setOpenForm(true);
   };
 
   return (
@@ -127,7 +192,7 @@ export default function ServicosPage() {
                       <td className="p-3">{s.Valor ? `€ ${s.Valor}` : "—"}</td>
                       <td className="p-3 flex gap-3 justify-center">
                         <button
-                          onClick={() => alert("Fazer tela de edição")}
+                          onClick={() => handleEdit(s)}
                           className="text-blue-600 hover:underline text-sm"
                         >
                           Editar
@@ -153,12 +218,15 @@ export default function ServicosPage() {
             <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg relative">
               <button
                 className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl"
-                onClick={() => setOpenForm(false)}
+                onClick={() => {
+                  setOpenForm(false);
+                  resetForm();
+                }}
                 aria-label="Fechar"
               >
                 ×
               </button>
-              <h2 className="text-xl font-bold mb-4">Novo Serviço</h2>
+              <h2 className="text-xl font-bold mb-4">{editingId ? "Editar Serviço" : "Novo Serviço"}</h2>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Nome</label>
@@ -209,7 +277,10 @@ export default function ServicosPage() {
                 <div className="flex justify-end gap-2 mt-4">
                   <button
                     type="button"
-                    onClick={() => setOpenForm(false)}
+                    onClick={() => {
+                      setOpenForm(false);
+                      resetForm();
+                    }}
                     className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
                   >
                     Cancelar
@@ -218,7 +289,7 @@ export default function ServicosPage() {
                     type="submit"
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                   >
-                    Salvar
+                    {editingId ? "Atualizar" : "Salvar"}
                   </button>
                 </div>
               </form>

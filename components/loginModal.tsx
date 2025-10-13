@@ -40,7 +40,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
     const session = await fetch('/api/auth/session').then((res) => res.json());
 
     // 🔹 Redirecionar conforme o tipo do utilizador
-    if (session?.tipo === 'admin') {
+    if (session?.tipo === 'administrador') {
       router.push('/administrador');
     } else if (session?.tipo === 'funcionario') {
       router.push('/funcionarios');

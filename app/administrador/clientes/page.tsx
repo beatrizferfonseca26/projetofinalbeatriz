@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/sideBar";
+import { toast } from "react-toastify";
+import Button from "@/components/ui/button";
 
 interface Cliente {
   Id_Cliente: number;
@@ -11,46 +13,81 @@ interface Cliente {
   Telemovel?: string | null;
   Morada?: string | null;
   DataNascimento?: string | null;
-  agendamentos?: any[]; // Ajuste conforme necessário
+  agendamentos?: any[];
 }
 
 export default function ClientesAdminPage() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editando, setEditando] = useState<Cliente | null>(null); // cliente em edição
+  const [formData, setFormData] = useState<Partial<Cliente>>({});
+  const [isCreating, setIsCreating] = useState(false);
 
-  // Filtros
   const [filtroAgendamento, setFiltroAgendamento] = useState<"todos" | "comAgendamento" | "semAgendamento">("todos");
   const [filtroEmail, setFiltroEmail] = useState("");
   const [filtroNif, setFiltroNif] = useState("");
 
-  useEffect(() => {
-    const fetchClientes = async () => {
-      setLoading(true);
-      const res = await fetch("/api/interna/clientes");
+  // 🔹 Buscar clientes
+  async function fetchClientes() {
+    try {
+      const res = await fetch("/api/interna/admin/clientes", { credentials: "include" });
       const data = await res.json();
-      setClientes(data || []);
+      setClientes(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Erro ao carregar clientes:", err);
+    } finally {
       setLoading(false);
-    };
+    }
+  }
+
+  useEffect(() => {
     fetchClientes();
   }, []);
 
-  // Aplicar filtros
+  // 🔹 Atualizar cliente
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editando) return;
+
+    try {
+      const res = await fetch(`/api/interna/admin/clientes/${editando.Id_Cliente}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) throw new Error("Erro ao atualizar cliente");
+
+      setEditando(null);
+      await fetchClientes();
+      toast.success("Cliente atualizado com sucesso!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao atualizar cliente");
+    }
+  }
+
+  // 🔹 Excluir cliente
+  async function handleDelete(id: number) {
+    if (!confirm("Tem certeza que deseja excluir este cliente?")) return;
+
+    try {
+      const res = await fetch(`/api/interna/admin/clientes/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Erro ao excluir cliente");
+      setClientes(clientes.filter(c => c.Id_Cliente !== id));
+      toast.success("Cliente excluído com sucesso!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao excluir cliente");
+    }
+  }
+
+  // 🔹 Filtros
   const clientesFiltrados = clientes.filter((c) => {
-    // Filtro por agendamento
-    if (filtroAgendamento === "comAgendamento" && (!c.agendamentos || c.agendamentos.length === 0)) {
-      return false;
-    }
-    if (filtroAgendamento === "semAgendamento" && c.agendamentos && c.agendamentos.length > 0) {
-      return false;
-    }
-    // Filtro por email
-    if (filtroEmail && !(c.Email || "").toLowerCase().includes(filtroEmail.toLowerCase())) {
-      return false;
-    }
-    // Filtro por NIF
-    if (filtroNif && !(c.Nif || "").includes(filtroNif)) {
-      return false;
-    }
+    if (filtroAgendamento === "comAgendamento" && (!c.agendamentos || c.agendamentos.length === 0)) return false;
+    if (filtroAgendamento === "semAgendamento" && c.agendamentos && c.agendamentos.length > 0) return false;
+    if (filtroEmail && !(c.Email || "").toLowerCase().includes(filtroEmail.toLowerCase())) return false;
+    if (filtroNif && !(c.Nif || "").includes(filtroNif)) return false;
     return true;
   });
 
@@ -61,6 +98,19 @@ export default function ClientesAdminPage() {
         <main className="flex-1 p-6 md:p-10">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-800">Clientes</h1>
+            <div className="flex gap-2">
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setEditando(null);
+                  setFormData({});
+                  setIsCreating(true);
+                }}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Novo Cliente
+              </Button>
+            </div>
           </div>
 
           {/* Filtros */}
@@ -99,6 +149,7 @@ export default function ClientesAdminPage() {
             </div>
           </div>
 
+          {/* Tabela */}
           <div className="bg-white shadow-md rounded-lg overflow-hidden">
             {loading ? (
               <p className="p-4 text-gray-600">Carregando...</p>
@@ -115,6 +166,7 @@ export default function ClientesAdminPage() {
                     <th className="p-3">Morada</th>
                     <th className="p-3">Data Nascimento</th>
                     <th className="p-3">Agendamentos</th>
+                    <th className="p-3">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -127,9 +179,24 @@ export default function ClientesAdminPage() {
                       <td className="p-3">{c.Morada || "—"}</td>
                       <td className="p-3">{c.DataNascimento ? new Date(c.DataNascimento).toLocaleDateString() : "—"}</td>
                       <td className="p-3">
-                        {c.agendamentos && c.agendamentos.length > 0
-                          ? c.agendamentos.length
-                          : "—"}
+                        {c.agendamentos && c.agendamentos.length > 0 ? c.agendamentos.length : "—"}
+                      </td>
+                      <td className="p-3 space-x-2">
+                        <button
+                          onClick={() => {
+                            setEditando(c);
+                            setFormData(c);
+                          }}
+                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => handleDelete(c.Id_Cliente)}
+                          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                        >
+                          Excluir
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -138,6 +205,71 @@ export default function ClientesAdminPage() {
             )}
           </div>
         </main>
+
+        {/* Modal de edição */}
+        {editando && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg w-full max-w-lg">
+              <h2 className="text-xl font-bold mb-4">Editar Cliente</h2>
+              <form onSubmit={handleSave} className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Nome"
+                  value={formData.Nome || ""}
+                  onChange={(e) => setFormData({ ...formData, Nome: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={formData.Email || ""}
+                  onChange={(e) => setFormData({ ...formData, Email: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Telemóvel"
+                  value={formData.Telemovel || ""}
+                  onChange={(e) => setFormData({ ...formData, Telemovel: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Morada"
+                  value={formData.Morada || ""}
+                  onChange={(e) => setFormData({ ...formData, Morada: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="NIF"
+                  value={formData.Nif || ""}
+                  onChange={(e) => setFormData({ ...formData, Nif: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+                <div className="flex justify-end space-x-2 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditando(null);
+                      setIsCreating(false);
+                    }}
+                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Salvar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
         <footer className="bg-gray-900 text-white text-center py-4 mt-auto">
           <p>Powered by Beatriz Fonseca | {new Date().getFullYear()}</p>
         </footer>
