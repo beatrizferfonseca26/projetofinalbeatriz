@@ -217,6 +217,91 @@ export default function DisponibilidadePage() {
     }
   }
 
+  // Exemplo: calcular slots disponíveis (não modifica arquivos)
+  type DisponRow = {
+    Id_Servico: number;
+    Id_Funcionario: number;
+    Mes: string; // "YYYY-MM"
+    Inicio: string | Date; // "HH:MM:SS" ou Date
+    AlmocoInicio: string | Date;
+    AlmocoFim: string | Date;
+    Fim: string | Date;
+    Duracao: number | null; // minutos
+    Tolerancia: number | null; // minutos
+    Ativo?: boolean;
+  };
+
+  type Agendamento = { Data: string; HoraInicio: string; HoraFinal: string }; // ajustar conforme API
+
+  function timeToMinutes(t: string) {
+    const [hh, mm] = t.split(":").map(Number);
+    return hh * 60 + mm;
+  }
+  function minutesToTime(m: number) {
+    const hh = Math.floor(m / 60).toString().padStart(2, "0");
+    const mm = (m % 60).toString().padStart(2, "0");
+    return `${hh}:${mm}`;
+  }
+
+  // disponibilidades: rows do banco filtradas por Id_Funcionario+Id_Servico+Mes
+  // agendamentos: lista de agendamentos do funcionário no mês (Data + HoraInicio/HoraFinal)
+  function computeSlotsForMonth(disponibilidades: DisponRow[], agendamentos: Agendamento[], month: string) {
+    // mapa por dia string "YYYY-MM-DD" -> list slots
+    const slotsByDay: Record<string, { start: string; end: string }[]> = {};
+    // converte agendamentos para ranges em minutos por dia
+    const agByDay: Record<string, { startMin: number; endMin: number }[]> = {};
+    for (const a of agendamentos) {
+      const day = a.Data; // assumir "YYYY-MM-DD"
+      const s = timeToMinutes(a.HoraInicio.slice(0,5));
+      const e = timeToMinutes(a.HoraFinal.slice(0,5));
+      agByDay[day] = agByDay[day] ?? [];
+      agByDay[day].push({ startMin: s, endMin: e });
+    }
+
+    // Escolhe uma disponibilidade padrão (ou varie por day se tiver multiple rows)
+    // Aqui assumimos uma row por Id_Servico+Id_Funcionario+Mes; se houver várias, itere sobre elas.
+    if (disponibilidades.length === 0) return slotsByDay;
+
+    // Para cada dia do mês
+    const [year, mon] = month.split("-").map(Number);
+    const daysInMonth = new Date(year, mon, 0).getDate();
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${month}-${String(d).padStart(2, "0")}`; // "YYYY-MM-DD"
+      // escolha disponibilidade (neste exemplo usamos a primeira)
+      const row = disponibilidades[0];
+      if (!row || !row.Inicio || !row.Fim) continue;
+      const inicio = typeof row.Inicio === "string" ? row.Inicio.slice(0,5) : new Date(row.Inicio).toTimeString().slice(0,5);
+      const almIni = typeof row.AlmocoInicio === "string" ? row.AlmocoInicio.slice(0,5) : new Date(row.AlmocoInicio).toTimeString().slice(0,5);
+      const almFim = typeof row.AlmocoFim === "string" ? row.AlmocoFim.slice(0,5) : new Date(row.AlmocoFim).toTimeString().slice(0,5);
+      const fim = typeof row.Fim === "string" ? row.Fim.slice(0,5) : new Date(row.Fim).toTimeString().slice(0,5);
+      const dur = (row.Duracao ?? 30);
+      const tol = (row.Tolerancia ?? 0);
+      const step = dur + tol;
+
+      const windows = [
+        { s: timeToMinutes(inicio), e: timeToMinutes(almIni) },
+        { s: timeToMinutes(almFim), e: timeToMinutes(fim) },
+      ];
+
+      const dayAg = agByDay[dateStr] ?? [];
+      const slots: { start: string; end: string }[] = [];
+      for (const w of windows) {
+        // gera slots alinhados à start da janela
+        for (let startMin = w.s; startMin + dur <= w.e; startMin += step) {
+          const endMin = startMin + dur;
+          // checar colisão com agendamentos
+          const collision = dayAg.some(a => !(endMin <= a.startMin || startMin >= a.endMin));
+          if (!collision) {
+            slots.push({ start: minutesToTime(startMin), end: minutesToTime(endMin) });
+          }
+        }
+      }
+      slotsByDay[dateStr] = slots;
+    }
+
+    return slotsByDay; // chave: "YYYY-MM-DD" -> lista de slots
+  }
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar />

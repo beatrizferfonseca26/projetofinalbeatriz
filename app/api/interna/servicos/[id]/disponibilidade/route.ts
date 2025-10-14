@@ -1,127 +1,107 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from '@/lib/prisma';
+import { endOfMonth } from "date-fns";
 
-// GET /api/interna/servicos/[id]/disponibilidade
+function toHHMM(val: any): string | null {
+  if (val == null) return null;
+  // Prisma/MySQL TIME may come as string '08:45:00' or JS Date — normalizar
+  if (typeof val === "string") {
+    return val.slice(0,5);
+  }
+  if (val instanceof Date) {
+    return val.toTimeString().slice(0,5);
+  }
+  return null;
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const servicoId = Number(params.id);
-    const { searchParams } = new URL(req.url);
-    const funcionarioId = searchParams.get('funcionarioId');
+    const idServico = Number(params.id);
+    if (!idServico) return NextResponse.json({ disponibilidade: [] });
 
-    if (isNaN(servicoId)) {
-      return NextResponse.json(
-        { error: "ID do serviço inválido." },
-        { status: 400 }
-      );
+    const url = new URL(req.url);
+    const funcionarioId = url.searchParams.get("funcionarioId");
+    const month = url.searchParams.get("month") || (() => {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    })();
+
+    // Filtra pela coluna Mes igual ao month — caso deseje ampliar, remova este filtro
+    const where: any = { Id_Servico: idServico, Ativo: true };
+    if (funcionarioId) where.Id_Funcionario = Number(funcionarioId);
+    if (month) where.Mes = month;
+
+    const rows = await prisma.disponibilidadeprod.findMany({ where });
+
+    // Expande cada row (que tem Mes e horários) para entradas diárias dentro do mês
+    const out: any[] = [];
+    for (const r of rows) {
+      const mes = r.Mes ?? month;
+      if (!mes || !/^\d{4}-\d{2}$/.test(mes)) continue;
+      const [y, m] = mes.split("-").map(Number);
+      const start = new Date(y, m - 1, 1);
+      const em = endOfMonth(start);
+
+      const inicioT = toHHMM(r.Inicio);
+      const almIniT = toHHMM(r.AlmocoInicio);
+      const almFimT = toHHMM(r.AlmocoFim);
+      const fimT = toHHMM(r.Fim);
+
+      for (let d = new Date(start); d <= em; d.setDate(d.getDate() + 1)) {
+        const Data = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+        // criar janelas: se existir almoço, split; senão apenas uma janela
+        if (almIniT && almFimT && inicioT) {
+          // janela antes do almoço
+          if (toHHMM(r.Inicio) && almIniT !== toHHMM(r.Inicio)) {
+            out.push({
+              Id_Disponibilidade: r.Id_Disponibilidade,
+              Data,
+              HoraInicio: inicioT,
+              HoraFinal: almIniT,
+              Id_Servico: r.Id_Servico,
+              Id_Funcionario: r.Id_Funcionario,
+              Duracao: r.Duracao,
+              Tolerancia: r.Tolerancia,
+              Ativo: r.Ativo,
+            });
+          }
+          // janela depois do almoço
+          if (almFimT && fimT && almFimT !== fimT) {
+            out.push({
+              Id_Disponibilidade: r.Id_Disponibilidade,
+              Data,
+              HoraInicio: almFimT,
+              HoraFinal: fimT,
+              Id_Servico: r.Id_Servico,
+              Id_Funcionario: r.Id_Funcionario,
+              Duracao: r.Duracao,
+              Tolerancia: r.Tolerancia,
+              Ativo: r.Ativo,
+            });
+          }
+        } else if (inicioT && fimT) {
+          out.push({
+            Id_Disponibilidade: r.Id_Disponibilidade,
+            Data,
+            HoraInicio: inicioT,
+            HoraFinal: fimT,
+            Id_Servico: r.Id_Servico,
+            Id_Funcionario: r.Id_Funcionario,
+            Duracao: r.Duracao,
+            Tolerancia: r.Tolerancia,
+            Ativo: r.Ativo,
+          });
+        }
+      }
     }
 
-    // Verificar se o serviço existe
-    const servico = await prisma.servicos.findUnique({
-      where: { Id_Servico: servicoId },
-      select: { Id_Servico: true, Nome: true },
-    });
-
-    if (!servico) {
-      return NextResponse.json(
-        { error: "Serviço não encontrado." },
-        { status: 404 }
-      );
-    }
-
-    // Buscar disponibilidades do serviço
-    const whereClause: any = {
-      Id_Servico: servicoId,
-      Ativo: true,
-    };
-
-    // Se funcionarioId foi fornecido, filtrar por funcionário
-    if (funcionarioId && !isNaN(Number(funcionarioId))) {
-      whereClause.Id_Funcionario = Number(funcionarioId);
-    }
-
-    const disponibilidades = await prisma.disponibilidadeprod.findMany({
-      where: whereClause,
-      include: {
-        funcionarios: {
-          select: { Id_Funcionario: true, Nome: true, Status: true },
-        },
-        produtos: {
-          select: { Id_Produto: true, Nome: true, Estoque: true, EstoqueCritico: true },
-        },
-        servicos: {
-          select: { Id_Servico: true, Nome: true, Duracao: true, Valor: true },
-        },
-      },
-      orderBy: [
-        { Mes: 'asc' },
-        { Id_Funcionario: 'asc' },
-        { Inicio: 'asc' },
-      ],
-    });
-
-    // Filtrar apenas funcionários ativos
-    const disponibilidadesFiltradas = disponibilidades.filter(
-      (disp) => disp.funcionarios?.Status === 'Ativo'
-    );
-
-    // Formatar as disponibilidades para o formato esperado pelo frontend
-    const disponibilidadesFormatadas = disponibilidadesFiltradas.map((disp) => ({
-      Id_Disponibilidade: disp.Id_Disponibilidade,
-      Id_Servico: disp.Id_Servico,
-      Id_Funcionario: disp.Id_Funcionario,
-      Id_Produto: disp.Id_Produto,
-      Mes: disp.Mes,
-      Data: disp.Mes, // Usar Mes como Data para compatibilidade
-      HoraInicio: disp.Inicio 
-        ? `${String(disp.Inicio.getHours()).padStart(2, '0')}:${String(disp.Inicio.getMinutes()).padStart(2, '0')}`
-        : null,
-      HoraFinal: disp.Fim 
-        ? `${String(disp.Fim.getHours()).padStart(2, '0')}:${String(disp.Fim.getMinutes()).padStart(2, '0')}`
-        : null,
-      AlmocoInicio: disp.AlmocoInicio 
-        ? `${String(disp.AlmocoInicio.getHours()).padStart(2, '0')}:${String(disp.AlmocoInicio.getMinutes()).padStart(2, '0')}`
-        : null,
-      AlmocoFim: disp.AlmocoFim 
-        ? `${String(disp.AlmocoFim.getHours()).padStart(2, '0')}:${String(disp.AlmocoFim.getMinutes()).padStart(2, '0')}`
-        : null,
-      Duracao: disp.Duracao,
-      Tolerancia: disp.Tolerancia,
-      Ativo: disp.Ativo,
-      funcionario: disp.funcionarios ? {
-        Id_Funcionario: disp.funcionarios.Id_Funcionario,
-        Nome: disp.funcionarios.Nome,
-        Status: disp.funcionarios.Status,
-      } : null,
-      produto: disp.produtos ? {
-        Id_Produto: disp.produtos.Id_Produto,
-        Nome: disp.produtos.Nome,
-        Estoque: disp.produtos.Estoque,
-        EstoqueCritico: disp.produtos.EstoqueCritico,
-      } : null,
-      servico: disp.servicos ? {
-        Id_Servico: disp.servicos.Id_Servico,
-        Nome: disp.servicos.Nome,
-        Duracao: disp.servicos.Duracao,
-        Valor: disp.servicos.Valor,
-      } : null,
-    }));
-
-    return NextResponse.json({
-      disponibilidade: disponibilidadesFormatadas,
-      total: disponibilidadesFormatadas.length,
-      servico: {
-        Id_Servico: servico.Id_Servico,
-        Nome: servico.Nome,
-      },
-    });
-  } catch (error) {
-    console.error("Erro ao buscar disponibilidade do serviço:", error);
-    return NextResponse.json(
-      { error: "Erro interno ao buscar disponibilidade." },
-      { status: 500 }
-    );
+    return NextResponse.json({ disponibilidade: out });
+  } catch (err) {
+    console.error("GET /api/interna/servicos/[id]/disponibilidade error:", err);
+    return NextResponse.json({ disponibilidade: [] }, { status: 500 });
   }
 }

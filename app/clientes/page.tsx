@@ -113,8 +113,8 @@ export default function ClientesPage() {
     if (e) e.preventDefault();
 
     // validação cliente-side
-    if (nif && nif.length !== 6) {
-      toast.error('NIF deve ter exatamente 6 dígitos.');
+    if (nif && nif.length !== 9) {
+      toast.error('NIF deve ter exatamente 9  dígitos.');
       return;
     }
 
@@ -285,16 +285,16 @@ export default function ClientesPage() {
                   <input
                     type="text"
                     inputMode="numeric"
-                    pattern="\d{6}"
-                    maxLength={6}
+                    pattern="\d{9}"
+                    maxLength={9}
                     value={nif}
                     onChange={(e) => {
-                      const digits = e.target.value.replace(/\D/g, '').slice(0, 6);
+                      const digits = e.target.value.replace(/\D/g, '').slice(0, 9);
                       setNif(digits);
                     }}
                     className="w-full border rounded p-2"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Máx. 6 dígitos — apenas números.</p>
+                  <p className="text-xs text-gray-500 mt-1">Máx. 9 dígitos — apenas números.</p>
                 </div>
 
                 <div className="flex justify-end gap-2 mt-4">

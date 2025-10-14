@@ -237,23 +237,37 @@ export default function AgendamentoModal({
   /* ====== Buscar disponibilidade ATIVA por serviço/func ====== */
   const fetchDisponibilidadeServico = useCallback(async (idServico: number, idFuncionario?: number | null) => {
     try {
+      // envia month para reduzir o payload; usa mês da dataSelecionada ou mês atual
+      const monthParam = dataSelecionada
+        ? format(dataSelecionada, "yyyy-MM")
+        : format(new Date(), "yyyy-MM");
+
       const url = idFuncionario
-        ? `/api/interna/servicos/${idServico}/disponibilidade?funcionarioId=${idFuncionario}`
-        : `/api/interna/servicos/${idServico}/disponibilidade`;
+        ? `/api/interna/servicos/${idServico}/disponibilidade?funcionarioId=${idFuncionario}&month=${monthParam}`
+        : `/api/interna/servicos/${idServico}/disponibilidade?month=${monthParam}`;
 
-      let res = await fetch(url);
-      let list: Disponibilidade[] | null = null;
-
+      const res = await fetch(url);
+      let list: Disponibilidade[] = [];
       if (res.ok) {
         const data = await res.json().catch(() => null);
-        list = (Array.isArray(data) ? data : data?.disponibilidade) ?? null;
+        // rota retorna { disponibilidade: [...] }
+        if (Array.isArray(data?.disponibilidade)) {
+          list = data.disponibilidade;
+        } else if (Array.isArray(data)) {
+          list = data;
+        }
+      } else {
+        console.warn("fetch disponibilidade failed", res.status);
       }
 
-      // Fallback: usar payload geral
-      if (!list) {
-        const s = servicos.find(x => x.Id_Servico === idServico);
-        list = s?.disponibilidadeprod ?? [];
-        if (idFuncionario) list = list.filter(d => (d.Id_Funcionario ?? null) === idFuncionario);
+      // Fallback: usar dados embutidos no serviço (se existir)
+      if (!list || list.length === 0) {
+        const s = servicos.find((x) => x.Id_Servico === idServico);
+        if (s?.disponibilidadeprod) {
+          // criar lista diária se necessário (rota já faria isto)
+          list = s.disponibilidadeprod as any;
+          if (idFuncionario) list = list.filter((d) => (d.Id_Funcionario ?? null) === idFuncionario);
+        }
       }
 
       // 1) Expande mensal → diário se necessário
