@@ -8,7 +8,7 @@ export async function GET() {
     // Buscar todos os serviços com suas disponibilidades (sem filtrar horários ocupados)
     const servicosDisponiveis = await prisma.servicos.findMany({
       where: {
-        disponibilidadeprod: { some: {} },
+        disponibilidadeprod: { some: { Ativo: true } },
       },
       include: {
         disponibilidadeprod: true,

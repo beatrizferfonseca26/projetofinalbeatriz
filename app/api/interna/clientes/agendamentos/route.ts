@@ -1,21 +1,30 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(req: Request) {
-  // Recupera a sessão do usuário logado
-  const session = await getServerSession(authOptions);
-
-  const sess = session as any;
-  if (!sess || !sess.id || sess.tipo !== 'cliente') {
-    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
-  }
-
   try {
+    // Recupera a sessão do usuário logado
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
+
+    // Verifica se é um cliente autenticado
+    const cliente = await prisma.clientes.findFirst({
+      where: { Email: session.user.email },
+      select: { Id_Cliente: true },
+    });
+
+    if (!cliente) {
+      return NextResponse.json({ error: 'Cliente não encontrado' }, { status: 404 });
+    }
+
     // Busca todos os agendamentos do cliente logado, incluindo dados do serviço e funcionário
     const agendamentos = await prisma.agendamentos.findMany({
-      where: { Id_Cliente: Number(sess.id) },
+      where: { Id_Cliente: cliente.Id_Cliente },
       orderBy: [
         { Data: 'desc' },
         { HoraInicio: 'desc' },

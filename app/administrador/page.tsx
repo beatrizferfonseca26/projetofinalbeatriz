@@ -1,27 +1,29 @@
-'use client';
+// src/app/administrador/page.tsx
+"use client";
 
 import Link from "next/link";
-import { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import SideBar from '@/components/sideBar';
+import { useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Sidebar from "@/components/sideBar"; 
 
 export default function AdminDashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const role = (session?.user as any)?.tipo;
 
-  // Protege a página — redireciona se não for admin
   useEffect(() => {
     if (status === "loading") return;
     if (!session) {
-      router.push("/"); // não autenticado
-    } else if (session.user?.tipo !== "administrador") {
-      router.push("/"); // autenticado mas não é admin
+      router.replace("/"); // não autenticado
+    } else if (role !== "administrador") {
+      router.replace("/"); // autenticado mas não é admin
     }
-    console.log('Admin page session status:', status, session);
-  }, [status, session, router]);
+    // console.log("Admin page session status:", status, session);
+  }, [status, session, role, router]);
 
-  if (status === "loading" || !session) {
+  if (status === "loading" || !session || role !== "administrador") {
+    // evita flicker/hydration mismatch
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <p className="text-gray-600 text-lg">Carregando...</p>
@@ -32,7 +34,7 @@ export default function AdminDashboardPage() {
   return (
     <div className="min-h-screen flex bg-gray-100">
       <aside className="w-64 border-r hidden md:block">
-        <SideBar />
+        <Sidebar />
       </aside>
 
       <div className="flex-1 flex flex-col">
@@ -44,7 +46,6 @@ export default function AdminDashboardPage() {
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Funcionários */}
               <Link href="/administrador/funcionarios">
                 <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
                   <h2 className="text-lg font-semibold">Funcionários</h2>
@@ -52,7 +53,6 @@ export default function AdminDashboardPage() {
                 </div>
               </Link>
 
-              {/* Clientes */}
               <Link href="/administrador/clientes">
                 <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
                   <h2 className="text-lg font-semibold">Clientes</h2>
@@ -60,7 +60,6 @@ export default function AdminDashboardPage() {
                 </div>
               </Link>
 
-              {/* Serviços */}
               <Link href="/administrador/servicos">
                 <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
                   <h2 className="text-lg font-semibold">Serviços</h2>
@@ -68,7 +67,6 @@ export default function AdminDashboardPage() {
                 </div>
               </Link>
 
-              {/* Produtos */}
               <Link href="/administrador/produtos">
                 <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
                   <h2 className="text-lg font-semibold">Produtos</h2>
@@ -76,7 +74,6 @@ export default function AdminDashboardPage() {
                 </div>
               </Link>
 
-              {/* Agendamentos */}
               <Link href="/administrador/agendamentos">
                 <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
                   <h2 className="text-lg font-semibold">Agendamentos</h2>
@@ -84,7 +81,6 @@ export default function AdminDashboardPage() {
                 </div>
               </Link>
 
-              {/* Disponibilidade */}
               <Link href="/administrador/disponibilidade">
                 <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
                   <h2 className="text-lg font-semibold">Disponibilidade</h2>
@@ -92,7 +88,6 @@ export default function AdminDashboardPage() {
                 </div>
               </Link>
 
-              {/* Pagamentos */}
               <Link href="/administrador/pagamentos">
                 <div className="p-6 bg-gray-50 hover:bg-gray-200 transition rounded-xl shadow cursor-pointer">
                   <h2 className="text-lg font-semibold">Pagamentos</h2>
@@ -103,7 +98,6 @@ export default function AdminDashboardPage() {
           </div>
         </main>
 
-        {/* Rodapé fixo */}
         <footer className="bg-gray-900 text-white text-center py-4">
           <p>Powered by Beatriz Fonseca | {new Date().getFullYear()}</p>
         </footer>

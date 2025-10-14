@@ -1551,10 +1551,12 @@ export namespace Prisma {
 
   export type FuncionariosCountOutputType = {
     agendamentos: number
+    disponibilidadeprod: number
   }
 
   export type FuncionariosCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     agendamentos?: boolean | FuncionariosCountOutputTypeCountAgendamentosArgs
+    disponibilidadeprod?: boolean | FuncionariosCountOutputTypeCountDisponibilidadeprodArgs
   }
 
   // Custom InputTypes
@@ -1573,6 +1575,13 @@ export namespace Prisma {
    */
   export type FuncionariosCountOutputTypeCountAgendamentosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: agendamentosWhereInput
+  }
+
+  /**
+   * FuncionariosCountOutputType without action
+   */
+  export type FuncionariosCountOutputTypeCountDisponibilidadeprodArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: disponibilidadeprodWhereInput
   }
 
 
@@ -3795,65 +3804,131 @@ export namespace Prisma {
   }
 
   export type DisponibilidadeprodAvgAggregateOutputType = {
-    Id_Disponibilidade: number | null
     Id_Produto: number | null
     Id_Servico: number | null
+    Id_Funcionario: number | null
+    Duracao: number | null
+    Tolerancia: number | null
+    Id_Disponibilidade: number | null
   }
 
   export type DisponibilidadeprodSumAggregateOutputType = {
-    Id_Disponibilidade: number | null
     Id_Produto: number | null
     Id_Servico: number | null
+    Id_Funcionario: number | null
+    Duracao: number | null
+    Tolerancia: number | null
+    Id_Disponibilidade: number | null
   }
 
   export type DisponibilidadeprodMinAggregateOutputType = {
-    Id_Disponibilidade: number | null
     Id_Produto: number | null
     Id_Servico: number | null
+    Mes: string | null
+    Inicio: Date | null
+    AlmocoInicio: Date | null
+    AlmocoFim: Date | null
+    Fim: Date | null
+    Id_Funcionario: number | null
+    Duracao: number | null
+    Tolerancia: number | null
+    Ativo: boolean | null
+    Id_Disponibilidade: number | null
   }
 
   export type DisponibilidadeprodMaxAggregateOutputType = {
-    Id_Disponibilidade: number | null
     Id_Produto: number | null
     Id_Servico: number | null
+    Mes: string | null
+    Inicio: Date | null
+    AlmocoInicio: Date | null
+    AlmocoFim: Date | null
+    Fim: Date | null
+    Id_Funcionario: number | null
+    Duracao: number | null
+    Tolerancia: number | null
+    Ativo: boolean | null
+    Id_Disponibilidade: number | null
   }
 
   export type DisponibilidadeprodCountAggregateOutputType = {
-    Id_Disponibilidade: number
     Id_Produto: number
     Id_Servico: number
+    Mes: number
+    Inicio: number
+    AlmocoInicio: number
+    AlmocoFim: number
+    Fim: number
+    Id_Funcionario: number
+    Duracao: number
+    Tolerancia: number
+    Ativo: number
+    Id_Disponibilidade: number
     _all: number
   }
 
 
   export type DisponibilidadeprodAvgAggregateInputType = {
-    Id_Disponibilidade?: true
     Id_Produto?: true
     Id_Servico?: true
+    Id_Funcionario?: true
+    Duracao?: true
+    Tolerancia?: true
+    Id_Disponibilidade?: true
   }
 
   export type DisponibilidadeprodSumAggregateInputType = {
-    Id_Disponibilidade?: true
     Id_Produto?: true
     Id_Servico?: true
+    Id_Funcionario?: true
+    Duracao?: true
+    Tolerancia?: true
+    Id_Disponibilidade?: true
   }
 
   export type DisponibilidadeprodMinAggregateInputType = {
-    Id_Disponibilidade?: true
     Id_Produto?: true
     Id_Servico?: true
+    Mes?: true
+    Inicio?: true
+    AlmocoInicio?: true
+    AlmocoFim?: true
+    Fim?: true
+    Id_Funcionario?: true
+    Duracao?: true
+    Tolerancia?: true
+    Ativo?: true
+    Id_Disponibilidade?: true
   }
 
   export type DisponibilidadeprodMaxAggregateInputType = {
-    Id_Disponibilidade?: true
     Id_Produto?: true
     Id_Servico?: true
+    Mes?: true
+    Inicio?: true
+    AlmocoInicio?: true
+    AlmocoFim?: true
+    Fim?: true
+    Id_Funcionario?: true
+    Duracao?: true
+    Tolerancia?: true
+    Ativo?: true
+    Id_Disponibilidade?: true
   }
 
   export type DisponibilidadeprodCountAggregateInputType = {
-    Id_Disponibilidade?: true
     Id_Produto?: true
     Id_Servico?: true
+    Mes?: true
+    Inicio?: true
+    AlmocoInicio?: true
+    AlmocoFim?: true
+    Fim?: true
+    Id_Funcionario?: true
+    Duracao?: true
+    Tolerancia?: true
+    Ativo?: true
+    Id_Disponibilidade?: true
     _all?: true
   }
 
@@ -3944,9 +4019,18 @@ export namespace Prisma {
   }
 
   export type DisponibilidadeprodGroupByOutputType = {
+    Id_Produto: number | null
+    Id_Servico: number | null
+    Mes: string | null
+    Inicio: Date | null
+    AlmocoInicio: Date | null
+    AlmocoFim: Date | null
+    Fim: Date | null
+    Id_Funcionario: number | null
+    Duracao: number | null
+    Tolerancia: number | null
+    Ativo: boolean
     Id_Disponibilidade: number
-    Id_Produto: number
-    Id_Servico: number
     _count: DisponibilidadeprodCountAggregateOutputType | null
     _avg: DisponibilidadeprodAvgAggregateOutputType | null
     _sum: DisponibilidadeprodSumAggregateOutputType | null
@@ -3969,37 +4053,67 @@ export namespace Prisma {
 
 
   export type disponibilidadeprodSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    Id_Disponibilidade?: boolean
     Id_Produto?: boolean
     Id_Servico?: boolean
-    produtos?: boolean | produtosDefaultArgs<ExtArgs>
-    servicos?: boolean | servicosDefaultArgs<ExtArgs>
+    Mes?: boolean
+    Inicio?: boolean
+    AlmocoInicio?: boolean
+    AlmocoFim?: boolean
+    Fim?: boolean
+    Id_Funcionario?: boolean
+    Duracao?: boolean
+    Tolerancia?: boolean
+    Ativo?: boolean
+    Id_Disponibilidade?: boolean
+    produtos?: boolean | disponibilidadeprod$produtosArgs<ExtArgs>
+    servicos?: boolean | disponibilidadeprod$servicosArgs<ExtArgs>
+    funcionarios?: boolean | disponibilidadeprod$funcionariosArgs<ExtArgs>
   }, ExtArgs["result"]["disponibilidadeprod"]>
 
 
 
   export type disponibilidadeprodSelectScalar = {
-    Id_Disponibilidade?: boolean
     Id_Produto?: boolean
     Id_Servico?: boolean
+    Mes?: boolean
+    Inicio?: boolean
+    AlmocoInicio?: boolean
+    AlmocoFim?: boolean
+    Fim?: boolean
+    Id_Funcionario?: boolean
+    Duracao?: boolean
+    Tolerancia?: boolean
+    Ativo?: boolean
+    Id_Disponibilidade?: boolean
   }
 
-  export type disponibilidadeprodOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"Id_Disponibilidade" | "Id_Produto" | "Id_Servico", ExtArgs["result"]["disponibilidadeprod"]>
+  export type disponibilidadeprodOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"Id_Produto" | "Id_Servico" | "Mes" | "Inicio" | "AlmocoInicio" | "AlmocoFim" | "Fim" | "Id_Funcionario" | "Duracao" | "Tolerancia" | "Ativo" | "Id_Disponibilidade", ExtArgs["result"]["disponibilidadeprod"]>
   export type disponibilidadeprodInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    produtos?: boolean | produtosDefaultArgs<ExtArgs>
-    servicos?: boolean | servicosDefaultArgs<ExtArgs>
+    produtos?: boolean | disponibilidadeprod$produtosArgs<ExtArgs>
+    servicos?: boolean | disponibilidadeprod$servicosArgs<ExtArgs>
+    funcionarios?: boolean | disponibilidadeprod$funcionariosArgs<ExtArgs>
   }
 
   export type $disponibilidadeprodPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "disponibilidadeprod"
     objects: {
-      produtos: Prisma.$produtosPayload<ExtArgs>
-      servicos: Prisma.$servicosPayload<ExtArgs>
+      produtos: Prisma.$produtosPayload<ExtArgs> | null
+      servicos: Prisma.$servicosPayload<ExtArgs> | null
+      funcionarios: Prisma.$funcionariosPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
+      Id_Produto: number | null
+      Id_Servico: number | null
+      Mes: string | null
+      Inicio: Date | null
+      AlmocoInicio: Date | null
+      AlmocoFim: Date | null
+      Fim: Date | null
+      Id_Funcionario: number | null
+      Duracao: number | null
+      Tolerancia: number | null
+      Ativo: boolean
       Id_Disponibilidade: number
-      Id_Produto: number
-      Id_Servico: number
     }, ExtArgs["result"]["disponibilidadeprod"]>
     composites: {}
   }
@@ -4083,8 +4197,8 @@ export namespace Prisma {
      * // Get first 10 Disponibilidadeprods
      * const disponibilidadeprods = await prisma.disponibilidadeprod.findMany({ take: 10 })
      * 
-     * // Only select the `Id_Disponibilidade`
-     * const disponibilidadeprodWithId_DisponibilidadeOnly = await prisma.disponibilidadeprod.findMany({ select: { Id_Disponibilidade: true } })
+     * // Only select the `Id_Produto`
+     * const disponibilidadeprodWithId_ProdutoOnly = await prisma.disponibilidadeprod.findMany({ select: { Id_Produto: true } })
      * 
      */
     findMany<T extends disponibilidadeprodFindManyArgs>(args?: SelectSubset<T, disponibilidadeprodFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$disponibilidadeprodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -4340,8 +4454,9 @@ export namespace Prisma {
    */
   export interface Prisma__disponibilidadeprodClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    produtos<T extends produtosDefaultArgs<ExtArgs> = {}>(args?: Subset<T, produtosDefaultArgs<ExtArgs>>): Prisma__produtosClient<$Result.GetResult<Prisma.$produtosPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    servicos<T extends servicosDefaultArgs<ExtArgs> = {}>(args?: Subset<T, servicosDefaultArgs<ExtArgs>>): Prisma__servicosClient<$Result.GetResult<Prisma.$servicosPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    produtos<T extends disponibilidadeprod$produtosArgs<ExtArgs> = {}>(args?: Subset<T, disponibilidadeprod$produtosArgs<ExtArgs>>): Prisma__produtosClient<$Result.GetResult<Prisma.$produtosPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    servicos<T extends disponibilidadeprod$servicosArgs<ExtArgs> = {}>(args?: Subset<T, disponibilidadeprod$servicosArgs<ExtArgs>>): Prisma__servicosClient<$Result.GetResult<Prisma.$servicosPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    funcionarios<T extends disponibilidadeprod$funcionariosArgs<ExtArgs> = {}>(args?: Subset<T, disponibilidadeprod$funcionariosArgs<ExtArgs>>): Prisma__funcionariosClient<$Result.GetResult<Prisma.$funcionariosPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4371,9 +4486,18 @@ export namespace Prisma {
    * Fields of the disponibilidadeprod model
    */
   interface disponibilidadeprodFieldRefs {
-    readonly Id_Disponibilidade: FieldRef<"disponibilidadeprod", 'Int'>
     readonly Id_Produto: FieldRef<"disponibilidadeprod", 'Int'>
     readonly Id_Servico: FieldRef<"disponibilidadeprod", 'Int'>
+    readonly Mes: FieldRef<"disponibilidadeprod", 'String'>
+    readonly Inicio: FieldRef<"disponibilidadeprod", 'DateTime'>
+    readonly AlmocoInicio: FieldRef<"disponibilidadeprod", 'DateTime'>
+    readonly AlmocoFim: FieldRef<"disponibilidadeprod", 'DateTime'>
+    readonly Fim: FieldRef<"disponibilidadeprod", 'DateTime'>
+    readonly Id_Funcionario: FieldRef<"disponibilidadeprod", 'Int'>
+    readonly Duracao: FieldRef<"disponibilidadeprod", 'Int'>
+    readonly Tolerancia: FieldRef<"disponibilidadeprod", 'Int'>
+    readonly Ativo: FieldRef<"disponibilidadeprod", 'Boolean'>
+    readonly Id_Disponibilidade: FieldRef<"disponibilidadeprod", 'Int'>
   }
     
 
@@ -4592,7 +4716,7 @@ export namespace Prisma {
     /**
      * The data needed to create a disponibilidadeprod.
      */
-    data: XOR<disponibilidadeprodCreateInput, disponibilidadeprodUncheckedCreateInput>
+    data?: XOR<disponibilidadeprodCreateInput, disponibilidadeprodUncheckedCreateInput>
   }
 
   /**
@@ -4714,6 +4838,63 @@ export namespace Prisma {
      * Limit how many disponibilidadeprods to delete.
      */
     limit?: number
+  }
+
+  /**
+   * disponibilidadeprod.produtos
+   */
+  export type disponibilidadeprod$produtosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the produtos
+     */
+    select?: produtosSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the produtos
+     */
+    omit?: produtosOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: produtosInclude<ExtArgs> | null
+    where?: produtosWhereInput
+  }
+
+  /**
+   * disponibilidadeprod.servicos
+   */
+  export type disponibilidadeprod$servicosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the servicos
+     */
+    select?: servicosSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the servicos
+     */
+    omit?: servicosOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: servicosInclude<ExtArgs> | null
+    where?: servicosWhereInput
+  }
+
+  /**
+   * disponibilidadeprod.funcionarios
+   */
+  export type disponibilidadeprod$funcionariosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the funcionarios
+     */
+    select?: funcionariosSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the funcionarios
+     */
+    omit?: funcionariosOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: funcionariosInclude<ExtArgs> | null
+    where?: funcionariosWhereInput
   }
 
   /**
@@ -4942,6 +5123,7 @@ export namespace Prisma {
     Senha?: boolean
     Status?: boolean
     agendamentos?: boolean | funcionarios$agendamentosArgs<ExtArgs>
+    disponibilidadeprod?: boolean | funcionarios$disponibilidadeprodArgs<ExtArgs>
     _count?: boolean | FuncionariosCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["funcionarios"]>
 
@@ -4959,6 +5141,7 @@ export namespace Prisma {
   export type funcionariosOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"Id_Funcionario" | "Nome" | "Email" | "Administrador" | "Senha" | "Status", ExtArgs["result"]["funcionarios"]>
   export type funcionariosInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     agendamentos?: boolean | funcionarios$agendamentosArgs<ExtArgs>
+    disponibilidadeprod?: boolean | funcionarios$disponibilidadeprodArgs<ExtArgs>
     _count?: boolean | FuncionariosCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -4966,6 +5149,7 @@ export namespace Prisma {
     name: "funcionarios"
     objects: {
       agendamentos: Prisma.$agendamentosPayload<ExtArgs>[]
+      disponibilidadeprod: Prisma.$disponibilidadeprodPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       Id_Funcionario: number
@@ -5315,6 +5499,7 @@ export namespace Prisma {
   export interface Prisma__funcionariosClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     agendamentos<T extends funcionarios$agendamentosArgs<ExtArgs> = {}>(args?: Subset<T, funcionarios$agendamentosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$agendamentosPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    disponibilidadeprod<T extends funcionarios$disponibilidadeprodArgs<ExtArgs> = {}>(args?: Subset<T, funcionarios$disponibilidadeprodArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$disponibilidadeprodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5714,6 +5899,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AgendamentosScalarFieldEnum | AgendamentosScalarFieldEnum[]
+  }
+
+  /**
+   * funcionarios.disponibilidadeprod
+   */
+  export type funcionarios$disponibilidadeprodArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the disponibilidadeprod
+     */
+    select?: disponibilidadeprodSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the disponibilidadeprod
+     */
+    omit?: disponibilidadeprodOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: disponibilidadeprodInclude<ExtArgs> | null
+    where?: disponibilidadeprodWhereInput
+    orderBy?: disponibilidadeprodOrderByWithRelationInput | disponibilidadeprodOrderByWithRelationInput[]
+    cursor?: disponibilidadeprodWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DisponibilidadeprodScalarFieldEnum | DisponibilidadeprodScalarFieldEnum[]
   }
 
   /**
@@ -9876,9 +10085,18 @@ export namespace Prisma {
 
 
   export const DisponibilidadeprodScalarFieldEnum: {
-    Id_Disponibilidade: 'Id_Disponibilidade',
     Id_Produto: 'Id_Produto',
-    Id_Servico: 'Id_Servico'
+    Id_Servico: 'Id_Servico',
+    Mes: 'Mes',
+    Inicio: 'Inicio',
+    AlmocoInicio: 'AlmocoInicio',
+    AlmocoFim: 'AlmocoFim',
+    Fim: 'Fim',
+    Id_Funcionario: 'Id_Funcionario',
+    Duracao: 'Duracao',
+    Tolerancia: 'Tolerancia',
+    Ativo: 'Ativo',
+    Id_Disponibilidade: 'Id_Disponibilidade'
   };
 
   export type DisponibilidadeprodScalarFieldEnum = (typeof DisponibilidadeprodScalarFieldEnum)[keyof typeof DisponibilidadeprodScalarFieldEnum]
@@ -9973,6 +10191,13 @@ export namespace Prisma {
   };
 
   export type clientesOrderByRelevanceFieldEnum = (typeof clientesOrderByRelevanceFieldEnum)[keyof typeof clientesOrderByRelevanceFieldEnum]
+
+
+  export const disponibilidadeprodOrderByRelevanceFieldEnum: {
+    Mes: 'Mes'
+  };
+
+  export type disponibilidadeprodOrderByRelevanceFieldEnum = (typeof disponibilidadeprodOrderByRelevanceFieldEnum)[keyof typeof disponibilidadeprodOrderByRelevanceFieldEnum]
 
 
   export const funcionariosOrderByRelevanceFieldEnum: {
@@ -10248,36 +10473,77 @@ export namespace Prisma {
     AND?: disponibilidadeprodWhereInput | disponibilidadeprodWhereInput[]
     OR?: disponibilidadeprodWhereInput[]
     NOT?: disponibilidadeprodWhereInput | disponibilidadeprodWhereInput[]
+    Id_Produto?: IntNullableFilter<"disponibilidadeprod"> | number | null
+    Id_Servico?: IntNullableFilter<"disponibilidadeprod"> | number | null
+    Mes?: StringNullableFilter<"disponibilidadeprod"> | string | null
+    Inicio?: DateTimeNullableFilter<"disponibilidadeprod"> | Date | string | null
+    AlmocoInicio?: DateTimeNullableFilter<"disponibilidadeprod"> | Date | string | null
+    AlmocoFim?: DateTimeNullableFilter<"disponibilidadeprod"> | Date | string | null
+    Fim?: DateTimeNullableFilter<"disponibilidadeprod"> | Date | string | null
+    Id_Funcionario?: IntNullableFilter<"disponibilidadeprod"> | number | null
+    Duracao?: IntNullableFilter<"disponibilidadeprod"> | number | null
+    Tolerancia?: IntNullableFilter<"disponibilidadeprod"> | number | null
+    Ativo?: BoolFilter<"disponibilidadeprod"> | boolean
     Id_Disponibilidade?: IntFilter<"disponibilidadeprod"> | number
-    Id_Produto?: IntFilter<"disponibilidadeprod"> | number
-    Id_Servico?: IntFilter<"disponibilidadeprod"> | number
-    produtos?: XOR<ProdutosScalarRelationFilter, produtosWhereInput>
-    servicos?: XOR<ServicosScalarRelationFilter, servicosWhereInput>
+    produtos?: XOR<ProdutosNullableScalarRelationFilter, produtosWhereInput> | null
+    servicos?: XOR<ServicosNullableScalarRelationFilter, servicosWhereInput> | null
+    funcionarios?: XOR<FuncionariosNullableScalarRelationFilter, funcionariosWhereInput> | null
   }
 
   export type disponibilidadeprodOrderByWithRelationInput = {
+    Id_Produto?: SortOrderInput | SortOrder
+    Id_Servico?: SortOrderInput | SortOrder
+    Mes?: SortOrderInput | SortOrder
+    Inicio?: SortOrderInput | SortOrder
+    AlmocoInicio?: SortOrderInput | SortOrder
+    AlmocoFim?: SortOrderInput | SortOrder
+    Fim?: SortOrderInput | SortOrder
+    Id_Funcionario?: SortOrderInput | SortOrder
+    Duracao?: SortOrderInput | SortOrder
+    Tolerancia?: SortOrderInput | SortOrder
+    Ativo?: SortOrder
     Id_Disponibilidade?: SortOrder
-    Id_Produto?: SortOrder
-    Id_Servico?: SortOrder
     produtos?: produtosOrderByWithRelationInput
     servicos?: servicosOrderByWithRelationInput
+    funcionarios?: funcionariosOrderByWithRelationInput
+    _relevance?: disponibilidadeprodOrderByRelevanceInput
   }
 
   export type disponibilidadeprodWhereUniqueInput = Prisma.AtLeast<{
     Id_Disponibilidade?: number
+    Id_Servico_Mes_Id_Funcionario?: disponibilidadeprodId_ServicoMesId_FuncionarioCompoundUniqueInput
     AND?: disponibilidadeprodWhereInput | disponibilidadeprodWhereInput[]
     OR?: disponibilidadeprodWhereInput[]
     NOT?: disponibilidadeprodWhereInput | disponibilidadeprodWhereInput[]
-    Id_Produto?: IntFilter<"disponibilidadeprod"> | number
-    Id_Servico?: IntFilter<"disponibilidadeprod"> | number
-    produtos?: XOR<ProdutosScalarRelationFilter, produtosWhereInput>
-    servicos?: XOR<ServicosScalarRelationFilter, servicosWhereInput>
-  }, "Id_Disponibilidade">
+    Id_Produto?: IntNullableFilter<"disponibilidadeprod"> | number | null
+    Id_Servico?: IntNullableFilter<"disponibilidadeprod"> | number | null
+    Mes?: StringNullableFilter<"disponibilidadeprod"> | string | null
+    Inicio?: DateTimeNullableFilter<"disponibilidadeprod"> | Date | string | null
+    AlmocoInicio?: DateTimeNullableFilter<"disponibilidadeprod"> | Date | string | null
+    AlmocoFim?: DateTimeNullableFilter<"disponibilidadeprod"> | Date | string | null
+    Fim?: DateTimeNullableFilter<"disponibilidadeprod"> | Date | string | null
+    Id_Funcionario?: IntNullableFilter<"disponibilidadeprod"> | number | null
+    Duracao?: IntNullableFilter<"disponibilidadeprod"> | number | null
+    Tolerancia?: IntNullableFilter<"disponibilidadeprod"> | number | null
+    Ativo?: BoolFilter<"disponibilidadeprod"> | boolean
+    produtos?: XOR<ProdutosNullableScalarRelationFilter, produtosWhereInput> | null
+    servicos?: XOR<ServicosNullableScalarRelationFilter, servicosWhereInput> | null
+    funcionarios?: XOR<FuncionariosNullableScalarRelationFilter, funcionariosWhereInput> | null
+  }, "Id_Disponibilidade" | "Id_Servico_Mes_Id_Funcionario">
 
   export type disponibilidadeprodOrderByWithAggregationInput = {
+    Id_Produto?: SortOrderInput | SortOrder
+    Id_Servico?: SortOrderInput | SortOrder
+    Mes?: SortOrderInput | SortOrder
+    Inicio?: SortOrderInput | SortOrder
+    AlmocoInicio?: SortOrderInput | SortOrder
+    AlmocoFim?: SortOrderInput | SortOrder
+    Fim?: SortOrderInput | SortOrder
+    Id_Funcionario?: SortOrderInput | SortOrder
+    Duracao?: SortOrderInput | SortOrder
+    Tolerancia?: SortOrderInput | SortOrder
+    Ativo?: SortOrder
     Id_Disponibilidade?: SortOrder
-    Id_Produto?: SortOrder
-    Id_Servico?: SortOrder
     _count?: disponibilidadeprodCountOrderByAggregateInput
     _avg?: disponibilidadeprodAvgOrderByAggregateInput
     _max?: disponibilidadeprodMaxOrderByAggregateInput
@@ -10289,9 +10555,18 @@ export namespace Prisma {
     AND?: disponibilidadeprodScalarWhereWithAggregatesInput | disponibilidadeprodScalarWhereWithAggregatesInput[]
     OR?: disponibilidadeprodScalarWhereWithAggregatesInput[]
     NOT?: disponibilidadeprodScalarWhereWithAggregatesInput | disponibilidadeprodScalarWhereWithAggregatesInput[]
+    Id_Produto?: IntNullableWithAggregatesFilter<"disponibilidadeprod"> | number | null
+    Id_Servico?: IntNullableWithAggregatesFilter<"disponibilidadeprod"> | number | null
+    Mes?: StringNullableWithAggregatesFilter<"disponibilidadeprod"> | string | null
+    Inicio?: DateTimeNullableWithAggregatesFilter<"disponibilidadeprod"> | Date | string | null
+    AlmocoInicio?: DateTimeNullableWithAggregatesFilter<"disponibilidadeprod"> | Date | string | null
+    AlmocoFim?: DateTimeNullableWithAggregatesFilter<"disponibilidadeprod"> | Date | string | null
+    Fim?: DateTimeNullableWithAggregatesFilter<"disponibilidadeprod"> | Date | string | null
+    Id_Funcionario?: IntNullableWithAggregatesFilter<"disponibilidadeprod"> | number | null
+    Duracao?: IntNullableWithAggregatesFilter<"disponibilidadeprod"> | number | null
+    Tolerancia?: IntNullableWithAggregatesFilter<"disponibilidadeprod"> | number | null
+    Ativo?: BoolWithAggregatesFilter<"disponibilidadeprod"> | boolean
     Id_Disponibilidade?: IntWithAggregatesFilter<"disponibilidadeprod"> | number
-    Id_Produto?: IntWithAggregatesFilter<"disponibilidadeprod"> | number
-    Id_Servico?: IntWithAggregatesFilter<"disponibilidadeprod"> | number
   }
 
   export type funcionariosWhereInput = {
@@ -10305,6 +10580,7 @@ export namespace Prisma {
     Senha?: StringNullableFilter<"funcionarios"> | string | null
     Status?: Enumfuncionarios_StatusNullableFilter<"funcionarios"> | $Enums.funcionarios_Status | null
     agendamentos?: AgendamentosListRelationFilter
+    disponibilidadeprod?: DisponibilidadeprodListRelationFilter
   }
 
   export type funcionariosOrderByWithRelationInput = {
@@ -10315,6 +10591,7 @@ export namespace Prisma {
     Senha?: SortOrderInput | SortOrder
     Status?: SortOrderInput | SortOrder
     agendamentos?: agendamentosOrderByRelationAggregateInput
+    disponibilidadeprod?: disponibilidadeprodOrderByRelationAggregateInput
     _relevance?: funcionariosOrderByRelevanceInput
   }
 
@@ -10329,6 +10606,7 @@ export namespace Prisma {
     Senha?: StringNullableFilter<"funcionarios"> | string | null
     Status?: Enumfuncionarios_StatusNullableFilter<"funcionarios"> | $Enums.funcionarios_Status | null
     agendamentos?: AgendamentosListRelationFilter
+    disponibilidadeprod?: DisponibilidadeprodListRelationFilter
   }, "Id_Funcionario">
 
   export type funcionariosOrderByWithAggregationInput = {
@@ -10773,41 +11051,102 @@ export namespace Prisma {
   }
 
   export type disponibilidadeprodCreateInput = {
-    produtos: produtosCreateNestedOneWithoutDisponibilidadeprodInput
-    servicos: servicosCreateNestedOneWithoutDisponibilidadeprodInput
+    Mes?: string | null
+    Inicio?: Date | string | null
+    AlmocoInicio?: Date | string | null
+    AlmocoFim?: Date | string | null
+    Fim?: Date | string | null
+    Duracao?: number | null
+    Tolerancia?: number | null
+    Ativo?: boolean
+    produtos?: produtosCreateNestedOneWithoutDisponibilidadeprodInput
+    servicos?: servicosCreateNestedOneWithoutDisponibilidadeprodInput
+    funcionarios?: funcionariosCreateNestedOneWithoutDisponibilidadeprodInput
   }
 
   export type disponibilidadeprodUncheckedCreateInput = {
+    Id_Produto?: number | null
+    Id_Servico?: number | null
+    Mes?: string | null
+    Inicio?: Date | string | null
+    AlmocoInicio?: Date | string | null
+    AlmocoFim?: Date | string | null
+    Fim?: Date | string | null
+    Id_Funcionario?: number | null
+    Duracao?: number | null
+    Tolerancia?: number | null
+    Ativo?: boolean
     Id_Disponibilidade?: number
-    Id_Produto: number
-    Id_Servico: number
   }
 
   export type disponibilidadeprodUpdateInput = {
-    produtos?: produtosUpdateOneRequiredWithoutDisponibilidadeprodNestedInput
-    servicos?: servicosUpdateOneRequiredWithoutDisponibilidadeprodNestedInput
+    Mes?: NullableStringFieldUpdateOperationsInput | string | null
+    Inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Duracao?: NullableIntFieldUpdateOperationsInput | number | null
+    Tolerancia?: NullableIntFieldUpdateOperationsInput | number | null
+    Ativo?: BoolFieldUpdateOperationsInput | boolean
+    produtos?: produtosUpdateOneWithoutDisponibilidadeprodNestedInput
+    servicos?: servicosUpdateOneWithoutDisponibilidadeprodNestedInput
+    funcionarios?: funcionariosUpdateOneWithoutDisponibilidadeprodNestedInput
   }
 
   export type disponibilidadeprodUncheckedUpdateInput = {
+    Id_Produto?: NullableIntFieldUpdateOperationsInput | number | null
+    Id_Servico?: NullableIntFieldUpdateOperationsInput | number | null
+    Mes?: NullableStringFieldUpdateOperationsInput | string | null
+    Inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Id_Funcionario?: NullableIntFieldUpdateOperationsInput | number | null
+    Duracao?: NullableIntFieldUpdateOperationsInput | number | null
+    Tolerancia?: NullableIntFieldUpdateOperationsInput | number | null
+    Ativo?: BoolFieldUpdateOperationsInput | boolean
     Id_Disponibilidade?: IntFieldUpdateOperationsInput | number
-    Id_Produto?: IntFieldUpdateOperationsInput | number
-    Id_Servico?: IntFieldUpdateOperationsInput | number
   }
 
   export type disponibilidadeprodCreateManyInput = {
+    Id_Produto?: number | null
+    Id_Servico?: number | null
+    Mes?: string | null
+    Inicio?: Date | string | null
+    AlmocoInicio?: Date | string | null
+    AlmocoFim?: Date | string | null
+    Fim?: Date | string | null
+    Id_Funcionario?: number | null
+    Duracao?: number | null
+    Tolerancia?: number | null
+    Ativo?: boolean
     Id_Disponibilidade?: number
-    Id_Produto: number
-    Id_Servico: number
   }
 
   export type disponibilidadeprodUpdateManyMutationInput = {
-
+    Mes?: NullableStringFieldUpdateOperationsInput | string | null
+    Inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Duracao?: NullableIntFieldUpdateOperationsInput | number | null
+    Tolerancia?: NullableIntFieldUpdateOperationsInput | number | null
+    Ativo?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type disponibilidadeprodUncheckedUpdateManyInput = {
+    Id_Produto?: NullableIntFieldUpdateOperationsInput | number | null
+    Id_Servico?: NullableIntFieldUpdateOperationsInput | number | null
+    Mes?: NullableStringFieldUpdateOperationsInput | string | null
+    Inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Id_Funcionario?: NullableIntFieldUpdateOperationsInput | number | null
+    Duracao?: NullableIntFieldUpdateOperationsInput | number | null
+    Tolerancia?: NullableIntFieldUpdateOperationsInput | number | null
+    Ativo?: BoolFieldUpdateOperationsInput | boolean
     Id_Disponibilidade?: IntFieldUpdateOperationsInput | number
-    Id_Produto?: IntFieldUpdateOperationsInput | number
-    Id_Servico?: IntFieldUpdateOperationsInput | number
   }
 
   export type funcionariosCreateInput = {
@@ -10817,6 +11156,7 @@ export namespace Prisma {
     Senha?: string | null
     Status?: $Enums.funcionarios_Status | null
     agendamentos?: agendamentosCreateNestedManyWithoutFuncionariosInput
+    disponibilidadeprod?: disponibilidadeprodCreateNestedManyWithoutFuncionariosInput
   }
 
   export type funcionariosUncheckedCreateInput = {
@@ -10827,6 +11167,7 @@ export namespace Prisma {
     Senha?: string | null
     Status?: $Enums.funcionarios_Status | null
     agendamentos?: agendamentosUncheckedCreateNestedManyWithoutFuncionariosInput
+    disponibilidadeprod?: disponibilidadeprodUncheckedCreateNestedManyWithoutFuncionariosInput
   }
 
   export type funcionariosUpdateInput = {
@@ -10836,6 +11177,7 @@ export namespace Prisma {
     Senha?: NullableStringFieldUpdateOperationsInput | string | null
     Status?: NullableEnumfuncionarios_StatusFieldUpdateOperationsInput | $Enums.funcionarios_Status | null
     agendamentos?: agendamentosUpdateManyWithoutFuncionariosNestedInput
+    disponibilidadeprod?: disponibilidadeprodUpdateManyWithoutFuncionariosNestedInput
   }
 
   export type funcionariosUncheckedUpdateInput = {
@@ -10846,6 +11188,7 @@ export namespace Prisma {
     Senha?: NullableStringFieldUpdateOperationsInput | string | null
     Status?: NullableEnumfuncionarios_StatusFieldUpdateOperationsInput | $Enums.funcionarios_Status | null
     agendamentos?: agendamentosUncheckedUpdateManyWithoutFuncionariosNestedInput
+    disponibilidadeprod?: disponibilidadeprodUncheckedUpdateManyWithoutFuncionariosNestedInput
   }
 
   export type funcionariosCreateManyInput = {
@@ -11400,39 +11743,89 @@ export namespace Prisma {
     Nif?: SortOrder
   }
 
-  export type ProdutosScalarRelationFilter = {
-    is?: produtosWhereInput
-    isNot?: produtosWhereInput
+  export type ProdutosNullableScalarRelationFilter = {
+    is?: produtosWhereInput | null
+    isNot?: produtosWhereInput | null
+  }
+
+  export type ServicosNullableScalarRelationFilter = {
+    is?: servicosWhereInput | null
+    isNot?: servicosWhereInput | null
+  }
+
+  export type disponibilidadeprodOrderByRelevanceInput = {
+    fields: disponibilidadeprodOrderByRelevanceFieldEnum | disponibilidadeprodOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type disponibilidadeprodId_ServicoMesId_FuncionarioCompoundUniqueInput = {
+    Id_Servico: number
+    Mes: string
+    Id_Funcionario: number
   }
 
   export type disponibilidadeprodCountOrderByAggregateInput = {
-    Id_Disponibilidade?: SortOrder
     Id_Produto?: SortOrder
     Id_Servico?: SortOrder
+    Mes?: SortOrder
+    Inicio?: SortOrder
+    AlmocoInicio?: SortOrder
+    AlmocoFim?: SortOrder
+    Fim?: SortOrder
+    Id_Funcionario?: SortOrder
+    Duracao?: SortOrder
+    Tolerancia?: SortOrder
+    Ativo?: SortOrder
+    Id_Disponibilidade?: SortOrder
   }
 
   export type disponibilidadeprodAvgOrderByAggregateInput = {
-    Id_Disponibilidade?: SortOrder
     Id_Produto?: SortOrder
     Id_Servico?: SortOrder
+    Id_Funcionario?: SortOrder
+    Duracao?: SortOrder
+    Tolerancia?: SortOrder
+    Id_Disponibilidade?: SortOrder
   }
 
   export type disponibilidadeprodMaxOrderByAggregateInput = {
-    Id_Disponibilidade?: SortOrder
     Id_Produto?: SortOrder
     Id_Servico?: SortOrder
+    Mes?: SortOrder
+    Inicio?: SortOrder
+    AlmocoInicio?: SortOrder
+    AlmocoFim?: SortOrder
+    Fim?: SortOrder
+    Id_Funcionario?: SortOrder
+    Duracao?: SortOrder
+    Tolerancia?: SortOrder
+    Ativo?: SortOrder
+    Id_Disponibilidade?: SortOrder
   }
 
   export type disponibilidadeprodMinOrderByAggregateInput = {
-    Id_Disponibilidade?: SortOrder
     Id_Produto?: SortOrder
     Id_Servico?: SortOrder
+    Mes?: SortOrder
+    Inicio?: SortOrder
+    AlmocoInicio?: SortOrder
+    AlmocoFim?: SortOrder
+    Fim?: SortOrder
+    Id_Funcionario?: SortOrder
+    Duracao?: SortOrder
+    Tolerancia?: SortOrder
+    Ativo?: SortOrder
+    Id_Disponibilidade?: SortOrder
   }
 
   export type disponibilidadeprodSumOrderByAggregateInput = {
-    Id_Disponibilidade?: SortOrder
     Id_Produto?: SortOrder
     Id_Servico?: SortOrder
+    Id_Funcionario?: SortOrder
+    Duracao?: SortOrder
+    Tolerancia?: SortOrder
+    Id_Disponibilidade?: SortOrder
   }
 
   export type BoolNullableFilter<$PrismaModel = never> = {
@@ -11445,6 +11838,16 @@ export namespace Prisma {
     in?: $Enums.funcionarios_Status[] | null
     notIn?: $Enums.funcionarios_Status[] | null
     not?: NestedEnumfuncionarios_StatusNullableFilter<$PrismaModel> | $Enums.funcionarios_Status | null
+  }
+
+  export type DisponibilidadeprodListRelationFilter = {
+    every?: disponibilidadeprodWhereInput
+    some?: disponibilidadeprodWhereInput
+    none?: disponibilidadeprodWhereInput
+  }
+
+  export type disponibilidadeprodOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type funcionariosOrderByRelevanceInput = {
@@ -11504,11 +11907,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedEnumfuncionarios_StatusNullableFilter<$PrismaModel>
     _max?: NestedEnumfuncionarios_StatusNullableFilter<$PrismaModel>
-  }
-
-  export type ProdutosNullableScalarRelationFilter = {
-    is?: produtosWhereInput | null
-    isNot?: produtosWhereInput | null
   }
 
   export type imagensOrderByRelevanceInput = {
@@ -11628,12 +12026,6 @@ export namespace Prisma {
     _max?: NestedEnumpagamentos_ModalidadeNullableFilter<$PrismaModel>
   }
 
-  export type DisponibilidadeprodListRelationFilter = {
-    every?: disponibilidadeprodWhereInput
-    some?: disponibilidadeprodWhereInput
-    none?: disponibilidadeprodWhereInput
-  }
-
   export type ImagensListRelationFilter = {
     every?: imagensWhereInput
     some?: imagensWhereInput
@@ -11644,10 +12036,6 @@ export namespace Prisma {
     every?: servicosWhereInput
     some?: servicosWhereInput
     none?: servicosWhereInput
-  }
-
-  export type disponibilidadeprodOrderByRelationAggregateInput = {
-    _count?: SortOrder
   }
 
   export type imagensOrderByRelationAggregateInput = {
@@ -11919,20 +12307,40 @@ export namespace Prisma {
     connect?: servicosWhereUniqueInput
   }
 
-  export type produtosUpdateOneRequiredWithoutDisponibilidadeprodNestedInput = {
+  export type funcionariosCreateNestedOneWithoutDisponibilidadeprodInput = {
+    create?: XOR<funcionariosCreateWithoutDisponibilidadeprodInput, funcionariosUncheckedCreateWithoutDisponibilidadeprodInput>
+    connectOrCreate?: funcionariosCreateOrConnectWithoutDisponibilidadeprodInput
+    connect?: funcionariosWhereUniqueInput
+  }
+
+  export type produtosUpdateOneWithoutDisponibilidadeprodNestedInput = {
     create?: XOR<produtosCreateWithoutDisponibilidadeprodInput, produtosUncheckedCreateWithoutDisponibilidadeprodInput>
     connectOrCreate?: produtosCreateOrConnectWithoutDisponibilidadeprodInput
     upsert?: produtosUpsertWithoutDisponibilidadeprodInput
+    disconnect?: produtosWhereInput | boolean
+    delete?: produtosWhereInput | boolean
     connect?: produtosWhereUniqueInput
     update?: XOR<XOR<produtosUpdateToOneWithWhereWithoutDisponibilidadeprodInput, produtosUpdateWithoutDisponibilidadeprodInput>, produtosUncheckedUpdateWithoutDisponibilidadeprodInput>
   }
 
-  export type servicosUpdateOneRequiredWithoutDisponibilidadeprodNestedInput = {
+  export type servicosUpdateOneWithoutDisponibilidadeprodNestedInput = {
     create?: XOR<servicosCreateWithoutDisponibilidadeprodInput, servicosUncheckedCreateWithoutDisponibilidadeprodInput>
     connectOrCreate?: servicosCreateOrConnectWithoutDisponibilidadeprodInput
     upsert?: servicosUpsertWithoutDisponibilidadeprodInput
+    disconnect?: servicosWhereInput | boolean
+    delete?: servicosWhereInput | boolean
     connect?: servicosWhereUniqueInput
     update?: XOR<XOR<servicosUpdateToOneWithWhereWithoutDisponibilidadeprodInput, servicosUpdateWithoutDisponibilidadeprodInput>, servicosUncheckedUpdateWithoutDisponibilidadeprodInput>
+  }
+
+  export type funcionariosUpdateOneWithoutDisponibilidadeprodNestedInput = {
+    create?: XOR<funcionariosCreateWithoutDisponibilidadeprodInput, funcionariosUncheckedCreateWithoutDisponibilidadeprodInput>
+    connectOrCreate?: funcionariosCreateOrConnectWithoutDisponibilidadeprodInput
+    upsert?: funcionariosUpsertWithoutDisponibilidadeprodInput
+    disconnect?: funcionariosWhereInput | boolean
+    delete?: funcionariosWhereInput | boolean
+    connect?: funcionariosWhereUniqueInput
+    update?: XOR<XOR<funcionariosUpdateToOneWithWhereWithoutDisponibilidadeprodInput, funcionariosUpdateWithoutDisponibilidadeprodInput>, funcionariosUncheckedUpdateWithoutDisponibilidadeprodInput>
   }
 
   export type agendamentosCreateNestedManyWithoutFuncionariosInput = {
@@ -11942,11 +12350,25 @@ export namespace Prisma {
     connect?: agendamentosWhereUniqueInput | agendamentosWhereUniqueInput[]
   }
 
+  export type disponibilidadeprodCreateNestedManyWithoutFuncionariosInput = {
+    create?: XOR<disponibilidadeprodCreateWithoutFuncionariosInput, disponibilidadeprodUncheckedCreateWithoutFuncionariosInput> | disponibilidadeprodCreateWithoutFuncionariosInput[] | disponibilidadeprodUncheckedCreateWithoutFuncionariosInput[]
+    connectOrCreate?: disponibilidadeprodCreateOrConnectWithoutFuncionariosInput | disponibilidadeprodCreateOrConnectWithoutFuncionariosInput[]
+    createMany?: disponibilidadeprodCreateManyFuncionariosInputEnvelope
+    connect?: disponibilidadeprodWhereUniqueInput | disponibilidadeprodWhereUniqueInput[]
+  }
+
   export type agendamentosUncheckedCreateNestedManyWithoutFuncionariosInput = {
     create?: XOR<agendamentosCreateWithoutFuncionariosInput, agendamentosUncheckedCreateWithoutFuncionariosInput> | agendamentosCreateWithoutFuncionariosInput[] | agendamentosUncheckedCreateWithoutFuncionariosInput[]
     connectOrCreate?: agendamentosCreateOrConnectWithoutFuncionariosInput | agendamentosCreateOrConnectWithoutFuncionariosInput[]
     createMany?: agendamentosCreateManyFuncionariosInputEnvelope
     connect?: agendamentosWhereUniqueInput | agendamentosWhereUniqueInput[]
+  }
+
+  export type disponibilidadeprodUncheckedCreateNestedManyWithoutFuncionariosInput = {
+    create?: XOR<disponibilidadeprodCreateWithoutFuncionariosInput, disponibilidadeprodUncheckedCreateWithoutFuncionariosInput> | disponibilidadeprodCreateWithoutFuncionariosInput[] | disponibilidadeprodUncheckedCreateWithoutFuncionariosInput[]
+    connectOrCreate?: disponibilidadeprodCreateOrConnectWithoutFuncionariosInput | disponibilidadeprodCreateOrConnectWithoutFuncionariosInput[]
+    createMany?: disponibilidadeprodCreateManyFuncionariosInputEnvelope
+    connect?: disponibilidadeprodWhereUniqueInput | disponibilidadeprodWhereUniqueInput[]
   }
 
   export type NullableBoolFieldUpdateOperationsInput = {
@@ -11971,6 +12393,20 @@ export namespace Prisma {
     deleteMany?: agendamentosScalarWhereInput | agendamentosScalarWhereInput[]
   }
 
+  export type disponibilidadeprodUpdateManyWithoutFuncionariosNestedInput = {
+    create?: XOR<disponibilidadeprodCreateWithoutFuncionariosInput, disponibilidadeprodUncheckedCreateWithoutFuncionariosInput> | disponibilidadeprodCreateWithoutFuncionariosInput[] | disponibilidadeprodUncheckedCreateWithoutFuncionariosInput[]
+    connectOrCreate?: disponibilidadeprodCreateOrConnectWithoutFuncionariosInput | disponibilidadeprodCreateOrConnectWithoutFuncionariosInput[]
+    upsert?: disponibilidadeprodUpsertWithWhereUniqueWithoutFuncionariosInput | disponibilidadeprodUpsertWithWhereUniqueWithoutFuncionariosInput[]
+    createMany?: disponibilidadeprodCreateManyFuncionariosInputEnvelope
+    set?: disponibilidadeprodWhereUniqueInput | disponibilidadeprodWhereUniqueInput[]
+    disconnect?: disponibilidadeprodWhereUniqueInput | disponibilidadeprodWhereUniqueInput[]
+    delete?: disponibilidadeprodWhereUniqueInput | disponibilidadeprodWhereUniqueInput[]
+    connect?: disponibilidadeprodWhereUniqueInput | disponibilidadeprodWhereUniqueInput[]
+    update?: disponibilidadeprodUpdateWithWhereUniqueWithoutFuncionariosInput | disponibilidadeprodUpdateWithWhereUniqueWithoutFuncionariosInput[]
+    updateMany?: disponibilidadeprodUpdateManyWithWhereWithoutFuncionariosInput | disponibilidadeprodUpdateManyWithWhereWithoutFuncionariosInput[]
+    deleteMany?: disponibilidadeprodScalarWhereInput | disponibilidadeprodScalarWhereInput[]
+  }
+
   export type agendamentosUncheckedUpdateManyWithoutFuncionariosNestedInput = {
     create?: XOR<agendamentosCreateWithoutFuncionariosInput, agendamentosUncheckedCreateWithoutFuncionariosInput> | agendamentosCreateWithoutFuncionariosInput[] | agendamentosUncheckedCreateWithoutFuncionariosInput[]
     connectOrCreate?: agendamentosCreateOrConnectWithoutFuncionariosInput | agendamentosCreateOrConnectWithoutFuncionariosInput[]
@@ -11983,6 +12419,20 @@ export namespace Prisma {
     update?: agendamentosUpdateWithWhereUniqueWithoutFuncionariosInput | agendamentosUpdateWithWhereUniqueWithoutFuncionariosInput[]
     updateMany?: agendamentosUpdateManyWithWhereWithoutFuncionariosInput | agendamentosUpdateManyWithWhereWithoutFuncionariosInput[]
     deleteMany?: agendamentosScalarWhereInput | agendamentosScalarWhereInput[]
+  }
+
+  export type disponibilidadeprodUncheckedUpdateManyWithoutFuncionariosNestedInput = {
+    create?: XOR<disponibilidadeprodCreateWithoutFuncionariosInput, disponibilidadeprodUncheckedCreateWithoutFuncionariosInput> | disponibilidadeprodCreateWithoutFuncionariosInput[] | disponibilidadeprodUncheckedCreateWithoutFuncionariosInput[]
+    connectOrCreate?: disponibilidadeprodCreateOrConnectWithoutFuncionariosInput | disponibilidadeprodCreateOrConnectWithoutFuncionariosInput[]
+    upsert?: disponibilidadeprodUpsertWithWhereUniqueWithoutFuncionariosInput | disponibilidadeprodUpsertWithWhereUniqueWithoutFuncionariosInput[]
+    createMany?: disponibilidadeprodCreateManyFuncionariosInputEnvelope
+    set?: disponibilidadeprodWhereUniqueInput | disponibilidadeprodWhereUniqueInput[]
+    disconnect?: disponibilidadeprodWhereUniqueInput | disponibilidadeprodWhereUniqueInput[]
+    delete?: disponibilidadeprodWhereUniqueInput | disponibilidadeprodWhereUniqueInput[]
+    connect?: disponibilidadeprodWhereUniqueInput | disponibilidadeprodWhereUniqueInput[]
+    update?: disponibilidadeprodUpdateWithWhereUniqueWithoutFuncionariosInput | disponibilidadeprodUpdateWithWhereUniqueWithoutFuncionariosInput[]
+    updateMany?: disponibilidadeprodUpdateManyWithWhereWithoutFuncionariosInput | disponibilidadeprodUpdateManyWithWhereWithoutFuncionariosInput[]
+    deleteMany?: disponibilidadeprodScalarWhereInput | disponibilidadeprodScalarWhereInput[]
   }
 
   export type produtosCreateNestedOneWithoutImagensInput = {
@@ -12537,6 +12987,7 @@ export namespace Prisma {
     Administrador?: boolean | null
     Senha?: string | null
     Status?: $Enums.funcionarios_Status | null
+    disponibilidadeprod?: disponibilidadeprodCreateNestedManyWithoutFuncionariosInput
   }
 
   export type funcionariosUncheckedCreateWithoutAgendamentosInput = {
@@ -12546,6 +12997,7 @@ export namespace Prisma {
     Administrador?: boolean | null
     Senha?: string | null
     Status?: $Enums.funcionarios_Status | null
+    disponibilidadeprod?: disponibilidadeprodUncheckedCreateNestedManyWithoutFuncionariosInput
   }
 
   export type funcionariosCreateOrConnectWithoutAgendamentosInput = {
@@ -12659,6 +13111,7 @@ export namespace Prisma {
     Administrador?: NullableBoolFieldUpdateOperationsInput | boolean | null
     Senha?: NullableStringFieldUpdateOperationsInput | string | null
     Status?: NullableEnumfuncionarios_StatusFieldUpdateOperationsInput | $Enums.funcionarios_Status | null
+    disponibilidadeprod?: disponibilidadeprodUpdateManyWithoutFuncionariosNestedInput
   }
 
   export type funcionariosUncheckedUpdateWithoutAgendamentosInput = {
@@ -12668,6 +13121,7 @@ export namespace Prisma {
     Administrador?: NullableBoolFieldUpdateOperationsInput | boolean | null
     Senha?: NullableStringFieldUpdateOperationsInput | string | null
     Status?: NullableEnumfuncionarios_StatusFieldUpdateOperationsInput | $Enums.funcionarios_Status | null
+    disponibilidadeprod?: disponibilidadeprodUncheckedUpdateManyWithoutFuncionariosNestedInput
   }
 
   export type pagamentosUpsertWithWhereUniqueWithoutAgendamentosInput = {
@@ -12813,6 +13267,30 @@ export namespace Prisma {
     create: XOR<servicosCreateWithoutDisponibilidadeprodInput, servicosUncheckedCreateWithoutDisponibilidadeprodInput>
   }
 
+  export type funcionariosCreateWithoutDisponibilidadeprodInput = {
+    Nome?: string | null
+    Email?: string | null
+    Administrador?: boolean | null
+    Senha?: string | null
+    Status?: $Enums.funcionarios_Status | null
+    agendamentos?: agendamentosCreateNestedManyWithoutFuncionariosInput
+  }
+
+  export type funcionariosUncheckedCreateWithoutDisponibilidadeprodInput = {
+    Id_Funcionario?: number
+    Nome?: string | null
+    Email?: string | null
+    Administrador?: boolean | null
+    Senha?: string | null
+    Status?: $Enums.funcionarios_Status | null
+    agendamentos?: agendamentosUncheckedCreateNestedManyWithoutFuncionariosInput
+  }
+
+  export type funcionariosCreateOrConnectWithoutDisponibilidadeprodInput = {
+    where: funcionariosWhereUniqueInput
+    create: XOR<funcionariosCreateWithoutDisponibilidadeprodInput, funcionariosUncheckedCreateWithoutDisponibilidadeprodInput>
+  }
+
   export type produtosUpsertWithoutDisponibilidadeprodInput = {
     update: XOR<produtosUpdateWithoutDisponibilidadeprodInput, produtosUncheckedUpdateWithoutDisponibilidadeprodInput>
     create: XOR<produtosCreateWithoutDisponibilidadeprodInput, produtosUncheckedCreateWithoutDisponibilidadeprodInput>
@@ -12873,6 +13351,36 @@ export namespace Prisma {
     agendamentos?: agendamentosUncheckedUpdateManyWithoutServicosNestedInput
   }
 
+  export type funcionariosUpsertWithoutDisponibilidadeprodInput = {
+    update: XOR<funcionariosUpdateWithoutDisponibilidadeprodInput, funcionariosUncheckedUpdateWithoutDisponibilidadeprodInput>
+    create: XOR<funcionariosCreateWithoutDisponibilidadeprodInput, funcionariosUncheckedCreateWithoutDisponibilidadeprodInput>
+    where?: funcionariosWhereInput
+  }
+
+  export type funcionariosUpdateToOneWithWhereWithoutDisponibilidadeprodInput = {
+    where?: funcionariosWhereInput
+    data: XOR<funcionariosUpdateWithoutDisponibilidadeprodInput, funcionariosUncheckedUpdateWithoutDisponibilidadeprodInput>
+  }
+
+  export type funcionariosUpdateWithoutDisponibilidadeprodInput = {
+    Nome?: NullableStringFieldUpdateOperationsInput | string | null
+    Email?: NullableStringFieldUpdateOperationsInput | string | null
+    Administrador?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    Senha?: NullableStringFieldUpdateOperationsInput | string | null
+    Status?: NullableEnumfuncionarios_StatusFieldUpdateOperationsInput | $Enums.funcionarios_Status | null
+    agendamentos?: agendamentosUpdateManyWithoutFuncionariosNestedInput
+  }
+
+  export type funcionariosUncheckedUpdateWithoutDisponibilidadeprodInput = {
+    Id_Funcionario?: IntFieldUpdateOperationsInput | number
+    Nome?: NullableStringFieldUpdateOperationsInput | string | null
+    Email?: NullableStringFieldUpdateOperationsInput | string | null
+    Administrador?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    Senha?: NullableStringFieldUpdateOperationsInput | string | null
+    Status?: NullableEnumfuncionarios_StatusFieldUpdateOperationsInput | $Enums.funcionarios_Status | null
+    agendamentos?: agendamentosUncheckedUpdateManyWithoutFuncionariosNestedInput
+  }
+
   export type agendamentosCreateWithoutFuncionariosInput = {
     Data?: Date | string | null
     HoraInicio?: Date | string | null
@@ -12908,6 +13416,43 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type disponibilidadeprodCreateWithoutFuncionariosInput = {
+    Mes?: string | null
+    Inicio?: Date | string | null
+    AlmocoInicio?: Date | string | null
+    AlmocoFim?: Date | string | null
+    Fim?: Date | string | null
+    Duracao?: number | null
+    Tolerancia?: number | null
+    Ativo?: boolean
+    produtos?: produtosCreateNestedOneWithoutDisponibilidadeprodInput
+    servicos?: servicosCreateNestedOneWithoutDisponibilidadeprodInput
+  }
+
+  export type disponibilidadeprodUncheckedCreateWithoutFuncionariosInput = {
+    Id_Produto?: number | null
+    Id_Servico?: number | null
+    Mes?: string | null
+    Inicio?: Date | string | null
+    AlmocoInicio?: Date | string | null
+    AlmocoFim?: Date | string | null
+    Fim?: Date | string | null
+    Duracao?: number | null
+    Tolerancia?: number | null
+    Ativo?: boolean
+    Id_Disponibilidade?: number
+  }
+
+  export type disponibilidadeprodCreateOrConnectWithoutFuncionariosInput = {
+    where: disponibilidadeprodWhereUniqueInput
+    create: XOR<disponibilidadeprodCreateWithoutFuncionariosInput, disponibilidadeprodUncheckedCreateWithoutFuncionariosInput>
+  }
+
+  export type disponibilidadeprodCreateManyFuncionariosInputEnvelope = {
+    data: disponibilidadeprodCreateManyFuncionariosInput | disponibilidadeprodCreateManyFuncionariosInput[]
+    skipDuplicates?: boolean
+  }
+
   export type agendamentosUpsertWithWhereUniqueWithoutFuncionariosInput = {
     where: agendamentosWhereUniqueInput
     update: XOR<agendamentosUpdateWithoutFuncionariosInput, agendamentosUncheckedUpdateWithoutFuncionariosInput>
@@ -12922,6 +13467,40 @@ export namespace Prisma {
   export type agendamentosUpdateManyWithWhereWithoutFuncionariosInput = {
     where: agendamentosScalarWhereInput
     data: XOR<agendamentosUpdateManyMutationInput, agendamentosUncheckedUpdateManyWithoutFuncionariosInput>
+  }
+
+  export type disponibilidadeprodUpsertWithWhereUniqueWithoutFuncionariosInput = {
+    where: disponibilidadeprodWhereUniqueInput
+    update: XOR<disponibilidadeprodUpdateWithoutFuncionariosInput, disponibilidadeprodUncheckedUpdateWithoutFuncionariosInput>
+    create: XOR<disponibilidadeprodCreateWithoutFuncionariosInput, disponibilidadeprodUncheckedCreateWithoutFuncionariosInput>
+  }
+
+  export type disponibilidadeprodUpdateWithWhereUniqueWithoutFuncionariosInput = {
+    where: disponibilidadeprodWhereUniqueInput
+    data: XOR<disponibilidadeprodUpdateWithoutFuncionariosInput, disponibilidadeprodUncheckedUpdateWithoutFuncionariosInput>
+  }
+
+  export type disponibilidadeprodUpdateManyWithWhereWithoutFuncionariosInput = {
+    where: disponibilidadeprodScalarWhereInput
+    data: XOR<disponibilidadeprodUpdateManyMutationInput, disponibilidadeprodUncheckedUpdateManyWithoutFuncionariosInput>
+  }
+
+  export type disponibilidadeprodScalarWhereInput = {
+    AND?: disponibilidadeprodScalarWhereInput | disponibilidadeprodScalarWhereInput[]
+    OR?: disponibilidadeprodScalarWhereInput[]
+    NOT?: disponibilidadeprodScalarWhereInput | disponibilidadeprodScalarWhereInput[]
+    Id_Produto?: IntNullableFilter<"disponibilidadeprod"> | number | null
+    Id_Servico?: IntNullableFilter<"disponibilidadeprod"> | number | null
+    Mes?: StringNullableFilter<"disponibilidadeprod"> | string | null
+    Inicio?: DateTimeNullableFilter<"disponibilidadeprod"> | Date | string | null
+    AlmocoInicio?: DateTimeNullableFilter<"disponibilidadeprod"> | Date | string | null
+    AlmocoFim?: DateTimeNullableFilter<"disponibilidadeprod"> | Date | string | null
+    Fim?: DateTimeNullableFilter<"disponibilidadeprod"> | Date | string | null
+    Id_Funcionario?: IntNullableFilter<"disponibilidadeprod"> | number | null
+    Duracao?: IntNullableFilter<"disponibilidadeprod"> | number | null
+    Tolerancia?: IntNullableFilter<"disponibilidadeprod"> | number | null
+    Ativo?: BoolFilter<"disponibilidadeprod"> | boolean
+    Id_Disponibilidade?: IntFilter<"disponibilidadeprod"> | number
   }
 
   export type produtosCreateWithoutImagensInput = {
@@ -13041,12 +13620,30 @@ export namespace Prisma {
   }
 
   export type disponibilidadeprodCreateWithoutProdutosInput = {
-    servicos: servicosCreateNestedOneWithoutDisponibilidadeprodInput
+    Mes?: string | null
+    Inicio?: Date | string | null
+    AlmocoInicio?: Date | string | null
+    AlmocoFim?: Date | string | null
+    Fim?: Date | string | null
+    Duracao?: number | null
+    Tolerancia?: number | null
+    Ativo?: boolean
+    servicos?: servicosCreateNestedOneWithoutDisponibilidadeprodInput
+    funcionarios?: funcionariosCreateNestedOneWithoutDisponibilidadeprodInput
   }
 
   export type disponibilidadeprodUncheckedCreateWithoutProdutosInput = {
+    Id_Servico?: number | null
+    Mes?: string | null
+    Inicio?: Date | string | null
+    AlmocoInicio?: Date | string | null
+    AlmocoFim?: Date | string | null
+    Fim?: Date | string | null
+    Id_Funcionario?: number | null
+    Duracao?: number | null
+    Tolerancia?: number | null
+    Ativo?: boolean
     Id_Disponibilidade?: number
-    Id_Servico: number
   }
 
   export type disponibilidadeprodCreateOrConnectWithoutProdutosInput = {
@@ -13125,15 +13722,6 @@ export namespace Prisma {
   export type disponibilidadeprodUpdateManyWithWhereWithoutProdutosInput = {
     where: disponibilidadeprodScalarWhereInput
     data: XOR<disponibilidadeprodUpdateManyMutationInput, disponibilidadeprodUncheckedUpdateManyWithoutProdutosInput>
-  }
-
-  export type disponibilidadeprodScalarWhereInput = {
-    AND?: disponibilidadeprodScalarWhereInput | disponibilidadeprodScalarWhereInput[]
-    OR?: disponibilidadeprodScalarWhereInput[]
-    NOT?: disponibilidadeprodScalarWhereInput | disponibilidadeprodScalarWhereInput[]
-    Id_Disponibilidade?: IntFilter<"disponibilidadeprod"> | number
-    Id_Produto?: IntFilter<"disponibilidadeprod"> | number
-    Id_Servico?: IntFilter<"disponibilidadeprod"> | number
   }
 
   export type imagensUpsertWithWhereUniqueWithoutProdutosInput = {
@@ -13227,12 +13815,30 @@ export namespace Prisma {
   }
 
   export type disponibilidadeprodCreateWithoutServicosInput = {
-    produtos: produtosCreateNestedOneWithoutDisponibilidadeprodInput
+    Mes?: string | null
+    Inicio?: Date | string | null
+    AlmocoInicio?: Date | string | null
+    AlmocoFim?: Date | string | null
+    Fim?: Date | string | null
+    Duracao?: number | null
+    Tolerancia?: number | null
+    Ativo?: boolean
+    produtos?: produtosCreateNestedOneWithoutDisponibilidadeprodInput
+    funcionarios?: funcionariosCreateNestedOneWithoutDisponibilidadeprodInput
   }
 
   export type disponibilidadeprodUncheckedCreateWithoutServicosInput = {
+    Id_Produto?: number | null
+    Mes?: string | null
+    Inicio?: Date | string | null
+    AlmocoInicio?: Date | string | null
+    AlmocoFim?: Date | string | null
+    Fim?: Date | string | null
+    Id_Funcionario?: number | null
+    Duracao?: number | null
+    Tolerancia?: number | null
+    Ativo?: boolean
     Id_Disponibilidade?: number
-    Id_Produto: number
   }
 
   export type disponibilidadeprodCreateOrConnectWithoutServicosInput = {
@@ -13419,6 +14025,20 @@ export namespace Prisma {
     LembreteEnviado?: boolean
   }
 
+  export type disponibilidadeprodCreateManyFuncionariosInput = {
+    Id_Produto?: number | null
+    Id_Servico?: number | null
+    Mes?: string | null
+    Inicio?: Date | string | null
+    AlmocoInicio?: Date | string | null
+    AlmocoFim?: Date | string | null
+    Fim?: Date | string | null
+    Duracao?: number | null
+    Tolerancia?: number | null
+    Ativo?: boolean
+    Id_Disponibilidade?: number
+  }
+
   export type agendamentosUpdateWithoutFuncionariosInput = {
     Data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     HoraInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -13456,9 +14076,59 @@ export namespace Prisma {
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
   }
 
+  export type disponibilidadeprodUpdateWithoutFuncionariosInput = {
+    Mes?: NullableStringFieldUpdateOperationsInput | string | null
+    Inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Duracao?: NullableIntFieldUpdateOperationsInput | number | null
+    Tolerancia?: NullableIntFieldUpdateOperationsInput | number | null
+    Ativo?: BoolFieldUpdateOperationsInput | boolean
+    produtos?: produtosUpdateOneWithoutDisponibilidadeprodNestedInput
+    servicos?: servicosUpdateOneWithoutDisponibilidadeprodNestedInput
+  }
+
+  export type disponibilidadeprodUncheckedUpdateWithoutFuncionariosInput = {
+    Id_Produto?: NullableIntFieldUpdateOperationsInput | number | null
+    Id_Servico?: NullableIntFieldUpdateOperationsInput | number | null
+    Mes?: NullableStringFieldUpdateOperationsInput | string | null
+    Inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Duracao?: NullableIntFieldUpdateOperationsInput | number | null
+    Tolerancia?: NullableIntFieldUpdateOperationsInput | number | null
+    Ativo?: BoolFieldUpdateOperationsInput | boolean
+    Id_Disponibilidade?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type disponibilidadeprodUncheckedUpdateManyWithoutFuncionariosInput = {
+    Id_Produto?: NullableIntFieldUpdateOperationsInput | number | null
+    Id_Servico?: NullableIntFieldUpdateOperationsInput | number | null
+    Mes?: NullableStringFieldUpdateOperationsInput | string | null
+    Inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Duracao?: NullableIntFieldUpdateOperationsInput | number | null
+    Tolerancia?: NullableIntFieldUpdateOperationsInput | number | null
+    Ativo?: BoolFieldUpdateOperationsInput | boolean
+    Id_Disponibilidade?: IntFieldUpdateOperationsInput | number
+  }
+
   export type disponibilidadeprodCreateManyProdutosInput = {
+    Id_Servico?: number | null
+    Mes?: string | null
+    Inicio?: Date | string | null
+    AlmocoInicio?: Date | string | null
+    AlmocoFim?: Date | string | null
+    Fim?: Date | string | null
+    Id_Funcionario?: number | null
+    Duracao?: number | null
+    Tolerancia?: number | null
+    Ativo?: boolean
     Id_Disponibilidade?: number
-    Id_Servico: number
   }
 
   export type imagensCreateManyProdutosInput = {
@@ -13477,17 +14147,44 @@ export namespace Prisma {
   }
 
   export type disponibilidadeprodUpdateWithoutProdutosInput = {
-    servicos?: servicosUpdateOneRequiredWithoutDisponibilidadeprodNestedInput
+    Mes?: NullableStringFieldUpdateOperationsInput | string | null
+    Inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Duracao?: NullableIntFieldUpdateOperationsInput | number | null
+    Tolerancia?: NullableIntFieldUpdateOperationsInput | number | null
+    Ativo?: BoolFieldUpdateOperationsInput | boolean
+    servicos?: servicosUpdateOneWithoutDisponibilidadeprodNestedInput
+    funcionarios?: funcionariosUpdateOneWithoutDisponibilidadeprodNestedInput
   }
 
   export type disponibilidadeprodUncheckedUpdateWithoutProdutosInput = {
+    Id_Servico?: NullableIntFieldUpdateOperationsInput | number | null
+    Mes?: NullableStringFieldUpdateOperationsInput | string | null
+    Inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Id_Funcionario?: NullableIntFieldUpdateOperationsInput | number | null
+    Duracao?: NullableIntFieldUpdateOperationsInput | number | null
+    Tolerancia?: NullableIntFieldUpdateOperationsInput | number | null
+    Ativo?: BoolFieldUpdateOperationsInput | boolean
     Id_Disponibilidade?: IntFieldUpdateOperationsInput | number
-    Id_Servico?: IntFieldUpdateOperationsInput | number
   }
 
   export type disponibilidadeprodUncheckedUpdateManyWithoutProdutosInput = {
+    Id_Servico?: NullableIntFieldUpdateOperationsInput | number | null
+    Mes?: NullableStringFieldUpdateOperationsInput | string | null
+    Inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Id_Funcionario?: NullableIntFieldUpdateOperationsInput | number | null
+    Duracao?: NullableIntFieldUpdateOperationsInput | number | null
+    Tolerancia?: NullableIntFieldUpdateOperationsInput | number | null
+    Ativo?: BoolFieldUpdateOperationsInput | boolean
     Id_Disponibilidade?: IntFieldUpdateOperationsInput | number
-    Id_Servico?: IntFieldUpdateOperationsInput | number
   }
 
   export type imagensUpdateWithoutProdutosInput = {
@@ -13550,8 +14247,17 @@ export namespace Prisma {
   }
 
   export type disponibilidadeprodCreateManyServicosInput = {
+    Id_Produto?: number | null
+    Mes?: string | null
+    Inicio?: Date | string | null
+    AlmocoInicio?: Date | string | null
+    AlmocoFim?: Date | string | null
+    Fim?: Date | string | null
+    Id_Funcionario?: number | null
+    Duracao?: number | null
+    Tolerancia?: number | null
+    Ativo?: boolean
     Id_Disponibilidade?: number
-    Id_Produto: number
   }
 
   export type agendamentosUpdateWithoutServicosInput = {
@@ -13592,17 +14298,44 @@ export namespace Prisma {
   }
 
   export type disponibilidadeprodUpdateWithoutServicosInput = {
-    produtos?: produtosUpdateOneRequiredWithoutDisponibilidadeprodNestedInput
+    Mes?: NullableStringFieldUpdateOperationsInput | string | null
+    Inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Duracao?: NullableIntFieldUpdateOperationsInput | number | null
+    Tolerancia?: NullableIntFieldUpdateOperationsInput | number | null
+    Ativo?: BoolFieldUpdateOperationsInput | boolean
+    produtos?: produtosUpdateOneWithoutDisponibilidadeprodNestedInput
+    funcionarios?: funcionariosUpdateOneWithoutDisponibilidadeprodNestedInput
   }
 
   export type disponibilidadeprodUncheckedUpdateWithoutServicosInput = {
+    Id_Produto?: NullableIntFieldUpdateOperationsInput | number | null
+    Mes?: NullableStringFieldUpdateOperationsInput | string | null
+    Inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Id_Funcionario?: NullableIntFieldUpdateOperationsInput | number | null
+    Duracao?: NullableIntFieldUpdateOperationsInput | number | null
+    Tolerancia?: NullableIntFieldUpdateOperationsInput | number | null
+    Ativo?: BoolFieldUpdateOperationsInput | boolean
     Id_Disponibilidade?: IntFieldUpdateOperationsInput | number
-    Id_Produto?: IntFieldUpdateOperationsInput | number
   }
 
   export type disponibilidadeprodUncheckedUpdateManyWithoutServicosInput = {
+    Id_Produto?: NullableIntFieldUpdateOperationsInput | number | null
+    Mes?: NullableStringFieldUpdateOperationsInput | string | null
+    Inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    AlmocoFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    Id_Funcionario?: NullableIntFieldUpdateOperationsInput | number | null
+    Duracao?: NullableIntFieldUpdateOperationsInput | number | null
+    Tolerancia?: NullableIntFieldUpdateOperationsInput | number | null
+    Ativo?: BoolFieldUpdateOperationsInput | boolean
     Id_Disponibilidade?: IntFieldUpdateOperationsInput | number
-    Id_Produto?: IntFieldUpdateOperationsInput | number
   }
 
 

@@ -232,27 +232,38 @@ export default function AgendamentoModal({
       return;
     }
 
-    const dados = {
+    // Preparar dados baseado no contexto
+    const dadosBase = {
       Id_Servico: selectedServico,
-      Id_Funcionario: selectedFuncionario,
       Data: format(dataSelecionada, 'yyyy-MM-dd'),
       HoraInicio: format(inicio, 'HH:mm'),
       HoraFinal: format(final, 'HH:mm'),
       Observacoes: observacoes || null,
-      // enviar undefined quando não houver cliente (compatível com tipos server/prisma)
-      Id_Cliente: selectedCliente ?? undefined,
-      ModalidadePagamento: modalidadePagamento,
     };
 
+    const dados = madeByFuncionario 
+      ? {
+          ...dadosBase,
+          Id_Cliente: selectedCliente, // obrigatório para funcionários
+          Modalidade: modalidadePagamento, // formato esperado pela rota de funcionários
+          Valor: servico.Valor, // valor do serviço
+        }
+      : {
+          ...dadosBase,
+          Id_Funcionario: selectedFuncionario,
+          Id_Cliente: selectedCliente ?? undefined,
+          ModalidadePagamento: modalidadePagamento, // formato esperado pela rota geral
+        };
+
     try {
-      if (isEditing && initialData && onEditSaved) {
+        if (isEditing && initialData && onEditSaved) {
         const payload = {
           Id_Agendamento: initialData.Id_Agendamento,
-          Id_Servico: dados.Id_Servico,
-          Id_Funcionario: dados.Id_Funcionario,
-          Data: dados.Data,
-          HoraInicio: dados.HoraInicio,
-          Observacoes: dados.Observacoes || null,
+          Id_Servico: dadosBase.Id_Servico,
+          Id_Funcionario: selectedFuncionario,
+          Data: dadosBase.Data,
+          HoraInicio: dadosBase.HoraInicio,
+          Observacoes: dadosBase.Observacoes || null,
         };
         try {
           await onEditSaved(payload);
@@ -260,9 +271,13 @@ export default function AgendamentoModal({
           toast.error('Erro ao atualizar agendamento.');
         }
       } else {
-        // 🚀 Garantidamente usa apenas a rota correta
-        console.log('POST /api/interna/funcionarios/agendamentos', dados);
-        const res = await fetch('/api/interna/funcionarios/agendamentos', {
+        // 🚀 Usa a rota correta baseada no contexto
+        const endpoint = madeByFuncionario 
+          ? '/api/interna/funcionarios/agendamentos' 
+          : '/api/interna/agendamentos';
+        
+        console.log(`POST ${endpoint}`, dados);
+        const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(dados),
@@ -275,13 +290,13 @@ export default function AgendamentoModal({
         } else {
           toast.success('Agendamento realizado com sucesso!');
           const callbackDados = {
-            Data: dados.Data,
-            HoraInicio: dados.HoraInicio,
-            HoraFinal: dados.HoraFinal,
-            Id_Servico: dados.Id_Servico,
-            Id_Funcionario: dados.Id_Funcionario ?? undefined,
-            Id_Cliente: dados.Id_Cliente ?? undefined,
-            Observacoes: dados.Observacoes ?? undefined,
+            Data: dadosBase.Data,
+            HoraInicio: dadosBase.HoraInicio,
+            HoraFinal: dadosBase.HoraFinal,
+            Id_Servico: dadosBase.Id_Servico,
+            Id_Funcionario: selectedFuncionario ?? undefined,
+            Id_Cliente: selectedCliente ?? undefined,
+            Observacoes: dadosBase.Observacoes ?? undefined,
           };
           onAgendamentoCriado(callbackDados);
           onClose();
