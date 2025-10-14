@@ -289,7 +289,7 @@ export default function ServicosPage() {
                     type="submit"
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                   >
-                    {editingId ? "Atualizar" : "Salvar"}
+                    {editingId ? "Atualizar" : "Guardar"}
                   </button>
                 </div>
               </form>

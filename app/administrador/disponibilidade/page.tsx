@@ -228,7 +228,7 @@ export default function DisponibilidadePage() {
               <label className="text-sm">Mês</label>
               <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="border rounded p-2" />
               <Button variant="primary" onClick={handleSave}>
-                Salvar Disponibilidade
+                Guardar Disponibilidade
               </Button>
             </div>
           </div>

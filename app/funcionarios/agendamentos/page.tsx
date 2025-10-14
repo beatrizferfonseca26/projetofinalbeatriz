@@ -13,12 +13,25 @@ interface Agendamento {
   HoraInicio: string | null;
   HoraFinal: string | null;
   Status: string | null;
+  Observacoes?: string | null;
   servicos: {
+    Id_Servico: number;
     Nome: string | null;
-  };
+    Titulo?: string | null;
+    Descricao?: string | null;
+    Duracao?: number | null;
+    Valor?: number | null;
+    Id_Produto?: number | null;
+  } | null;
   clientes: {
+    Id_Cliente: number;
     Nome: string | null;
-  };
+    Email?: string | null;
+    Telemovel?: string | null;
+    DataNascimento?: string | null;
+    Morada?: string | null;
+    Nif?: number | null;
+  } | null;
 }
 
 export default function AgendamentosFuncionario() {
@@ -55,11 +68,17 @@ export default function AgendamentosFuncionario() {
   function formatDateISO(dateStr?: string | null) {
     if (!dateStr) return '-';
     try {
+      // Se já estiver no formato "dd/MM/yyyy", retornar como está
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+        return dateStr;
+      }
+      
+      // Se for ISO string ou outro formato, converter
       const d = new Date(dateStr);
-      if (Number.isNaN(d.getTime())) return '-';
+      if (Number.isNaN(d.getTime())) return dateStr; // fallback para string original
       return d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric' });
     } catch {
-      return '-';
+      return dateStr || '-'; // fallback para string original ou traço
     }
   }
 
@@ -82,16 +101,15 @@ export default function AgendamentosFuncionario() {
         return d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
       }
 
-      // fallback: mostrar original ou traço
+      // fallback: mostrar original se não conseguir processar
       return String(timeStr).trim() || '-';
     } catch {
-      return '-';
+      return String(timeStr) || '-';
     }
   }
   
   // Buscar agendamentos do funcionário logado
   useEffect(() => {
-    console.log('session.user:', session?.user);
     if (!session?.user?.email) return;
 
     const fetchAgendamentos = async () => {
@@ -99,8 +117,6 @@ export default function AgendamentosFuncionario() {
       try {
         const res = await fetch('/api/interna/funcionarios/agendamentos');
         const lista = await res.json().catch(() => []);
-        console.log('agendamentos raw:', lista);
-        if (Array.isArray(lista) && lista.length > 0) console.log('exemplo item keys/values:', Object.keys(lista[0]), lista[0]);
         setAgendamentos(Array.isArray(lista) ? lista : []);
       } catch (err) {
         console.error('Erro ao buscar agendamentos:', err);
@@ -138,10 +154,43 @@ export default function AgendamentosFuncionario() {
     }
   };
 
+  // Reenviar confirmação
+  const handleReenviarConfirmacao = async (Id_Agendamento: number) => {
+    try {
+      const res = await fetch('/api/interna/agendamentos/confirmacao', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ Id_Agendamento }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        if (data.method === 'email') {
+          toast.success('Confirmação reenviada via email (WhatsApp indisponível)');
+        } else {
+          toast.success('Confirmação reenviada via WhatsApp com sucesso!');
+        }
+      } else {
+        toast.error(data.error || 'Erro ao reenviar confirmação');
+      }
+    } catch (err) {
+      console.error('Erro ao reenviar confirmação:', err);
+      toast.error('Erro ao reenviar confirmação');
+    }
+  };
+
   // helper: normaliza data para key "YYYY-MM-DD"
   function dateKey(dateStr?: string | null) {
     if (!dateStr) return null;
     try {
+      // Se já estiver no formato "dd/MM/yyyy", converter para "YYYY-MM-DD"
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+        const [day, month, year] = dateStr.split('/');
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      }
+      
+      // Se for ISO string ou outro formato, converter
       return new Date(dateStr).toISOString().split('T')[0];
     } catch {
       return null;
@@ -242,10 +291,8 @@ export default function AgendamentosFuncionario() {
     setLoadingClients(true);
     try {
       const res = await fetch('/api/interna/funcionarios/clientes');
-      console.log('GET /api/interna/funcionarios/clientes ->', res.status);
       if (!res.ok) {
-        const body = await res.text().catch(() => null);
-        console.error('Erro ao carregar clientes (status != 200):', res.status, body);
+        console.error('Erro ao carregar clientes (status != 200):', res.status);
         setClients([]);
         return;
       }
@@ -279,7 +326,6 @@ export default function AgendamentosFuncionario() {
     try {
       // tentar rota específica de funcionários (evita 404 se rota estiver lá)
       const url = '/api/interna/funcionarios/agendamentos';
-      console.log('POST', url, 'payload:', dados);
       const res = await fetch(url, {
          method: 'POST',
          headers: { 'Content-Type': 'application/json' },
@@ -288,7 +334,6 @@ export default function AgendamentosFuncionario() {
       if (!res.ok) {
         // tenta ler texto/json do corpo para mostrar motivo
         const txt = await res.text().catch(() => null);
-        console.error('POST /api/interna/funcionarios/agendamentos ->', res.status, txt);
         throw new Error(txt || `Erro ao criar agendamento (status ${res.status})`);
       }
       // atualizar lista local
@@ -370,7 +415,7 @@ export default function AgendamentosFuncionario() {
         ) : filteredAgendamentos.length === 0 ? (
           <div className="text-gray-500">Nenhum agendamento encontrado para esta categoria.</div>
         ) : (
-          <div className="bg-white rounded-lg shadow p-4 overflow-x-auto text-center">
+          <div>
             <table className="w-full text-sm text-center">
               <thead>
                 <tr className="bg-gray-100">
@@ -389,8 +434,8 @@ export default function AgendamentosFuncionario() {
                     <td className="p-2">{a.clientes?.Nome || '-'}</td>
                     <td className="p-2">{a.servicos?.Nome || '-'}</td>
                     <td className="p-2">{formatDateISO(a.Data)}</td>
-                    <td className="p-2">{formatTime(a.HoraInicio) || '-'}</td>
-                    <td className="p-2">{formatTime(a.HoraFinal) || '-'}</td>
+                    <td className="p-2">{formatTime(a.HoraInicio)}</td>
+                    <td className="p-2">{formatTime(a.HoraFinal)}</td>
                     <td className="p-2">
                       {editAgendamento?.Id_Agendamento === a.Id_Agendamento ? (
                         <select
@@ -418,7 +463,7 @@ export default function AgendamentosFuncionario() {
                             }
                             disabled={!statusEdit}
                           >
-                            Salvar
+                            Guardar
                           </Button>
                           <Button
                             variant="secondary"
@@ -428,15 +473,25 @@ export default function AgendamentosFuncionario() {
                           </Button>
                         </div>
                       ) : (
-                        <Button
-                          variant="secondary"
-                          onClick={() => {
-                            setEditAgendamento(a);
-                            setStatusEdit(a.Status || '');
-                          }}
-                        >
-                          Editar Status
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="secondary"
+                            onClick={() => {
+                              setEditAgendamento(a);
+                              setStatusEdit(a.Status || '');
+                            }}
+                          >
+                            Editar Status
+                          </Button>
+                          {a.Status === 'Marcado' && (
+                            <Button
+                              variant="primary"
+                              onClick={() => handleReenviarConfirmacao(a.Id_Agendamento)}
+                            >
+                              📱 Confirmar
+                            </Button>
+                          )}
+                        </div>
                       )}
                     </td>
                   </tr>

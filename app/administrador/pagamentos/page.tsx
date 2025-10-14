@@ -194,7 +194,7 @@ export default function PagamentosAdminPage() {
 															{editId === (p.Pagamento?.Id_Pagamentos || -p.Id_Agendamento) ? (
 																<div className="flex gap-2">
 																	<Button variant="primary" onClick={() => handleSave(p.Pagamento?.Id_Pagamentos || -1, p.Id_Agendamento)}>
-																		Salvar
+																		Guardar
 																	</Button>
 																	<Button variant="secondary" onClick={handleCancel}>
 																		Cancelar

@@ -2,55 +2,37 @@ import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 /**
- * Verifica se o mês ainda é válido (>= mês atual)
- */
-function isMesAtivo(mes: string | null | undefined) {
-  if (!mes) return false;
-  const [ano, mesNum] = mes.split("-").map(Number);
-  const agora = new Date();
-  const anoAtual = agora.getFullYear();
-  const mesAtual = agora.getMonth() + 1;
-  return ano > anoAtual || (ano === anoAtual && mesNum >= mesAtual);
-}
-
-/**
- * GET: Retorna serviços com disponibilidades ativas
+ * GET: Retorna serviços + produtos + disponibilidade
  */
 export async function GET() {
   try {
     const servicos = await prisma.servicos.findMany({
       include: {
         disponibilidadeprod: {
-          include: {
-            produtos: true,
-            funcionarios: true,
-          },
+          where: { Ativo: true },
+          include: { produtos: true, funcionarios: true },
         },
       },
     });
 
-    // Filtra disponibilidades ativas conforme regras
-    const disponiveis = servicos.map((servico) => {
-      const dispFiltrada = servico.disponibilidadeprod.filter((dp) => {
+    const funcionariosAtivos = await prisma.funcionarios.findMany({
+      where: { Status: "Ativo" },
+    });
+
+    if (funcionariosAtivos.length === 0) {
+      return NextResponse.json([]);
+    }
+
+    // Filtra serviços com produtos em estoque suficiente
+    const disponiveis = servicos.filter((servico) => {
+      if (!servico.disponibilidadeprod || servico.disponibilidadeprod.length === 0)
+        return true;
+
+      return servico.disponibilidadeprod.every((dp) => {
         const produto = dp.produtos;
-        const funcionario = dp.funcionarios;
-
-        const estoqueOk =
-          !produto ||
-          produto.Estoque == null ||
-          produto.EstoqueCritico == null ||
-          produto.Estoque > produto.EstoqueCritico;
-
-        const funcionarioAtivo = funcionario?.Status === "Ativo";
-        const mesValido = isMesAtivo(dp.Mes);
-
-        return estoqueOk && funcionarioAtivo && mesValido;
+        if (!produto?.EstoqueCritico || produto.Estoque === null) return true;
+        return produto.Estoque > produto.EstoqueCritico;
       });
-
-      return {
-        ...servico,
-        disponibilidadeAtiva: dispFiltrada,
-      };
     });
 
     return NextResponse.json(disponiveis);
@@ -64,136 +46,60 @@ export async function GET() {
 }
 
 /**
- * POST: Cria novas disponibilidades
- * Calcula automaticamente o campo Ativo e relaciona Id_Produto com o Id_Servico
+ * POST: Cria múltiplas disponibilidades
+ * Espera um body JSON como:
+ * {
+ *   disponibilidades: [
+ *     {
+ *       Id_Produto,
+ *       Id_Servico,
+ *       Mes,
+ *       Inicio,
+ *       AlmocoInicio,
+ *       AlmocoFim,
+ *       Fim,
+ *       Id_Funcionario,
+ *       Duracao,
+ *       Tolerancia
+ *     }
+ *   ]
+ * }
  */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const data = await req.json();
+    const disponibilidades = data.disponibilidades;
 
-    if (
-      !body ||
-      !Array.isArray(body.disponibilidades) ||
-      body.disponibilidades.length === 0
-    ) {
+    if (!data || !Array.isArray(disponibilidades) || disponibilidades.length === 0) {
       return NextResponse.json(
-        { error: "Formato inválido: esperado { disponibilidades: [] }" },
+        { error: "Formato inválido: esperado { disponibilidades: [] } com ao menos um item" },
         { status: 400 }
       );
     }
 
-    // Coleta IDs únicos
-    // assegura que disponiblidades é um array antes de mapear para evitar tipos unknown[]
-    const disponibilidades = Array.isArray(body.disponibilidades)
-      ? (body.disponibilidades as any[])
-      : [];
+    // Normaliza e valida os dados recebidos
+    const registros = disponibilidades.map((d: any) => ({
+      Id_Produto: d.Id_Produto ?? null,
+      Id_Servico: d.Id_Servico ?? null,
+      Mes: d.Mes,
+      Inicio: d.Inicio ? new Date(d.Inicio) : null,
+      AlmocoInicio: d.AlmocoInicio ? new Date(d.AlmocoInicio) : null,
+      AlmocoFim: d.AlmocoFim ? new Date(d.AlmocoFim) : null,
+      Fim: d.Fim ? new Date(d.Fim) : null,
+      Id_Funcionario: d.Id_Funcionario,
+      Duracao: d.Duracao ?? null,
+      Tolerancia: d.Tolerancia ?? 0,
+      Ativo: true,
+    }));
 
-    const idsServicos: number[] = [
-      ...new Set(
-        disponibilidades
-          .map((d: any) => d.Id_Servico)
-          .filter((id: any): id is number => typeof id === "number")
-      ),
-    ];
-
-    const idsProdutos: number[] = [
-      ...new Set(
-        disponibilidades
-          .map((d: any) => d.Id_Produto)
-          .filter((id: any): id is number => typeof id === "number")
-      ),
-    ];
-
-    const idsFuncionarios: number[] = [
-      ...new Set(
-        disponibilidades
-          .map((d: any) => d.Id_Funcionario)
-          .filter((id: any): id is number => typeof id === "number")
-      ),
-    ];
-
-    // Busca dados relacionados
-    const [servicos, produtos, funcionarios] = await Promise.all([
-      prisma.servicos.findMany({ where: { Id_Servico: { in: idsServicos } } }),
-      prisma.produtos.findMany({ where: { Id_Produto: { in: idsProdutos } } }),
-      prisma.funcionarios.findMany({
-        where: { Id_Funcionario: { in: idsFuncionarios } },
-      }),
-    ]);
-
-    // Normaliza e calcula campo Ativo + Id_Produto via serviço
-    type Registro = {
-      Id_Produto: number | null;
-      Id_Servico: number | null;
-      Mes: string | null;
-      Inicio: Date | null;
-      AlmocoInicio: Date | null;
-      AlmocoFim: Date | null;
-      Fim: Date | null;
-      Id_Funcionario: number | null;
-      Duracao: number | null;
-      Tolerancia: number;
-      Ativo: boolean;
-    };
-
-    const registros: Registro[] = body.disponibilidades.map((d: any) => {
-      // se o serviço tiver produto vinculado, usa-o
-      const servicoRelacionado = servicos.find(
-        (s) => s.Id_Servico === d.Id_Servico
-      );
-      const produtoRelacionado =
-        d.Id_Produto ?? servicoRelacionado?.Id_Produto ?? null;
-
-      const produto = produtos.find(
-        (p) => p.Id_Produto === produtoRelacionado
-      );
-      const funcionario = funcionarios.find(
-        (f) => f.Id_Funcionario === d.Id_Funcionario
-      );
-
-      const estoqueOk =
-        !produto ||
-        produto.Estoque == null ||
-        produto.EstoqueCritico == null ||
-        produto.Estoque > produto.EstoqueCritico;
-      const funcionarioAtivo = funcionario?.Status === "Ativo";
-      const mesValido = isMesAtivo(d.Mes);
-      const ativo = estoqueOk && funcionarioAtivo && mesValido;
-
-      return {
-        Id_Produto: produtoRelacionado,
-        Id_Servico: d.Id_Servico ?? null,
-        Mes: d.Mes,
-        Inicio: d.Inicio ? new Date(d.Inicio) : null,
-        AlmocoInicio: d.AlmocoInicio ? new Date(d.AlmocoInicio) : null,
-        AlmocoFim: d.AlmocoFim ? new Date(d.AlmocoFim) : null,
-        Fim: d.Fim ? new Date(d.Fim) : null,
-        Id_Funcionario: d.Id_Funcionario,
-        Duracao: d.Duracao ?? null,
-        Tolerancia: d.Tolerancia ?? 0,
-        Ativo: ativo,
-      };
+    // Usar createMany com skipDuplicates para evitar erros se já existir
+    const result = await prisma.disponibilidadeprod.createMany({
+      data: registros,
+      skipDuplicates: true, // evita erro se já existir
     });
-
-    // Remove duplicadas antes de inserir (Mes + Id_Servico + Id_Funcionario)
-    await prisma.disponibilidadeprod.deleteMany({
-      where: {
-        OR: registros.map((r) => ({
-          Mes: r.Mes,
-          Id_Servico: r.Id_Servico,
-          Id_Funcionario: r.Id_Funcionario,
-        })),
-      },
-    });
-
-    // Cria novas
-    await prisma.disponibilidadeprod.createMany({ data: registros });
 
     return NextResponse.json(
-      {
-        message: "Disponibilidades criadas com sucesso",
-        count: registros.length,
-      },
+      { message: "Disponibilidades criadas com sucesso", count: result.count },
       { status: 201 }
     );
   } catch (error) {
@@ -206,8 +112,12 @@ export async function POST(req: NextRequest) {
 }
 
 /**
- * PUT: Atualiza disponibilidade existente
- * Recalcula o campo Ativo e também preenche Id_Produto com base no Id_Servico
+ * PUT: Atualiza uma disponibilidade existente
+ * Espera:
+ * {
+ *   Id_Disponibilidade,
+ *   ...campos para atualizar
+ * }
  */
 export async function PUT(req: NextRequest) {
   try {
@@ -220,41 +130,12 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // busca produto direto ou via serviço
-    const servico = data.Id_Servico
-      ? await prisma.servicos.findUnique({
-          where: { Id_Servico: data.Id_Servico },
-        })
-      : null;
-
-    const produtoRelacionado =
-      data.Id_Produto ?? servico?.Id_Produto ?? null;
-
-    const produto = produtoRelacionado
-      ? await prisma.produtos.findUnique({
-          where: { Id_Produto: produtoRelacionado },
-        })
-      : null;
-
-    const funcionario = data.Id_Funcionario
-      ? await prisma.funcionarios.findUnique({
-          where: { Id_Funcionario: data.Id_Funcionario },
-        })
-      : null;
-
-    const estoqueOk =
-      !produto ||
-      produto.Estoque == null ||
-      produto.EstoqueCritico == null ||
-      produto.Estoque > produto.EstoqueCritico;
-    const funcionarioAtivo = funcionario?.Status === "Ativo";
-    const mesValido = isMesAtivo(data.Mes);
-    const ativo = estoqueOk && funcionarioAtivo && mesValido;
-
     const disponibilidadeAtualizada = await prisma.disponibilidadeprod.update({
-      where: { Id_Disponibilidade: data.Id_Disponibilidade },
+      where: {
+        Id_Disponibilidade: data.Id_Disponibilidade,
+      },
       data: {
-        Id_Produto: produtoRelacionado,
+        Id_Produto: data.Id_Produto ?? null,
         Id_Servico: data.Id_Servico ?? null,
         Mes: data.Mes,
         Inicio: data.Inicio ? new Date(data.Inicio) : null,
@@ -264,7 +145,7 @@ export async function PUT(req: NextRequest) {
         Id_Funcionario: data.Id_Funcionario,
         Duracao: data.Duracao,
         Tolerancia: data.Tolerancia,
-        Ativo: ativo,
+        Ativo: data.Ativo ?? true,
       },
     });
 

@@ -138,7 +138,7 @@ export default function EditarContaPage() {
 
               <div className="flex gap-4 mt-4">
                 <Button type="submit" disabled={loading} className="w-full">
-                  {loading ? "Salvando..." : "Salvar Alterações"}
+                  {loading ? "Aguardar..." : "Guardar Alterações"}
                 </Button>
                 <Button
                   type="button"

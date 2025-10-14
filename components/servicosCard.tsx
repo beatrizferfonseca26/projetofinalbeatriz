@@ -66,7 +66,7 @@ export default function ServicosCard() {
 
   return (
     <section className="w-full px-4 py-8 bg-gray-50">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {servicos.map((servico, idx) => {
           const produto = servico.produtos;
           const imagem = produto?.imagens?.[0];
@@ -80,27 +80,27 @@ export default function ServicosCard() {
           return (
             <div
               key={servico.Id_Servico}
-              className="bg-white rounded-xl shadow-lg flex flex-col overflow-hidden"
+              className="bg-white rounded-xl shadow-lg flex flex-col overflow-hidden hover:shadow-xl transition-shadow duration-300"
             >
               {/* Topo: Ícone, nome e valor */}
-              <div className="flex flex-col items-center justify-center p-8 bg-white border-b border-gray-100">
+              <div className="flex flex-col items-center justify-center p-6 bg-white border-b border-gray-100">
                 <div className="mb-3">{mockIcon}</div>
-                <h6 className="text-xl font-bold mb-1 text-center uppercase tracking-wide">{servico.Nome}</h6>
-                <div className="text-base font-semibold text-gray-700 mb-2">
+                <h6 className="text-lg font-bold mb-2 text-center uppercase tracking-wide">{servico.Nome}</h6>
+                <div className="text-base font-semibold text-gray-700 mb-3">
                   {servico.Valor ? `€ ${servico.Valor}` : '--'}
                 </div>
                 <img
                   src={imageUrl}
                   alt={altText}
-                  className="w-full max-w-xs h-40 object-cover rounded-lg shadow mb-2"
-                  style={{ background: '#f3f3f3', height: '160px', width: '560px' }}
+                  className="w-full h-48 object-cover rounded-lg shadow-md mb-2"
+                  style={{ background: '#f3f3f3' }}
                 />
               </div>
               {/* Conteúdo: descrição, detalhes, toggles e botão */}
-              <div className="flex-1 flex flex-col justify-between p-8 bg-gray-50">
+              <div className="flex-1 flex flex-col justify-between p-6 bg-gray-50">
                 <div>
-                  <p className="mb-2 text-gray-700">{servico.Titulo}</p>
-                  <p className="mb-2 text-gray-700">Inclui:</p>
+                  <p className="mb-2 text-gray-700 text-sm">{servico.Titulo}</p>
+                  <p className="mb-2 text-gray-700 text-sm font-medium">Inclui:</p>
                   {/* Toggles */}
                   <div className="mb-4">
                     {detalhes.map((det, i) => (
@@ -121,10 +121,10 @@ export default function ServicosCard() {
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                             )}
                           </span>
-                          <span className="font-medium"></span>
+                          <span className="font-medium text-sm"></span>
                         </button>
                         {openToggle[servico.Id_Servico] === i && det.texto && (
-                          <div className="mt-2 text-gray-600 text-sm">
+                          <div className="mt-2 text-gray-600 text-xs">
                             {det.texto}
                           </div>
                         )}
@@ -133,7 +133,7 @@ export default function ServicosCard() {
                   </div>
                 </div>
                 <div className="mt-4">
-                  <Button className="w-full bg-black text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-800 transition duration-200">
+                  <Button className="w-full bg-black text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-800 transition duration-200 text-sm">
                     Comprar Agora
                   </Button>
                 </div>

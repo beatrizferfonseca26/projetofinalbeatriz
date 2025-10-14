@@ -261,7 +261,7 @@ export default function ClientesFuncionario() {
                     Cancelar
                   </Button>
                   <Button variant="primary" type="submit">
-                    Salvar
+                    Guardar
                   </Button>
                 </div>
               </form>

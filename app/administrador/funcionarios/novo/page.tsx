@@ -101,7 +101,7 @@ export default function NovoFuncionarioPage() {
               Cancelar
             </Button>
             <Button variant="primary" type="submit">
-              Salvar
+              Guardar
             </Button>
           </div>
         </form>

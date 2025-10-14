@@ -262,19 +262,21 @@ export default function FuncionariosPage() {
                   />
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
-                  <button
+                  <Button
+                  variant="secondary"
                     type="button"
                     onClick={() => setOpenForm(false)}
                     className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
                   >
                     Cancelar
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                  variant="primary"
                     type="submit"
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                   >
-                    Salvar
-                  </button>
+                    Guardar
+                  </Button>
                 </div>
               </form>
             </div>

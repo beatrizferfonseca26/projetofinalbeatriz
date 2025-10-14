@@ -106,7 +106,6 @@ export default function ClientesAdminPage() {
                   setFormData({});
                   setIsCreating(true);
                 }}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
               >
                 Novo Cliente
               </Button>
@@ -181,22 +180,24 @@ export default function ClientesAdminPage() {
                       <td className="p-3">
                         {c.agendamentos && c.agendamentos.length > 0 ? c.agendamentos.length : "—"}
                       </td>
-                      <td className="p-3 space-x-2">
-                        <button
-                          onClick={() => {
-                            setEditando(c);
-                            setFormData(c);
-                          }}
-                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                        >
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => handleDelete(c.Id_Cliente)}
-                          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                        >
-                          Excluir
-                        </button>
+                      <td className="p-3">
+                        <div className="flex gap-2">
+                          <Button
+                            variant="secondary"
+                            onClick={() => {
+                              setEditando(c);
+                              setFormData(c);
+                            }}
+                          >
+                            Editar
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            onClick={() => handleDelete(c.Id_Cliente)}
+                          >
+                            Excluir
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -248,22 +249,21 @@ export default function ClientesAdminPage() {
                   className="w-full border p-2 rounded"
                 />
                 <div className="flex justify-end space-x-2 mt-4">
-                  <button
-                    type="button"
+                  <Button
+                    variant="secondary"
                     onClick={() => {
                       setEditando(null);
                       setIsCreating(false);
                     }}
-                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
                   >
                     Cancelar
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="primary"
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                   >
-                    Salvar
-                  </button>
+                    Guardar
+                  </Button>
                 </div>
               </form>
             </div>

@@ -146,18 +146,29 @@ export default function ProdutosPage() {
 
   const handleDeleteImagem = async (idImagem: number, idProduto: number) => {
     if (!confirm("Excluir esta imagem?")) return;
-    const res = await fetch(`/api/interna/imagens/${idImagem}`, { method: "DELETE" });
-    if (res.ok) {
-      toast.success("Imagem excluída!");
-      setProdutos((prev) =>
-        prev.map((p) =>
-          p.Id_Produto === idProduto
-            ? { ...p, imagens: p.imagens.filter((img) => img.Id_Imagem !== idImagem) }
-            : p
-        )
-      );
-    } else {
-      toast.error("Erro ao excluir imagem.");
+    
+    try {
+      const res = await fetch(`/api/interna/produtos/${idProduto}/imagens/${idImagem}`, { 
+        method: "DELETE" 
+      });
+      
+      if (res.ok) {
+        toast.success("Imagem excluída!");
+        setProdutos((prev) =>
+          prev.map((p) =>
+            p.Id_Produto === idProduto
+              ? { ...p, imagens: p.imagens.filter((img) => img.Id_Imagem !== idImagem) }
+              : p
+          )
+        );
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        toast.error(errorData.error || "Erro ao excluir imagem.");
+        console.error("Erro ao excluir imagem:", errorData);
+      }
+    } catch (error) {
+      console.error("Erro inesperado ao excluir imagem:", error);
+      toast.error("Erro inesperado ao excluir imagem.");
     }
   };
 
@@ -195,15 +206,15 @@ export default function ProdutosPage() {
           {produtosCriticos.length > 0 && (
             <div className="mb-8">
               <h2 className="text-xl font-bold text-red-700 mb-2">
-                Produtos com Estoque Crítico
+                Produtos com Stock Crítico
               </h2>
               <div className="bg-white shadow-md rounded-lg overflow-hidden border-2 border-red-400">
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="bg-red-100 text-left">
                       <th className="p-3">Nome</th>
-                      <th className="p-3">Estoque</th>
-                      <th className="p-3">Estoque Crítico</th>
+                      <th className="p-3">Stock</th>
+                      <th className="p-3">Stock Crítico</th>
                       <th className="p-3">Imagens</th>
                       <th className="p-3 text-center">Ações</th>
                     </tr>
@@ -270,8 +281,8 @@ export default function ProdutosPage() {
                 <thead>
                   <tr className="bg-gray-200 text-left">
                     <th className="p-3">Nome</th>
-                    <th className="p-3">Estoque</th>
-                    <th className="p-3">Estoque Crítico</th>
+                    <th className="p-3">Stock</th>
+                    <th className="p-3">Stock Crítico</th>
                     <th className="p-3">Imagens</th>
                     <th className="p-3 text-center">Ações</th>
                   </tr>
@@ -350,7 +361,7 @@ export default function ProdutosPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Estoque</label>
+                  <label className="block text-sm font-medium mb-1">Stock</label>
                   <input
                     type="number"
                     value={estoque}
@@ -360,7 +371,7 @@ export default function ProdutosPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Estoque Crítico</label>
+                  <label className="block text-sm font-medium mb-1">Stock Crítico</label>
                   <input
                     type="number"
                     value={estoqueCritico}
@@ -438,7 +449,7 @@ export default function ProdutosPage() {
                     type="submit"
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                   >
-                    Salvar
+                    Guardar
                   </Button>
                 </div>
               </form>
