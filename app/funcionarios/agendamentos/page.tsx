@@ -483,14 +483,14 @@ export default function AgendamentosFuncionario() {
                           >
                             Editar Status
                           </Button>
-                          {a.Status === 'Marcado' && (
+                          {/* {a.Status === 'Marcado' && (
                             <Button
                               variant="primary"
                               onClick={() => handleReenviarConfirmacao(a.Id_Agendamento)}
                             >
                               📱 Confirmar
                             </Button>
-                          )}
+                          )} */}
                         </div>
                       )}
                     </td>
