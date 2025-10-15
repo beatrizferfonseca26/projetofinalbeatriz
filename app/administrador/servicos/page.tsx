@@ -13,12 +13,21 @@ interface Servico {
   Descricao: string | null;
   Valor: number | null;
   Duracao: number | null;
+  Id_Produto: number | null;
+}
+interface Produto {
+  Id_Produto: number;
+  Nome: string | null;
 }
 
 export default function ServicosPage() {
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [loading, setLoading] = useState(true);
   const [openForm, setOpenForm] = useState(false);
+
+  // produtos e selecção no form
+  const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [selectedProdutoId, setSelectedProdutoId] = useState<number | null>(null);
 
   // estados do formulário
   const [nome, setNome] = useState("");
@@ -32,6 +41,7 @@ export default function ServicosPage() {
 
   useEffect(() => {
     fetchServicos();
+    fetchProdutos();
   }, []);
 
   const fetchServicos = async () => {
@@ -48,6 +58,17 @@ export default function ServicosPage() {
     }
   };
 
+  const fetchProdutos = async () => {
+    try {
+      const res = await fetch("/api/interna/produtos", { credentials: "include" });
+      const data = await res.json().catch(() => null);
+      const list = Array.isArray(data) ? data : Array.isArray(data?.produtos) ? data.produtos : [];
+      setProdutos(list);
+    } catch (err) {
+      console.error("Erro ao carregar produtos:", err);
+    }
+  };
+
   const resetForm = () => {
     setNome("");
     setTitulo("");
@@ -55,6 +76,7 @@ export default function ServicosPage() {
     setValor("");
     setDuracao("");
     setEditingId(null);
+    setSelectedProdutoId(null);
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -69,6 +91,7 @@ export default function ServicosPage() {
           Descricao: descricao,
           Valor: valor ? Number(valor) : null,
           Duracao: duracao ? Number(duracao) : null,
+          ...(selectedProdutoId ? { Id_Produto: selectedProdutoId } : {}),
         };
         console.log("PUT", url, "payload:", payload);
         const res = await fetch(url, {
@@ -109,6 +132,7 @@ export default function ServicosPage() {
             Descricao: descricao,
             Valor: valor ? Number(valor) : null,
             Duracao: duracao ? Number(duracao) : null,
+            ...(selectedProdutoId ? { Id_Produto: selectedProdutoId } : {}),
           }),
         });
 
@@ -149,6 +173,7 @@ export default function ServicosPage() {
     setDescricao(s.Descricao ?? "");
     setValor(s.Valor != null ? String(s.Valor) : "");
     setDuracao(s.Duracao != null ? String(s.Duracao) : "");
+    setSelectedProdutoId(s.Id_Produto ?? null);
     setOpenForm(true);
   };
 
@@ -228,6 +253,21 @@ export default function ServicosPage() {
               </button>
               <h2 className="text-xl font-bold mb-4">{editingId ? "Editar Serviço" : "Novo Serviço"}</h2>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Produto (opcional)</label>
+                  <select
+                    value={selectedProdutoId ?? ""}
+                    onChange={(e) => setSelectedProdutoId(e.target.value ? Number(e.target.value) : null)}
+                    className="w-full border rounded p-2"
+                  >
+                    <option value="">-- Sem produto --</option>
+                    {produtos.map((p) => (
+                      <option key={p.Id_Produto} value={p.Id_Produto}>
+                        {p.Nome ?? `#${p.Id_Produto}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Nome</label>
                   <input

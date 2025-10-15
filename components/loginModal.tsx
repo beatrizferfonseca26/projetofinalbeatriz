@@ -38,13 +38,14 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
 
     // 🔹 Buscar sessão atualizada após login
     const session = await fetch('/api/auth/session').then((res) => res.json());
+    const tipo = session?.user?.tipo;
 
     // 🔹 Redirecionar conforme o tipo do utilizador
-    if (session?.tipo === 'administrador') {
+    if (tipo === 'administrador') {
       router.push('/administrador');
-    } else if (session?.tipo === 'funcionario') {
+    } else if (tipo === 'funcionario') {
       router.push('/funcionarios');
-    } else if (session?.tipo === 'cliente') {
+    } else if (tipo === 'cliente') {
       router.push('/clientes');
     } else {
       router.push('/');
@@ -53,6 +54,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
     toast.success('Login realizado com sucesso!');
     onClose();
   };
+
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">

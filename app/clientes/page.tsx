@@ -281,7 +281,7 @@ export default function ClientesPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">NIF</label>
+                  <label className="block text-sm font-medium mb-1">Contribuinte</label>
                   <input
                     type="text"
                     inputMode="numeric"

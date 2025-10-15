@@ -59,7 +59,7 @@ export default function AgendamentoCard({
       });
       if (res.ok) {
         if (onStatusChange) onStatusChange(novoStatus);
-        // Opcional: feedback visual
+        toast.success(`Status alterado para ${novoStatus}`);
       } else {
         toast.error('Erro ao alterar status');
       }

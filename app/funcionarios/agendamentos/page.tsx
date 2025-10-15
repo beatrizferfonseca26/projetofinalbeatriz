@@ -189,9 +189,19 @@ export default function AgendamentosFuncionario() {
         const [day, month, year] = dateStr.split('/');
         return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
       }
+
+      // Se já for "YYYY-MM-DD" (sem time), usar tal qual — evita parse/UTC
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        return dateStr;
+      }
       
-      // Se for ISO string ou outro formato, converter
-      return new Date(dateStr).toISOString().split('T')[0];
+      // Se for ISO datetime ou outro formato, obter data LOCAL para evitar shift de timezone
+      const d = new Date(dateStr);
+      if (Number.isNaN(d.getTime())) return null;
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
     } catch {
       return null;
     }

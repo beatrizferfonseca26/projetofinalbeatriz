@@ -1714,6 +1714,8 @@ export namespace Prisma {
     HoraFinal: Date | null
     Status: $Enums.agendamentos_Status | null
     Observacoes: string | null
+    ConfirmationToken: string | null
+    TokenExpiresAt: Date | null
     LembreteEnviado: boolean | null
   }
 
@@ -1727,6 +1729,8 @@ export namespace Prisma {
     HoraFinal: Date | null
     Status: $Enums.agendamentos_Status | null
     Observacoes: string | null
+    ConfirmationToken: string | null
+    TokenExpiresAt: Date | null
     LembreteEnviado: boolean | null
   }
 
@@ -1740,6 +1744,8 @@ export namespace Prisma {
     HoraFinal: number
     Status: number
     Observacoes: number
+    ConfirmationToken: number
+    TokenExpiresAt: number
     LembreteEnviado: number
     _all: number
   }
@@ -1769,6 +1775,8 @@ export namespace Prisma {
     HoraFinal?: true
     Status?: true
     Observacoes?: true
+    ConfirmationToken?: true
+    TokenExpiresAt?: true
     LembreteEnviado?: true
   }
 
@@ -1782,6 +1790,8 @@ export namespace Prisma {
     HoraFinal?: true
     Status?: true
     Observacoes?: true
+    ConfirmationToken?: true
+    TokenExpiresAt?: true
     LembreteEnviado?: true
   }
 
@@ -1795,6 +1805,8 @@ export namespace Prisma {
     HoraFinal?: true
     Status?: true
     Observacoes?: true
+    ConfirmationToken?: true
+    TokenExpiresAt?: true
     LembreteEnviado?: true
     _all?: true
   }
@@ -1895,6 +1907,8 @@ export namespace Prisma {
     HoraFinal: Date | null
     Status: $Enums.agendamentos_Status | null
     Observacoes: string | null
+    ConfirmationToken: string | null
+    TokenExpiresAt: Date | null
     LembreteEnviado: boolean
     _count: AgendamentosCountAggregateOutputType | null
     _avg: AgendamentosAvgAggregateOutputType | null
@@ -1927,6 +1941,8 @@ export namespace Prisma {
     HoraFinal?: boolean
     Status?: boolean
     Observacoes?: boolean
+    ConfirmationToken?: boolean
+    TokenExpiresAt?: boolean
     LembreteEnviado?: boolean
     servicos?: boolean | servicosDefaultArgs<ExtArgs>
     clientes?: boolean | clientesDefaultArgs<ExtArgs>
@@ -1947,10 +1963,12 @@ export namespace Prisma {
     HoraFinal?: boolean
     Status?: boolean
     Observacoes?: boolean
+    ConfirmationToken?: boolean
+    TokenExpiresAt?: boolean
     LembreteEnviado?: boolean
   }
 
-  export type agendamentosOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"Id_Agendamento" | "Id_Servico" | "Id_Cliente" | "Id_Funcionario" | "Data" | "HoraInicio" | "HoraFinal" | "Status" | "Observacoes" | "LembreteEnviado", ExtArgs["result"]["agendamentos"]>
+  export type agendamentosOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"Id_Agendamento" | "Id_Servico" | "Id_Cliente" | "Id_Funcionario" | "Data" | "HoraInicio" | "HoraFinal" | "Status" | "Observacoes" | "ConfirmationToken" | "TokenExpiresAt" | "LembreteEnviado", ExtArgs["result"]["agendamentos"]>
   export type agendamentosInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     servicos?: boolean | servicosDefaultArgs<ExtArgs>
     clientes?: boolean | clientesDefaultArgs<ExtArgs>
@@ -1977,6 +1995,8 @@ export namespace Prisma {
       HoraFinal: Date | null
       Status: $Enums.agendamentos_Status | null
       Observacoes: string | null
+      ConfirmationToken: string | null
+      TokenExpiresAt: Date | null
       LembreteEnviado: boolean
     }, ExtArgs["result"]["agendamentos"]>
     composites: {}
@@ -2360,6 +2380,8 @@ export namespace Prisma {
     readonly HoraFinal: FieldRef<"agendamentos", 'DateTime'>
     readonly Status: FieldRef<"agendamentos", 'agendamentos_Status'>
     readonly Observacoes: FieldRef<"agendamentos", 'String'>
+    readonly ConfirmationToken: FieldRef<"agendamentos", 'String'>
+    readonly TokenExpiresAt: FieldRef<"agendamentos", 'DateTime'>
     readonly LembreteEnviado: FieldRef<"agendamentos", 'Boolean'>
   }
     
@@ -10064,6 +10086,8 @@ export namespace Prisma {
     HoraFinal: 'HoraFinal',
     Status: 'Status',
     Observacoes: 'Observacoes',
+    ConfirmationToken: 'ConfirmationToken',
+    TokenExpiresAt: 'TokenExpiresAt',
     LembreteEnviado: 'LembreteEnviado'
   };
 
@@ -10176,7 +10200,8 @@ export namespace Prisma {
 
 
   export const agendamentosOrderByRelevanceFieldEnum: {
-    Observacoes: 'Observacoes'
+    Observacoes: 'Observacoes',
+    ConfirmationToken: 'ConfirmationToken'
   };
 
   export type agendamentosOrderByRelevanceFieldEnum = (typeof agendamentosOrderByRelevanceFieldEnum)[keyof typeof agendamentosOrderByRelevanceFieldEnum]
@@ -10317,6 +10342,8 @@ export namespace Prisma {
     HoraFinal?: DateTimeNullableFilter<"agendamentos"> | Date | string | null
     Status?: Enumagendamentos_StatusNullableFilter<"agendamentos"> | $Enums.agendamentos_Status | null
     Observacoes?: StringNullableFilter<"agendamentos"> | string | null
+    ConfirmationToken?: StringNullableFilter<"agendamentos"> | string | null
+    TokenExpiresAt?: DateTimeNullableFilter<"agendamentos"> | Date | string | null
     LembreteEnviado?: BoolFilter<"agendamentos"> | boolean
     servicos?: XOR<ServicosScalarRelationFilter, servicosWhereInput>
     clientes?: XOR<ClientesScalarRelationFilter, clientesWhereInput>
@@ -10334,6 +10361,8 @@ export namespace Prisma {
     HoraFinal?: SortOrderInput | SortOrder
     Status?: SortOrderInput | SortOrder
     Observacoes?: SortOrderInput | SortOrder
+    ConfirmationToken?: SortOrderInput | SortOrder
+    TokenExpiresAt?: SortOrderInput | SortOrder
     LembreteEnviado?: SortOrder
     servicos?: servicosOrderByWithRelationInput
     clientes?: clientesOrderByWithRelationInput
@@ -10344,6 +10373,7 @@ export namespace Prisma {
 
   export type agendamentosWhereUniqueInput = Prisma.AtLeast<{
     Id_Agendamento?: number
+    ConfirmationToken?: string
     AND?: agendamentosWhereInput | agendamentosWhereInput[]
     OR?: agendamentosWhereInput[]
     NOT?: agendamentosWhereInput | agendamentosWhereInput[]
@@ -10355,12 +10385,13 @@ export namespace Prisma {
     HoraFinal?: DateTimeNullableFilter<"agendamentos"> | Date | string | null
     Status?: Enumagendamentos_StatusNullableFilter<"agendamentos"> | $Enums.agendamentos_Status | null
     Observacoes?: StringNullableFilter<"agendamentos"> | string | null
+    TokenExpiresAt?: DateTimeNullableFilter<"agendamentos"> | Date | string | null
     LembreteEnviado?: BoolFilter<"agendamentos"> | boolean
     servicos?: XOR<ServicosScalarRelationFilter, servicosWhereInput>
     clientes?: XOR<ClientesScalarRelationFilter, clientesWhereInput>
     funcionarios?: XOR<FuncionariosNullableScalarRelationFilter, funcionariosWhereInput> | null
     pagamentos?: PagamentosListRelationFilter
-  }, "Id_Agendamento">
+  }, "Id_Agendamento" | "ConfirmationToken">
 
   export type agendamentosOrderByWithAggregationInput = {
     Id_Agendamento?: SortOrder
@@ -10372,6 +10403,8 @@ export namespace Prisma {
     HoraFinal?: SortOrderInput | SortOrder
     Status?: SortOrderInput | SortOrder
     Observacoes?: SortOrderInput | SortOrder
+    ConfirmationToken?: SortOrderInput | SortOrder
+    TokenExpiresAt?: SortOrderInput | SortOrder
     LembreteEnviado?: SortOrder
     _count?: agendamentosCountOrderByAggregateInput
     _avg?: agendamentosAvgOrderByAggregateInput
@@ -10393,6 +10426,8 @@ export namespace Prisma {
     HoraFinal?: DateTimeNullableWithAggregatesFilter<"agendamentos"> | Date | string | null
     Status?: Enumagendamentos_StatusNullableWithAggregatesFilter<"agendamentos"> | $Enums.agendamentos_Status | null
     Observacoes?: StringNullableWithAggregatesFilter<"agendamentos"> | string | null
+    ConfirmationToken?: StringNullableWithAggregatesFilter<"agendamentos"> | string | null
+    TokenExpiresAt?: DateTimeNullableWithAggregatesFilter<"agendamentos"> | Date | string | null
     LembreteEnviado?: BoolWithAggregatesFilter<"agendamentos"> | boolean
   }
 
@@ -10889,6 +10924,8 @@ export namespace Prisma {
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    ConfirmationToken?: string | null
+    TokenExpiresAt?: Date | string | null
     LembreteEnviado?: boolean
     servicos: servicosCreateNestedOneWithoutAgendamentosInput
     clientes: clientesCreateNestedOneWithoutAgendamentosInput
@@ -10906,6 +10943,8 @@ export namespace Prisma {
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    ConfirmationToken?: string | null
+    TokenExpiresAt?: Date | string | null
     LembreteEnviado?: boolean
     pagamentos?: pagamentosUncheckedCreateNestedManyWithoutAgendamentosInput
   }
@@ -10916,6 +10955,8 @@ export namespace Prisma {
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ConfirmationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    TokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     servicos?: servicosUpdateOneRequiredWithoutAgendamentosNestedInput
     clientes?: clientesUpdateOneRequiredWithoutAgendamentosNestedInput
@@ -10933,6 +10974,8 @@ export namespace Prisma {
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ConfirmationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    TokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     pagamentos?: pagamentosUncheckedUpdateManyWithoutAgendamentosNestedInput
   }
@@ -10947,6 +10990,8 @@ export namespace Prisma {
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    ConfirmationToken?: string | null
+    TokenExpiresAt?: Date | string | null
     LembreteEnviado?: boolean
   }
 
@@ -10956,6 +11001,8 @@ export namespace Prisma {
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ConfirmationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    TokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -10969,6 +11016,8 @@ export namespace Prisma {
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ConfirmationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    TokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -11559,6 +11608,8 @@ export namespace Prisma {
     HoraFinal?: SortOrder
     Status?: SortOrder
     Observacoes?: SortOrder
+    ConfirmationToken?: SortOrder
+    TokenExpiresAt?: SortOrder
     LembreteEnviado?: SortOrder
   }
 
@@ -11579,6 +11630,8 @@ export namespace Prisma {
     HoraFinal?: SortOrder
     Status?: SortOrder
     Observacoes?: SortOrder
+    ConfirmationToken?: SortOrder
+    TokenExpiresAt?: SortOrder
     LembreteEnviado?: SortOrder
   }
 
@@ -11592,6 +11645,8 @@ export namespace Prisma {
     HoraFinal?: SortOrder
     Status?: SortOrder
     Observacoes?: SortOrder
+    ConfirmationToken?: SortOrder
+    TokenExpiresAt?: SortOrder
     LembreteEnviado?: SortOrder
   }
 
@@ -13158,6 +13213,8 @@ export namespace Prisma {
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    ConfirmationToken?: string | null
+    TokenExpiresAt?: Date | string | null
     LembreteEnviado?: boolean
     servicos: servicosCreateNestedOneWithoutAgendamentosInput
     funcionarios?: funcionariosCreateNestedOneWithoutAgendamentosInput
@@ -13173,6 +13230,8 @@ export namespace Prisma {
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    ConfirmationToken?: string | null
+    TokenExpiresAt?: Date | string | null
     LembreteEnviado?: boolean
     pagamentos?: pagamentosUncheckedCreateNestedManyWithoutAgendamentosInput
   }
@@ -13216,6 +13275,8 @@ export namespace Prisma {
     HoraFinal?: DateTimeNullableFilter<"agendamentos"> | Date | string | null
     Status?: Enumagendamentos_StatusNullableFilter<"agendamentos"> | $Enums.agendamentos_Status | null
     Observacoes?: StringNullableFilter<"agendamentos"> | string | null
+    ConfirmationToken?: StringNullableFilter<"agendamentos"> | string | null
+    TokenExpiresAt?: DateTimeNullableFilter<"agendamentos"> | Date | string | null
     LembreteEnviado?: BoolFilter<"agendamentos"> | boolean
   }
 
@@ -13387,6 +13448,8 @@ export namespace Prisma {
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    ConfirmationToken?: string | null
+    TokenExpiresAt?: Date | string | null
     LembreteEnviado?: boolean
     servicos: servicosCreateNestedOneWithoutAgendamentosInput
     clientes: clientesCreateNestedOneWithoutAgendamentosInput
@@ -13402,6 +13465,8 @@ export namespace Prisma {
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    ConfirmationToken?: string | null
+    TokenExpiresAt?: Date | string | null
     LembreteEnviado?: boolean
     pagamentos?: pagamentosUncheckedCreateNestedManyWithoutAgendamentosInput
   }
@@ -13559,6 +13624,8 @@ export namespace Prisma {
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    ConfirmationToken?: string | null
+    TokenExpiresAt?: Date | string | null
     LembreteEnviado?: boolean
     servicos: servicosCreateNestedOneWithoutAgendamentosInput
     clientes: clientesCreateNestedOneWithoutAgendamentosInput
@@ -13575,6 +13642,8 @@ export namespace Prisma {
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    ConfirmationToken?: string | null
+    TokenExpiresAt?: Date | string | null
     LembreteEnviado?: boolean
   }
 
@@ -13600,6 +13669,8 @@ export namespace Prisma {
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ConfirmationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    TokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     servicos?: servicosUpdateOneRequiredWithoutAgendamentosNestedInput
     clientes?: clientesUpdateOneRequiredWithoutAgendamentosNestedInput
@@ -13616,6 +13687,8 @@ export namespace Prisma {
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ConfirmationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    TokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -13785,6 +13858,8 @@ export namespace Prisma {
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    ConfirmationToken?: string | null
+    TokenExpiresAt?: Date | string | null
     LembreteEnviado?: boolean
     clientes: clientesCreateNestedOneWithoutAgendamentosInput
     funcionarios?: funcionariosCreateNestedOneWithoutAgendamentosInput
@@ -13800,6 +13875,8 @@ export namespace Prisma {
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    ConfirmationToken?: string | null
+    TokenExpiresAt?: Date | string | null
     LembreteEnviado?: boolean
     pagamentos?: pagamentosUncheckedCreateNestedManyWithoutAgendamentosInput
   }
@@ -13973,6 +14050,8 @@ export namespace Prisma {
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    ConfirmationToken?: string | null
+    TokenExpiresAt?: Date | string | null
     LembreteEnviado?: boolean
   }
 
@@ -13982,6 +14061,8 @@ export namespace Prisma {
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ConfirmationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    TokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     servicos?: servicosUpdateOneRequiredWithoutAgendamentosNestedInput
     funcionarios?: funcionariosUpdateOneWithoutAgendamentosNestedInput
@@ -13997,6 +14078,8 @@ export namespace Prisma {
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ConfirmationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    TokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     pagamentos?: pagamentosUncheckedUpdateManyWithoutAgendamentosNestedInput
   }
@@ -14010,6 +14093,8 @@ export namespace Prisma {
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ConfirmationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    TokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -14022,6 +14107,8 @@ export namespace Prisma {
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    ConfirmationToken?: string | null
+    TokenExpiresAt?: Date | string | null
     LembreteEnviado?: boolean
   }
 
@@ -14045,6 +14132,8 @@ export namespace Prisma {
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ConfirmationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    TokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     servicos?: servicosUpdateOneRequiredWithoutAgendamentosNestedInput
     clientes?: clientesUpdateOneRequiredWithoutAgendamentosNestedInput
@@ -14060,6 +14149,8 @@ export namespace Prisma {
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ConfirmationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    TokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     pagamentos?: pagamentosUncheckedUpdateManyWithoutAgendamentosNestedInput
   }
@@ -14073,6 +14164,8 @@ export namespace Prisma {
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ConfirmationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    TokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -14243,6 +14336,8 @@ export namespace Prisma {
     HoraFinal?: Date | string | null
     Status?: $Enums.agendamentos_Status | null
     Observacoes?: string | null
+    ConfirmationToken?: string | null
+    TokenExpiresAt?: Date | string | null
     LembreteEnviado?: boolean
   }
 
@@ -14266,6 +14361,8 @@ export namespace Prisma {
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ConfirmationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    TokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     clientes?: clientesUpdateOneRequiredWithoutAgendamentosNestedInput
     funcionarios?: funcionariosUpdateOneWithoutAgendamentosNestedInput
@@ -14281,6 +14378,8 @@ export namespace Prisma {
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ConfirmationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    TokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
     pagamentos?: pagamentosUncheckedUpdateManyWithoutAgendamentosNestedInput
   }
@@ -14294,6 +14393,8 @@ export namespace Prisma {
     HoraFinal?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Status?: NullableEnumagendamentos_StatusFieldUpdateOperationsInput | $Enums.agendamentos_Status | null
     Observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ConfirmationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    TokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LembreteEnviado?: BoolFieldUpdateOperationsInput | boolean
   }
 

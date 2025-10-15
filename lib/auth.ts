@@ -34,13 +34,34 @@ export const authOptions: NextAuthOptions = {
         const funcionario = await prisma.funcionarios.findFirst({
           where: { Email: email },
         });
-        if (
-          funcionario &&
-          funcionario.Senha &&
-          bcrypt.compareSync(senha, funcionario.Senha)
-        ) {
-          console.log('authorize: funcionario authenticated', funcionario.Id_Funcionario, 'admin:', funcionario.Administrador);
-          return { id: funcionario.Id_Funcionario.toString(), email: funcionario.Email, tipo: funcionario.Administrador ? 'administrador' : 'funcionario', isAdmin: !!funcionario.Administrador } as User;
+        if (funcionario && funcionario.Senha) {
+          let matched = false;
+          try {
+            matched = bcrypt.compareSync(senha, funcionario.Senha);
+          } catch (err) {
+            console.warn('bcrypt compare error for funcionario', funcionario.Id_Funcionario, err);
+          }
+          // fallback: senha armazenada em texto simples (legacy) -> aceitar e re-hash
+          if (!matched && funcionario.Senha === senha) {
+            matched = true;
+            try {
+              const newHash = bcrypt.hashSync(senha, 10);
+              await prisma.funcionarios.update({
+                where: { Id_Funcionario: funcionario.Id_Funcionario },
+                data: { Senha: newHash },
+              });
+              console.log('authorize: rehashed legacy senha for funcionario', funcionario.Id_Funcionario);
+            } catch (err) {
+              console.warn('Erro ao rehash senha funcionario', funcionario.Id_Funcionario, err);
+            }
+          }
+
+          if (matched) {
+            console.log('authorize: funcionario authenticated', funcionario.Id_Funcionario, 'admin:', funcionario.Administrador);
+            return { id: funcionario.Id_Funcionario.toString(), email: funcionario.Email, tipo: funcionario.Administrador ? 'administrador' : 'funcionario', isAdmin: !!funcionario.Administrador } as User;
+          } else {
+            console.log('authorize: funcionario found but senha mismatch for', funcionario.Email);
+          }
         }
 
         // ❌ Se não encontrou utilizador válido

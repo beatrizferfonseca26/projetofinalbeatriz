@@ -10,7 +10,6 @@ const sidebarOptions: Record<"cliente"|"funcionario"|"administrador", SidebarIte
   cliente: [
     { label: "Início", href: "/clientes" },
     { label: "Agendamentos", href: "/clientes/agendamentos" },
-    { label: "Perfil", href: "/clientes/editar" },
     { label: "Terminar Sessão", action: () => signOut({ callbackUrl: "/" }) },
   ],
   funcionario: [

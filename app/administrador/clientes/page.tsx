@@ -13,6 +13,7 @@ interface Cliente {
   Telemovel?: string | null;
   Morada?: string | null;
   DataNascimento?: string | null;
+  Senha?: string | null;
   agendamentos?: any[];
 }
 
@@ -82,14 +83,54 @@ export default function ClientesAdminPage() {
     }
   }
 
+  // 🔹 Criar cliente (novo)
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      const body = {
+        Nome: formData.Nome ?? null,
+        Email: formData.Email ?? null,
+        Nif: formData.Nif ?? null,
+        Telemovel: formData.Telemovel ?? null,
+        Morada: formData.Morada ?? null,
+        DataNascimento: formData.DataNascimento ?? null,
+        Senha: formData.Senha ?? null,
+      };
+
+      const res = await fetch("/api/interna/admin/clientes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => null);
+        throw new Error(txt || "Erro ao criar cliente");
+      }
+
+      toast.success("Cliente criado com sucesso!");
+      setIsCreating(false);
+      setFormData({});
+      await fetchClientes();
+    } catch (err) {
+      console.error(err);
+      toast.error(String((err as Error).message || "Erro ao criar cliente"));
+    }
+  }
+
   // 🔹 Filtros
-  const clientesFiltrados = clientes.filter((c) => {
-    if (filtroAgendamento === "comAgendamento" && (!c.agendamentos || c.agendamentos.length === 0)) return false;
+  const clientesFiltrados = Array.isArray(clientes) ? clientes.filter((c) => {
+    // Filtro por agendamento
+    if (filtroAgendamento === "comAgendamento" && (!c.agendamentos || c.agendamentos.length === 0)) {
+      return false;
+    }
     if (filtroAgendamento === "semAgendamento" && c.agendamentos && c.agendamentos.length > 0) return false;
     if (filtroEmail && !(c.Email || "").toLowerCase().includes(filtroEmail.toLowerCase())) return false;
-    if (filtroNif && !(c.Nif || "").includes(filtroNif)) return false;
+    // garantir string antes de usar includes
+    if (filtroNif && !String(c.Nif ?? "").includes(String(filtroNif))) return false;
     return true;
-  });
+  }) : [];
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -248,6 +289,13 @@ export default function ClientesAdminPage() {
                   onChange={(e) => setFormData({ ...formData, Nif: e.target.value })}
                   className="w-full border p-2 rounded"
                 />
+                <input
+                  type="password"
+                  placeholder="Palavra-passe (deixe em branco para manter)"
+                  value={formData.Senha || ""}
+                  onChange={(e) => setFormData({ ...formData, Senha: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
                 <div className="flex justify-end space-x-2 mt-4">
                   <Button
                     variant="secondary"
@@ -270,9 +318,79 @@ export default function ClientesAdminPage() {
           </div>
         )}
 
-        <footer className="bg-gray-900 text-white text-center py-4 mt-auto">
-          <p>Powered by Beatriz Fonseca | {new Date().getFullYear()}</p>
-        </footer>
+        {/* Modal de criação (Novo Cliente) */}
+        {isCreating && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg w-full max-w-lg">
+              <h2 className="text-xl font-bold mb-4">Novo Cliente</h2>
+              <form onSubmit={handleCreate} className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Nome"
+                  value={formData.Nome || ""}
+                  onChange={(e) => setFormData({ ...formData, Nome: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={formData.Email || ""}
+                  onChange={(e) => setFormData({ ...formData, Email: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Telemóvel"
+                  value={formData.Telemovel || ""}
+                  onChange={(e) => setFormData({ ...formData, Telemovel: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Morada"
+                  value={formData.Morada || ""}
+                  onChange={(e) => setFormData({ ...formData, Morada: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="NIF"
+                  value={formData.Nif || ""}
+                  onChange={(e) => setFormData({ ...formData, Nif: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  type="password"
+                  placeholder="Palavra-passe"
+                  value={formData.Senha || ""}
+                  onChange={(e) => setFormData({ ...formData, Senha: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+                <input
+                  type="date"
+                  placeholder="Data de Nascimento"
+                  value={formData.DataNascimento ?? ""}
+                  onChange={(e) => setFormData({ ...formData, DataNascimento: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+                <div className="flex justify-end space-x-2 mt-4">
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setIsCreating(false);
+                      setFormData({});
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button variant="primary" type="submit">
+                    Criar
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

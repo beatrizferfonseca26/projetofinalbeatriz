@@ -53,45 +53,45 @@ export default function PagamentosAdminPage() {
 
 	// Handler para editar
 	const handleEdit = (pagamento: Pagamento) => {
-			setEditId(pagamento.Pagamento?.Id_Pagamentos || -pagamento.Id_Agendamento); // negativo para novo
-			setEditFields({
-				Status: pagamento.Pagamento?.Status ?? '',
-				Valor: pagamento.Pagamento?.Valor ?? 0,
-				Modalidade: pagamento.Pagamento?.Modalidade ?? '',
-				Fatura: pagamento.Pagamento?.Fatura ?? undefined,
-			});
+		setEditId(pagamento.Pagamento?.Id_Pagamentos || -pagamento.Id_Agendamento); // negativo para novo
+		setEditFields({
+			Status: pagamento.Pagamento?.Status ?? '',
+			Valor: pagamento.Pagamento?.Valor ?? 0,
+			Modalidade: pagamento.Pagamento?.Modalidade ?? '',
+			Fatura: pagamento.Pagamento?.Fatura ?? undefined,
+		});
 	};
 
 	// Handler para salvar
-		const handleSave = async (id: number, agendamentoId: number) => {
-			try {
-				let res;
-				if (id > 0) {
-					// Atualizar pagamento existente
-					res = await fetch('/api/interna/admin/pagamentos', {
-						method: 'PUT',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ Id_Pagamentos: id, ...editFields }),
-					});
-				} else {
-					// Criar novo pagamento
-					res = await fetch('/api/interna/admin/pagamentos', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ ...editFields, Id_Agendamento: agendamentoId }),
-					});
-				}
-				if (res.ok) {
-					await fetchPagamentos();
-					setEditId(null);
-					setEditFields({});
-				} else {
-					toast.error('Erro ao salvar pagamento');
-				}
-			} catch {
+	const handleSave = async (id: number, agendamentoId: number) => {
+		try {
+			let res;
+			if (id > 0) {
+				// Atualizar pagamento existente
+				res = await fetch('/api/interna/admin/pagamentos', {
+					method: 'PUT',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ Id_Pagamentos: id, ...editFields }),
+				});
+			} else {
+				// Criar novo pagamento
+				res = await fetch('/api/interna/admin/pagamentos', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ ...editFields, Id_Agendamento: agendamentoId }),
+				});
+			}
+			if (res.ok) {
+				await fetchPagamentos();
+				setEditId(null);
+				setEditFields({});
+			} else {
 				toast.error('Erro ao salvar pagamento');
 			}
-		};
+		} catch {
+			toast.error('Erro ao salvar pagamento');
+		}
+	};
 
 	// Handler para cancelar edição
 	const handleCancel = () => {
@@ -129,85 +129,84 @@ export default function PagamentosAdminPage() {
 								</tr>
 							</thead>
 							<tbody>
-												{pagamentos.map((p) => (
-													<tr key={p.Id_Agendamento} className="border-b last:border-none hover:bg-gray-50">
-														<td className="py-2 px-3">{p.Servico}</td>
-														<td className="py-2 px-3">{p.Cliente}</td>
-														<td className="py-2 px-3">{p.Data}</td>
-														<td className="py-2 px-3">{p.HoraInicio}</td>
-														<td className="py-2 px-3">
-															{editId === (p.Pagamento?.Id_Pagamentos || -p.Id_Agendamento) ? (
-																<input
-																	type="number"
-																	className="border rounded px-2 py-1 w-24"
-																	value={editFields.Valor ?? ''}
-																	onChange={e => setEditFields(f => ({ ...f, Valor: Number(e.target.value) }))}
-																/>
-															) : (
-																p.Pagamento ? <>€ {p.Pagamento.Valor?.toFixed(2)}</> : <span className="text-gray-400">-</span>
-															)}
-														</td>
-														<td className="py-2 px-3">{p.Status}</td>
-														<td className="py-2 px-3">
-															{editId === (p.Pagamento?.Id_Pagamentos || -p.Id_Agendamento) ? (
-																<select
-																	className="border rounded px-2 py-1"
-																	value={editFields.Status ?? ''}
-																	onChange={e => setEditFields(f => ({ ...f, Status: e.target.value }))}
-																>
-																	<option value="">Selecione</option>
-																	<option value="OK">OK</option>
-																	<option value="NOK">NOK</option>
-																</select>
-															) : (
-																p.Pagamento ? p.Pagamento.Status : <span className="text-gray-400">-</span>
-															)}
-														</td>
-														<td className="py-2 px-3">
-															{editId === (p.Pagamento?.Id_Pagamentos || -p.Id_Agendamento) ? (
-																<select
-																	className="border rounded px-2 py-1"
-																	value={editFields.Modalidade ?? ''}
-																	onChange={e => setEditFields(f => ({ ...f, Modalidade: e.target.value }))}
-																>
-																	<option value="">Selecione</option>
-																	<option value="Online">Online</option>
-																	<option value="Presencial">Presencial</option>
-																</select>
-															) : (
-																p.Pagamento ? p.Pagamento.Modalidade : <span className="text-gray-400">-</span>
-															)}
-														</td>
-														<td className="py-2 px-3">
-															{editId === (p.Pagamento?.Id_Pagamentos || -p.Id_Agendamento) ? (
-																<input
-																	type="number"
-																	className="border rounded px-2 py-1 w-20"
-																	value={editFields.Fatura ?? ''}
-																	onChange={e => setEditFields(f => ({ ...f, Fatura: Number(e.target.value) }))}
-																/>
-															) : (
-																p.Pagamento && p.Pagamento.Fatura !== null ? p.Pagamento.Fatura : <span className="text-gray-400">-</span>
-															)}
-														</td>
-														<td className="py-2 px-3">
-															{editId === (p.Pagamento?.Id_Pagamentos || -p.Id_Agendamento) ? (
-																<div className="flex gap-2">
-																	<Button variant="primary" onClick={() => handleSave(p.Pagamento?.Id_Pagamentos || -1, p.Id_Agendamento)}>
-																		Guardar
-																	</Button>
-																	<Button variant="secondary" onClick={handleCancel}>
-																		Cancelar
-																	</Button>
-																</div>
-															) : (
-																<Button variant="secondary" onClick={() => handleEdit(p)}>
-																	{p.Pagamento ? 'Editar' : 'Adicionar'}
-																</Button>
-															)}
-														</td>
-													</tr>
-												))}
+								{pagamentos.map((p) => {
+									const currentEditKey = p.Pagamento?.Id_Pagamentos ?? -p.Id_Agendamento;
+									return (
+										<tr key={p.Id_Agendamento} className="border-b last:border-none hover:bg-gray-50">
+											<td className="py-2 px-3">{p.Servico}</td>
+											<td className="py-2 px-3">{p.Cliente}</td>
+											<td className="py-2 px-3">{p.Data}</td>
+											<td className="py-2 px-3">{p.HoraInicio}</td>
+											<td className="py-2 px-3">
+												{editId === currentEditKey ? (
+													<input
+														type="number"
+														className="border rounded px-2 py-1 w-24"
+														value={editFields.Valor ?? ''}
+														onChange={e => setEditFields(f => ({ ...f, Valor: Number(e.target.value) }))}
+													/>
+												) : (
+													p.Pagamento ? <>€ {p.Pagamento.Valor?.toFixed(2)}</> : <span className="text-gray-400">-</span>
+												)}
+											</td>
+											<td className="py-2 px-3">{p.Status}</td>
+											<td className="py-2 px-3">
+												{editId === currentEditKey ? (
+													<select
+														className="border rounded px-2 py-1"
+														value={editFields.Status ?? ''}
+														onChange={e => setEditFields(f => ({ ...f, Status: e.target.value }))}
+													>
+														<option value="">Selecione</option>
+														<option value="OK">OK</option>
+														<option value="NOK">NOK</option>
+													</select>
+												) : (
+													p.Pagamento ? p.Pagamento.Status : <span className="text-gray-400">-</span>
+												)}
+											</td>
+											<td className="py-2 px-3">
+												{editId === currentEditKey ? (
+													<select
+														className="border rounded px-2 py-1"
+														value={editFields.Modalidade ?? ''}
+														onChange={e => setEditFields(f => ({ ...f, Modalidade: e.target.value }))}
+													>
+														<option value="">Selecione</option>
+														<option value="Online">Online</option>
+														<option value="Presencial">Presencial</option>
+													</select>
+												) : (
+													p.Pagamento ? p.Pagamento.Modalidade : <span className="text-gray-400">-</span>
+												)}
+											</td>
+											<td className="py-2 px-3">
+												{editId === currentEditKey ? (
+													<input
+														type="text"
+														className="border rounded px-2 py-1 w-20"
+														value={editFields.Fatura ?? ''}
+														onChange={e => setEditFields(f => ({ ...f, Fatura: e.target.value ? Number(e.target.value) : undefined }))}
+													/>
+												) : (
+													p.Pagamento && p.Pagamento.Fatura != null
+														? p.Pagamento.Fatura
+														: <span className="text-gray-400">-</span>
+												)}
+											</td>
+											<td className="py-2 px-3">
+												{editId === currentEditKey ? (
+													<div className="flex gap-2">
+														<Button onClick={() => handleSave(p.Pagamento?.Id_Pagamentos ?? -p.Id_Agendamento, p.Id_Agendamento)}>Salvar</Button>
+														<Button variant="secondary" onClick={handleCancel}>Cancelar</Button>
+													</div>
+												) : (
+													<Button onClick={() => handleEdit(p)}>Editar</Button>
+												)}
+											</td>
+										</tr>
+									);
+								})}
 							</tbody>
 						</table>
 					</div>
