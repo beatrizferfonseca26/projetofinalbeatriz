@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Saloon — Beauty Appointment Management System
 
-## Getting Started
+Web application for managing beauty salon appointments, services, staff, and inventory. Developed as a final course project.
 
-First, run the development server:
+Project Status
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+This project was developed using a private database that is not included in this repository. As a result:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Product data is not displayed
+New user registration is disabled
+Appointment persistence is limited
+Some database-dependent features are not functional
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The core architecture and application logic remain intact.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Links
+Live Demo: https://projetofinalbeatriz.vercel.app/
 
-## Learn More
+Objectives
 
-To learn more about Next.js, take a look at the following resources:
+The application provides:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Appointment scheduling
+Staff availability management
+Client management
+Service management
+Inventory control
+Payment tracking support
+Role-based access control
+Tech Stack
+Next.js
+React
+TypeScript
+Node.js
+Prisma ORM
+MySQL
+NextAuth
+CSS
+User Roles
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Client
 
-## Deploy on Vercel
+Create appointments
+Reschedule or cancel bookings
+View appointment history
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Staff
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Manage appointments
+View schedules
+
+Administrator
+
+Manage clients, staff, and services
+Manage products and inventory
+Configure availability
+Full CRUD operations
+Architecture Overview
+Frontend: Next.js (App Router)
+Backend: Next.js API routes
+ORM: Prisma
+Database: MySQL
+Authentication: NextAuth
+Deployment: Vercel
+Known Limitations
+
+Due to the absence of a public database:
+
+Registration is disabled
+Products are not populated
+Some scheduling flows are inactive
+Inventory validation is not functional
+
+To enable full functionality, configure a database connection.
+Future Improvements
+Seed database for public demo
+Email notification service
+WhatsApp integration
+Payment gateway integration
+Dashboard analytics
+Real-time availability
+Automated testing
+Docker support
+Academic Context
+
+Final course project developed in October 2025.
